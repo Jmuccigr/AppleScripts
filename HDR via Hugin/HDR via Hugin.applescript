@@ -1,11 +1,15 @@
+-- Use binaries included with Hugin to create a basic HDR by just aligning and enfusing the inputted images
+-- Version 0.11
+
 on open (filelist)
 	set flist to ""
 	set userCanceled to false
-	set huginPath to the quoted form of "/Applications/Hugin 2014.0.0-RC4 Release/Hugin.app/Contents/MacOS/"
+	set huginPath to "/Applications/Hugin/Hugin.app/Contents/MacOS/"
 	
 	repeat with i from 1 to the number of items of filelist
 		set flist to flist & " " & the quoted form of the POSIX path of item i of filelist
 	end repeat
+	-- Get enclosing folder for later rm command to clean out intermediate files
 	tell application "Finder"
 		set fold to the folder of item 1 of filelist as alias
 	end tell
