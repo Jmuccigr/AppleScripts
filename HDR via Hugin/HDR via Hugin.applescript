@@ -1,11 +1,32 @@
 -- Use binaries included with Hugin to create a basic HDR by just aligning and enfusing the inputted images
--- Version 0.11
+-- Version 0.12
+
+on run
+	display dialog "Please run this script by dropping images files onto it."
+	error number -128
+end run
 
 on open (filelist)
+	-- Set some variables
 	set flist to ""
 	set userCanceled to false
-	set huginPath to "/Applications/Hugin/Hugin.app/Contents/MacOS/"
+	set huginPosixPath to "/Applications/Hugin/Hugin.app/Contents/MacOS/"
+	set HuginPresent to true
 	
+	-- Make sure Hugin is installed in the expected place and quit with instructions if it isn't
+	try
+		set HuginPath to (path to applications folder as text) & "Hugin:Hugin.app" as alias
+		display dialog "Success!"
+	on error errStr number errorNumber
+		if errorNumber = -43 then
+			display dialog "The Hugin app is not in the expected place. Please move it to the top level of the main Applications folder."
+			error number -128
+		else
+			display dialog errorNumber & ": " & errStr
+		end if
+	end try
+	
+	-- Do the work
 	repeat with i from 1 to the number of items of filelist
 		set flist to flist & " " & the quoted form of the POSIX path of item i of filelist
 	end repeat
@@ -26,10 +47,10 @@ on open (filelist)
 		set newFileName to the quoted form of (f & prefix & "_")
 		-- First align the images
 		try
-			do shell script huginPath & "align_image_stack -a " & newFileName & flist
+			do shell script huginPosixPath & "align_image_stack -a " & newFileName & flist
 			-- Then enfuse them
 			try
-				do shell script huginPath & "enfuse -o " & quoted form of (f & "enfuse " & prefix) & ".tif " & newFileName & "*.tif"
+				do shell script huginPosixPath & "enfuse -o " & quoted form of (f & "enfuse " & prefix) & ".tif " & newFileName & "*.tif"
 				-- Finally get rid of the intermediate files 
 				try
 					tell application "Finder"
