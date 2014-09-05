@@ -1,5 +1,5 @@
--- Use binaries included with Hugin to create a basic HDR by just aligning and enfusing the inputted images
--- Version 0.12
+-- Use binaries included with Hugin to create a basic exposure- or focus-fused output image by just aligning and enfusing the inputted images
+-- Version 0.13
 
 on run
 	display dialog "Please run this script by dropping images files onto it."
@@ -16,7 +16,6 @@ on open (filelist)
 	-- Make sure Hugin is installed in the expected place and quit with instructions if it isn't
 	try
 		set HuginPath to (path to applications folder as text) & "Hugin:Hugin.app" as alias
-		display dialog "Success!"
 	on error errStr number errorNumber
 		if errorNumber = -43 then
 			display dialog "The Hugin app is not in the expected place. Please move it to the top level of the main Applications folder."
