@@ -1,5 +1,5 @@
 -- Use binaries included with Hugin to create a basic exposure- or focus-fused output image by just aligning and enfusing the inputted images
--- Version 0.13
+-- Version 0.14
 
 on run
 	display dialog "Please run this script by dropping images files onto it."
