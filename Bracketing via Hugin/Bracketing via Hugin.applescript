@@ -12,6 +12,8 @@ on open (filelist)
 	set userCanceled to false
 	set huginPosixPath to "/Applications/Hugin/Hugin.app/Contents/MacOS/"
 	set HuginPresent to true
+	set paramValid to false
+	set paramString to ""
 	
 	-- Make sure Hugin is installed in the expected place and quit with instructions if it isn't
 	try
@@ -23,6 +25,32 @@ on open (filelist)
 		else
 			display dialog errorNumber & ": " & errStr
 		end if
+	end try
+	
+	-- Check for parameters for enfuse from the user
+	try
+		repeat until paramValid is true
+			set reply to display dialog "Enter any parameter strings you'd like to pass to enfuse:" default answer "" with title "enfuse parameters" buttons {"None", "OK"} default button "None"
+			if button returned of reply is not "None" then
+				set paramString to the text returned of reply
+				if (characters 1 thru 2 of paramString as string ­ "--") or (length of paramString = 2) then
+					(display dialog) & characters 1 thru 2 of paramString = "--"
+					try
+						set reply to display dialog "That does not appear to be a valid set of parameters." with title "Invalid parameters" with icon caution buttons ["Never mind", "Try Again"] default button 2
+						if button returned of reply = "Never mind" then error "nevermind"
+					on error "nevermind"
+						set paramValid to true
+					end try
+				else
+					set paramValid to true
+				end if
+			else
+				set paramValid to true
+			end if
+			
+		end repeat
+	on error number -128
+		set userCanceled to true
 	end try
 	
 	-- Do the work
@@ -49,7 +77,7 @@ on open (filelist)
 			do shell script huginPosixPath & "align_image_stack -a " & newFileName & flist
 			-- Then enfuse them
 			try
-				do shell script huginPosixPath & "enfuse -o " & quoted form of (f & "enfuse " & prefix) & ".tif " & newFileName & "*.tif"
+				do shell script huginPosixPath & "enfuse " & paramString & " -o " & quoted form of (f & "Bracketed " & prefix) & ".tif " & newFileName & "*.tif"
 				-- Finally get rid of the intermediate files 
 				try
 					tell application "Finder"
