@@ -78,8 +78,8 @@ on open (filelist)
 		-- First align the images
 		try
 			with timeout of 60 * 60 seconds -- give it an hour
-				set command to huginPosixPath & "align_image_stack -p debug.pto -a " & newFileName & (display dialog command)
-				--do shell script command
+				set command to huginPosixPath & "align_image_stack -a " & newFileName & (display dialog command)
+				do shell script command
 			end timeout
 			-- Then enfuse them
 			try
