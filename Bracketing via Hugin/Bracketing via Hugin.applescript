@@ -31,15 +31,18 @@ on open (filelist)
 	try
 		repeat until paramValid is true
 			set reply to display dialog "Enter any parameter strings you'd like to pass to enfuse:" default answer "" with title "enfuse parameters" buttons {"None", "OK"} default button "None"
-			if button returned of reply is not "None" then
-				set paramString to the text returned of reply
-				if (characters 1 thru 2 of paramString as string ­ "--") or (length of paramString = 2) then
-					(display dialog) & characters 1 thru 2 of paramString = "--"
+			if not (button returned of reply is "None" or text returned of reply = "") then
+				set paramString to the text returned of reply & "  " -- pad the reply to catch when the user pressed OK instead of None but entered no text
+				if (characters 1 thru 2 of paramString as string ­ "--") or (length of paramString = 4) then
+					--					(display dialog) & characters 1 thru 2 of paramString = "--"
 					try
 						set reply to display dialog "That does not appear to be a valid set of parameters." with title "Invalid parameters" with icon caution buttons ["Never mind", "Try Again"] default button 2
 						if button returned of reply = "Never mind" then error "nevermind"
 					on error "nevermind"
 						set paramValid to true
+						set paramString to ""
+						--display dialog ">" & paramString & "<"
+						
 					end try
 				else
 					set paramValid to true
@@ -74,10 +77,17 @@ on open (filelist)
 		set newFileName to the quoted form of (f & prefix & "_")
 		-- First align the images
 		try
-			do shell script huginPosixPath & "align_image_stack -a " & newFileName & flist
+			with timeout of 60 * 60 seconds -- give it an hour
+				set command to huginPosixPath & "align_image_stack -p debug.pto -a " & newFileName & (display dialog command)
+				--do shell script command
+			end timeout
 			-- Then enfuse them
 			try
-				do shell script huginPosixPath & "enfuse " & paramString & " -o " & quoted form of (f & "Bracketed " & prefix) & ".tif " & newFileName & "*.tif"
+				with timeout of 60 * 60 seconds -- give it an hour
+					set command to huginPosixPath & "enfuse " & paramString & " -o " & quoted form of (f & "Bracketed " & prefix) & ".tif " & newFileName & "*.tif"
+					--display dialog command
+					do shell script command
+				end timeout
 				-- Finally get rid of the intermediate files 
 				try
 					tell application "Finder"
