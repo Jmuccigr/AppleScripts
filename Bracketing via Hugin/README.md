@@ -10,3 +10,4 @@ This is a script to use Hugin's included tools to *align* a series of images of 
 - 2014-09-17 0.14 Added ability to add parameters to enfuse.
 - 2014-09-18 0.14 Forgot to increment version #. Improved error trapping and added long timeouts for commands.
 - 2014-09-18 0.16 Added kludgey way to handle use of --save-masks, which was barfing without specification of folder in which to save masks. Moved dialogs to alerts where appropriate.
+- 2014-09-20 0.17 Added more specific command to trash align-image-stack's files. Tweaked name of soft-mask files that gets saved.

@@ -1,5 +1,5 @@
 -- Use binaries included with Hugin to create a basic exposure- or focus-fused output image by just aligning and enfusing the inputted images
--- Version 0.16
+-- Version 0.17
 
 on run
 	display alert "Oh, no!" message "Please run this script by dropping images files onto it." giving up after 60
@@ -33,8 +33,8 @@ on open (filelist)
 			set reply to display dialog "Enter any parameter strings you'd like to pass to enfuse:" & return & "(use simply " & quote & "--save-masks" & quote & "and app will automatically use the input-image folder as destination.)" default answer "" with title "enfuse parameters" buttons {"OK", "None"} default button "None"
 			if not (button returned of reply is "None" or text returned of reply = "") then
 				set paramString to the text returned of reply & "  " -- pad the reply to catch when the user pressed OK instead of None but entered no text
-				if (characters 1 thru 2 of paramString as string ­ "--") or (length of paramString = 4) 
-				--(display dialog) & characters 1 thru 2 of paramString = "--"
+				if (characters 1 thru 2 of paramString as string ­ "--") or (length of paramString = 4) then
+					--(display dialog) & characters 1 thru 2 of paramString = "--"
 					try
 						beep
 						set reply to display alert "Invalid parameters" message "That does not appear to be a valid set of parameters." as warning buttons ["Never mind", "Try Again"] default button 2 giving up after 60
@@ -73,7 +73,7 @@ on open (filelist)
 		set AppleScript's text item delimiters to "--save-masks "
 		set temp to the text items of paramString
 		--display dialog temp as string
-		set AppleScript's text item delimiters to "--save-masks=" & "%p-softmask.tiff"
+		set AppleScript's text item delimiters to "--save-masks=" & "%d/%f-softmask.tif"
 		set temp to the text items of temp
 		--display dialog temp as string
 		set paramString to temp as string
@@ -108,7 +108,7 @@ on open (filelist)
 				-- Finally get rid of the intermediate files 
 				try
 					tell application "Finder"
-						do shell script "mv " & newFileName & "*.tif ~/.Trash"
+						do shell script "mv " & newFileName & "[0-9][0-9][0-9][0-9].tif ~/.Trash"
 					end tell
 				on error errStr number errorNumber
 					display alert "Error moving files to the trash" message errorNumber & ": " & errStr as string giving up after 60
