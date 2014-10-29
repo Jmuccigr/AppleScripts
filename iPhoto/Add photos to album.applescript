@@ -1,7 +1,7 @@
 -- iPhoto "Add photos to album" Script
 --
 -- Developed by John Muccigrosso
--- Version 0.2 28 Oct 2014
+-- Version 0.3 28 Oct 2014
 
 tell application "iPhoto"
 	set s to the selection
@@ -15,15 +15,15 @@ tell application "iPhoto"
 		set tid to AppleScript's text item delimiters
 		set AppleScript's text item delimiters to ","
 		set theAlbums to the text items of theAlbums
-		-- Remove any white-space padding on the album names
-		repeat with t in theAlbums
-			set t to do shell script "echo " & t & "| sed -e 's/^[ 	]*//g' -e 's/[ 	]*$//g'"
-		end repeat
 		set foundAlbums to {}
 		try
-			repeat with oneAlbum in theAlbums
-				set albumName to oneAlbum as string
-				if exists album albumName then copy albumName to the end of foundAlbums
+			repeat with albumName in theAlbums
+				-- Remove any white-space padding on the album name
+				set albumName to do shell script "echo " & albumName & "| sed -e 's/^[ \\t]*//g' | sed -e 's/[ \\t]*$//g'"
+				-- Check that album exists and add it to the list if it does
+				if exists album albumName then
+					copy albumName to the end of foundAlbums
+				end if
 			end repeat
 			if foundAlbums = {} then
 				error "Did not find any matching albums."
