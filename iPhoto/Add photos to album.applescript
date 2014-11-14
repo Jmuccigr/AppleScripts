@@ -1,7 +1,7 @@
 -- iPhoto "Add photos to album" Script
 --
 -- Developed by John Muccigrosso
--- Version 0.3 28 Oct 2014
+-- Version 0.40 15 Nov 2014
 
 tell application "iPhoto"
 	set s to the selection
@@ -23,10 +23,15 @@ tell application "iPhoto"
 				-- Check that album exists and add it to the list if it does
 				if exists album albumName then
 					copy albumName to the end of foundAlbums
+				else
+					display alert "No such album" message "There is no album called \"" & albumName & "\"."
 				end if
 			end repeat
 			if foundAlbums = {} then
-				error "Did not find any matching albums."
+				-- Display an alert only if there's more than one album or you'll get two alerts in a row for no good reason
+				if the number of items of theAlbums > 1 then
+					error "Did not find any matching albums."
+				end if
 			else
 				try
 					repeat with targetAlbum in foundAlbums
