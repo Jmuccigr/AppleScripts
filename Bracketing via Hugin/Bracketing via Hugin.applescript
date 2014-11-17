@@ -2,7 +2,7 @@
 -- Version 0.17
 
 on run
-	display alert "Oh, no!" message "Please run this script by dropping images files onto it." giving up after 60
+	display alert "Drop, Don't Run" message "Please run this script by dropping images files onto it." giving up after 60
 	error number -128
 end run
 
@@ -20,7 +20,7 @@ on open (filelist)
 		set HuginPath to (path to applications folder as text) & "Hugin:Hugin.app" as alias
 	on error errStr number errorNumber
 		if errorNumber = -43 then
-			display alert "The Hugin app is not in the expected place. Please move it to the top level of the main Applications folder." giving up after 60
+			display alert "The Hugin app is not in the expected place. Please move it to the top level of the main Applications folder." giving up after 30
 			error number -128
 		else
 			display alert "Oops" message errorNumber & ": " & errStr
@@ -30,14 +30,14 @@ on open (filelist)
 	-- Check for parameters for enfuse from the user
 	try
 		repeat until paramValid is true
-			set reply to display dialog "Enter any parameter strings you'd like to pass to enfuse:" & return & "(use simply " & quote & "--save-masks" & quote & "and app will automatically use the input-image folder as destination.)" default answer "" with title "enfuse parameters" buttons {"OK", "None"} default button "None"
+			set reply to display dialog "Enter any parameter strings you'd like to pass to enfuse:" & return & "(use simply " & "\"--save-masks\" and app will automatically use the input-image folder as destination.)" default answer "" with title "enfuse parameters" buttons {"OK", "None"} default button "None"
 			if not (button returned of reply is "None" or text returned of reply = "") then
 				set paramString to the text returned of reply & "  " -- pad the reply to catch when the user pressed OK instead of None but entered no text
 				if (characters 1 thru 2 of paramString as string ­ "--") or (length of paramString = 4) then
 					--(display dialog) & characters 1 thru 2 of paramString = "--"
 					try
 						beep
-						set reply to display alert "Invalid parameters" message "That does not appear to be a valid set of parameters." as warning buttons ["Never mind", "Try Again"] default button 2 giving up after 60
+						set reply to display alert "Invalid parameters" message "That does not appear to be a valid set of parameters." as warning buttons ["Never mind", "Try Again"] default button 2 giving up after 30
 						if button returned of reply = "Never mind" or gave up of reply then error "nevermind"
 					on error "nevermind"
 						set paramValid to true
@@ -65,6 +65,7 @@ on open (filelist)
 		set fold to the folder of item 1 of filelist as alias
 	end tell
 	set f to the POSIX path of fold
+	--display dialog f as string
 	
 	-- Fix --save-masks in paramString
 	if paramString contains "--save-masks" then
