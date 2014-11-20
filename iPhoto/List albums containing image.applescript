@@ -2,7 +2,7 @@
 --
 -- Developed by John Muccigrosso, modifying export script by Jonathan Block
 -- jonblock@jonblock.com
--- Version 0.5 20 Oct 2014
+-- Version 0.6 20 Nov 2014
 
 -- The following checks to make sure the iPhoto is running.
 -- Not needed because we use Spark to make sure it runs only from iPhoto
@@ -50,26 +50,29 @@ tell application "iPhoto"
 			set album_names to my getalbumpath(album_IDs)
 			set theDate to (the date of every photo whose id = this_photo_id)
 			set theName to (the name of every photo whose id = this_photo_id)
+			set theComment to (the comment of every photo whose id = this_photo_id) as string
+			if theComment ­ "" then set theComment to return & "Comment: " & theComment
+			-- Get the keywords, which is a little more complicated
+			set tid to AppleScript's text item delimiters
+			set AppleScript's text item delimiters to ", "
+			set thekeyword to (the name of keyword of every photo whose id = this_photo_id) as string
+			set AppleScript's text item delimiters to tid
+			if thekeyword ­ "" then set thekeyword to return & "Keywords: " & thekeyword
 			set old_delim to AppleScript's text item delimiters
 			set AppleScript's text item delimiters to return & tab
 			set album_names to album_names as string
 			set AppleScript's text item delimiters to old_delim
 			set album_count to the number of paragraphs of album_names
 			if album_count > 1 then set end_string to "s"
-			(*
-repeat with a in album_list
-			if the type of a is regular album then set album_names to album_names & return & the name of a
-		end repeat
-*)
 			
 			-- Report results
 			if album_names = "" then
 				display dialog (theDate as string) & return & return & "Sorry, this photo belongs to no albums." buttons {"OK"} default button 1
 			else
 				if i = photoCount then
-					display dialog (theDate as string) & return & return & "Photo " & theName & " belongs to the following " & album_count & " album" & end_string & ":" & return & return & tab & album_names buttons {"OK"} default button 1
+					display dialog (theDate as string) & theComment & thekeyword & return & return & "Photo " & theName & " belongs to the following " & album_count & " album" & end_string & ":" & return & return & tab & album_names buttons {"OK"} default button 1
 				else
-					set theReply to display dialog (theDate as string) & return & return & "Photo " & theName & " belongs to the following " & album_count & " album" & end_string & ":" & return & return & tab & album_names buttons {"Cancel", "Next"} default button 2
+					set theReply to display dialog (theDate as string) & theComment & thekeyword & return & return & "Photo " & theName & " belongs to the following " & album_count & " album" & end_string & ":" & return & return & tab & album_names buttons {"Cancel", "Next"} default button 2
 					if the button returned of theReply = "Cancel" then exit repeat
 				end if
 			end if
