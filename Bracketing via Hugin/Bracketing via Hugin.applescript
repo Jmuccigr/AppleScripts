@@ -1,5 +1,5 @@
 -- Use binaries included with Hugin to create a basic exposure- or focus-fused output image by just aligning and enfusing the inputted images
--- Version 0.17
+-- Version 0.18
 
 on run
 	display alert "Drop, Don't Run" message "Please run this script by dropping images files onto it." giving up after 60
@@ -112,13 +112,16 @@ on open (filelist)
 						do shell script "mv " & newFileName & "[0-9][0-9][0-9][0-9].tif ~/.Trash"
 					end tell
 				on error errStr number errorNumber
-					display alert "Error moving files to the trash" message errorNumber & ": " & errStr as string giving up after 60
+					set errStr to errorNumber & ": " & errStr as string
+					display alert "Error moving files to the trash" message errStr giving up after 60
 				end try
 			on error errStr number errorNumber
-				display alert "Enfuse error" message errorNumber & ": " & errStr as string giving up after 60
+				set errStr to errorNumber & ": " & errStr as string
+				display alert "Enfuse error" message errStr giving up after 60
 			end try
 		on error errStr number errorNumber
-			display alert "Align error" message errorNumber & ": " & errStr as string giving up after 60
+			set errStr to errorNumber & ": " & errStr as string
+			display alert "Align error" message errStr giving up after 60
 		end try
 	end if
 	
