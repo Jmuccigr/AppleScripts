@@ -1,7 +1,7 @@
 -- iPhoto "Add photos to album" Script
 --
 -- Developed by John Muccigrosso
--- Version 0.40 15 Nov 2014
+-- Version 0.50 21 Nov 2014
 
 tell application "iPhoto"
 	set s to the selection
@@ -22,7 +22,12 @@ tell application "iPhoto"
 				set albumName to do shell script "echo " & albumName & "| sed -e 's/^[ \\t]*//g' | sed -e 's/[ \\t]*$//g'"
 				-- Check that album exists and add it to the list if it does
 				if exists album albumName then
-					copy albumName to the end of foundAlbums
+					--Check that the album name is unique. Have to handle this at some point.
+					if the (count of (albums whose name is albumName)) = 1 then
+						copy albumName to the end of foundAlbums
+					else
+						display alert "Multiple Albums" message "There is more than one album with the name \"" & albumName & "\". I can't handle that, so this album will be skipped."
+					end if
 				else
 					display alert "No such album" message "There is no album called \"" & albumName & "\"."
 				end if
@@ -37,9 +42,9 @@ tell application "iPhoto"
 					repeat with targetAlbum in foundAlbums
 						add the selection to album targetAlbum
 					end repeat
-					display dialog "Done!" giving up after 10
+					display dialog "Done!" buttons {"OK"} giving up after 10
 				on error
-					display alert "Oops" message "Problem adding photo to album." giving up after 30
+					display alert "Oops" message "Problem adding photo to album \"" & targetAlbum & "\"." giving up after 30
 				end try
 			end if
 		on error errStr number errNum
