@@ -1,7 +1,7 @@
 -- iPhoto "Add photos to album" Script
 --
 -- Developed by John Muccigrosso
--- Version 0.50 21 Nov 2014
+-- Version 0.55 6 January 2015
 
 tell application "iPhoto"
 	set s to the selection
@@ -42,7 +42,7 @@ tell application "iPhoto"
 					repeat with targetAlbum in foundAlbums
 						add the selection to album targetAlbum
 					end repeat
-					display dialog "Done!" buttons {"OK"} giving up after 10
+					display dialog "Done!" buttons {"OK"} default button 1 giving up after 10
 				on error
 					display alert "Oops" message "Problem adding photo to album \"" & targetAlbum & "\"." giving up after 30
 				end try
