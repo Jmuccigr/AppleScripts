@@ -48,7 +48,7 @@ on run
 				end if
 			on error errmsg
 				-- Either there was no path or something else went wrong.
-				if errmsg ­ "Unsaved document" then display alert "Can't get file" message "Can't get info on the frontmost document." buttons {"Cancel"}
+				if errmsg ­ "Unsaved document" then display alert "Can't get file" message "Can't get info on the frontmost document." buttons {"Cancel"} giving up after 30
 				set fname to ""
 			end try
 		end try
@@ -64,7 +64,7 @@ on run
 		end if
 		if fname ­ "" and not validFile then
 			display alert "Not markdown" as warning message Â
-				"The file doesn't appear to be in markdown format. Proceed anyway?" buttons {"Yes", "No"} default button 2
+				"The file doesn't appear to be in markdown format. Proceed anyway?" buttons {"Yes", "No"} default button 2 giving up after 30
 			if alert reply = "Yes" then
 				set validFile to true
 			end if
@@ -77,17 +77,21 @@ on run
 			--TO-DO: Let the user choose the output filetype.
 			set outputext to ".odt"
 			
-			--TO-DO: Let the user choose the output location.
-			set outputfn to "/Users/john_muccigrosso/Downloads/" & fname
+			set outputfn to fname
+			-- Strip the extension when it exists
 			if hasext then
 				repeat with i from 1 to (number of characters in ext) + 1
-					set outputfn to characters 1 through ((length of outputfn) - 1) of outputfn as string
+					set fname to characters 1 through ((length of fname) - 1) of fname as string
 				end repeat
 			end if
-			-- Put quotes around the filename to make it work in shell script
-			set outputfn to "'" & outputfn & outputext & "'"
+			-- And then add the new extension
+			--    Check for ridiculously long filename
+			if length of fname > 251 then set fname to characters 1 thru 251 of fname as string
+			set fname to fname & outputext
+			set outputFile to choose file name default name fname default location fpath with prompt "Select location for output:"
+			set outputFile to quoted form of POSIX path of outputFile
 			--TO-DO: Let the user choose whether to open output file once created. Checkbox in output-file dialog box?
-			do shell script shcmd & " -o " & outputfn & " " & quoted form of fpath & " && open " & outputfn
+			do shell script shcmd & " -o " & outputFile & " " & quoted form of fpath & " && open " & outputFile
 		end if
 	end tell
 end run
