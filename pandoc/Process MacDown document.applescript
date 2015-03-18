@@ -21,7 +21,7 @@ on run
 		--	First have to reset PATH to use homebrew binaries; there are other approaches to this problem.
 		set shcmd to "export PATH=/usr/local/bin:/usr/local/sbin:$PATH"
 		--	Now add the pandoc switches. Note the quoted filepaths.
-		set shcmd to shcmd & "; pandoc -s -S --latex-engine=xelatex --reference-odt='/Users/john_muccigrosso/Library/Application Support/LibreOffice/4/user/template/Butterick 11.ott' --bibliography='/Users/john_muccigrosso/Documents/My Library.bib'"
+		set shcmd to shcmd & "; pandoc -s -S --bibliography='/Users/john_muccigrosso/Documents/My Library.bib' --latex-engine=xelatex --reference-odt='/Users/john_muccigrosso/Library/Application Support/LibreOffice/4/user/template/Butterick 11.ott' --reference-docx='/Users/john_muccigrosso/Library/Application Support/Microsoft/Office/User Templates/Normal.dotm'"
 		
 		-- Get info for frontmost window	in MacDown
 		-- The first part won't ever work for MacDown because it doesn't do applescript.
@@ -91,7 +91,16 @@ on run
 			set outputFile to choose file name default name fname default location fpath with prompt "Select location for output:"
 			set outputFile to quoted form of POSIX path of outputFile
 			--TO-DO: Let the user choose whether to open output file once created. Checkbox in output-file dialog box?
-			do shell script shcmd & " -o " & outputFile & " " & quoted form of fpath & " && open " & outputFile
+			try
+				set pandocFlag to the text returned of (display dialog "Enter any special pandoc switches here:" default answer "" buttons {"Never mind", "OK"} default button 2 cancel button 1)
+			on error
+				set pandocFlag to ""
+			end try
+			try
+				do shell script shcmd & " " & pandocFlag & " -o " & outputFile & " " & quoted form of fpath & " && open " & outputFile
+			on error errmsg
+				display alert "pandoc error" message "pandoc reported the following error:" & return & return & errmsg
+			end try
 		end if
 	end tell
 end run
