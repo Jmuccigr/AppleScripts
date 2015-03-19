@@ -16,12 +16,14 @@ on run
 		set hasext to false
 		set fname to ""
 		set fpath to ""
+		-- For pandoc. Use single-quoted form of POSIX path
+		set bibfile to "'/Users/john_muccigrosso/Documents/My Library.bib'"
 		
 		-- Create shell script for pandoc
 		--	First have to reset PATH to use homebrew binaries; there are other approaches to this problem.
 		set shcmd to "export PATH=/usr/local/bin:/usr/local/sbin:$PATH"
 		--	Now add the pandoc switches. Note the quoted filepaths.
-		set shcmd to shcmd & "; pandoc -s -S --bibliography='/Users/john_muccigrosso/Documents/My Library.bib' --latex-engine=xelatex --reference-odt='/Users/john_muccigrosso/Library/Application Support/LibreOffice/4/user/template/Butterick 11.ott' --reference-docx='/Users/john_muccigrosso/Library/Application Support/Microsoft/Office/User Templates/Normal.dotm'"
+		set shcmd to shcmd & "; pandoc -s -S --bibliography=" & bibfile & " --latex-engine=xelatex --reference-odt='/Users/john_muccigrosso/Library/Application Support/LibreOffice/4/user/template/Butterick 11.ott' --reference-docx='/Users/john_muccigrosso/Library/Application Support/Microsoft/Office/User Templates/Normal.dotm'"
 		
 		-- Get info for frontmost window	in MacDown
 		-- The first part won't ever work for MacDown because it doesn't do applescript.
