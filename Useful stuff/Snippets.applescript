@@ -1,5 +1,4 @@
 
-(*
 -- Get info on front window of app
 try
 	-- First try the usual AS method
@@ -16,7 +15,7 @@ on error
 		end tell
 	end try
 end try
-*)
+
 
 display dialog my replace("hello", "l", "p")
 
@@ -31,3 +30,9 @@ on replace(origtext, ftext, rtext)
 	set AppleScript's text item delimiters to tid
 	return newtext
 end replace
+
+
+-- Use applescript to get user directory paths
+set myHome to POSIX path of (path to home folder)
+set myDocs to POSIX path of (path to documents folder)
+set myLib to POSIX path of (path to library folder from user domain)
