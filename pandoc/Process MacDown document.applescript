@@ -116,9 +116,9 @@ on run
 					--TO-DO: Let the user choose whether to open output file once created. Checkbox in output-file dialog box?
 					
 					-- Create shell script for pandoc
-					--	First have to reset PATH to use homebrew binaries; there are other approaches to this problem.
-					set shcmd to "export PATH=/usr/local/bin:/usr/local/sbin:$PATH"
-					--	Now add the pandoc switches. Note the quoted filepaths.
+					--	First have to reset PATH to use homebrew binaries and find xelatex; there are other approaches to this problem.
+					set shcmd to "export PATH=/usr/local/bin:/usr/local/sbin:/usr/texbin:$PATH"
+					--	Now add the pandoc switches.
 					set shcmd to shcmd & "; pandoc -s -S --bibliography=" & bibfile & " --latex-engine=xelatex " & refFile
 					
 					try
@@ -136,7 +136,7 @@ on run
 						set pandocFlag to ""
 					end try
 					try
-						do shell script shcmd & refFile & pandocFlag & " -o " & outputfile & " " & quoted form of fpath & " && open " & outputfile
+						do shell script shcmd & refFile & pandocFlag & " -o " & outputfile & " " & quoted form of fpath & "; open " & outputfile
 					on error errmsg
 						display alert "pandoc error" message "pandoc reported the following error:" & return & return & errmsg
 					end try
