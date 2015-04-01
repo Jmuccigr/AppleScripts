@@ -7,13 +7,16 @@ on run
 	
 	-- Some stuff to make it easier to debug this script
 	tell application "Finder"
-		set the visible of process "AppleScript Editor" to false
+		try
+			if (name of processes as string) contains "AppleScript Editor" then set the visible of process "AppleScript Editor" to false
+		end try
 		tell application "MacDown" to activate
 	end tell
 	
 	-- Set some variables for use later on
 	
 	set validFile to false
+	set ext to ""
 	set hasext to false
 	set fname to ""
 	set fpath to ""
@@ -36,10 +39,8 @@ on run
 		-- Get info for frontmost window	in MacDown
 		-- The first part won't ever work for MacDown because it doesn't do applescript.
 		try
-			tell application "MacDown" -- (path to frontmost application as text)
-				set fpath to (path of document 1) as text
-				set fname to (name of document 1) as text
-			end tell
+			set fpath to (path of document 1) as text
+			set fname to (name of document 1) as text
 		on error
 			try
 				tell application "System Events" to tell (process 1 where frontmost is true)
@@ -59,13 +60,14 @@ on run
 			on error errmsg
 				-- Either there was no path or something else went wrong.
 				if errmsg ­ "Unsaved document" then display alert "Can't get file" message "Can't get info on the frontmost document." buttons {"Cancel"} giving up after 30
-				set fname to ""
 			end try
 		end try
 		
 		-- We got a file path, now make sure it's a markdown file, based on the file extension, checking if there is one.
 		try
 			set ext to my get_ext(POSIX file fpath as alias as string)
+		on error
+			set fname to ""
 		end try
 		set hasext to (length of ext > 0)
 		if ext = "md" or ext = "markdown" then set validFile to true
