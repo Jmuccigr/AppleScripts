@@ -25,7 +25,7 @@ on run
 	set myDocs to POSIX path of (path to documents folder)
 	set myLib to POSIX path of (path to library folder from user domain)
 	-- For pandoc.
-	--Use single-quoted form of POSIX path
+	-- Use single-quoted form of POSIX path
 	set bibfile to "'" & myDocs & "My Library.bib'"
 	-- These are the default templates for the output. Use unquoted forms of the POSIX path.
 	set ottfile to myLib & "Application Support/LibreOffice/4/user/template/Butterick 11.ott"
@@ -37,7 +37,7 @@ on run
 	tell application "MacDown"
 		
 		-- Get info for frontmost window	in MacDown
-		-- The first part won't ever work for MacDown because it doesn't do applescript.
+		-- The first part won't ever work for MacDown because it doesn't do applescript, but maybe someday.
 		try
 			set fpath to (path of document 1) as text
 			set fname to (name of document 1) as text
@@ -136,7 +136,8 @@ on run
 						set pandocFlag to ""
 					end try
 					try
-						do shell script shcmd & refFile & pandocFlag & " -o " & outputfile & " " & quoted form of fpath & "; open " & outputfile
+						do shell script shcmd & refFile & pandocFlag & " -o " & outputfile & " " & quoted form of fpath
+						do shell script "open " & outputfile
 					on error errmsg
 						display alert "pandoc error" message "pandoc reported the following error:" & return & return & errmsg
 					end try
