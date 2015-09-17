@@ -38,12 +38,13 @@ on run
 		
 		-- Get info for frontmost window	in MacDown
 		-- The first part won't ever work for MacDown because it doesn't do applescript, but maybe someday.
+		tell application "MacDown" to activate
 		try
 			set fpath to (path of document 1) as text
 			set fname to (name of document 1) as text
 		on error
 			try
-				tell application "System Events" to tell (process 1 where frontmost is true)
+				tell application "System Events" to tell (process 1 where name is "MacDown")
 					set fpath to value of attribute "AXDocument" of window 1
 					set fname to value of attribute "AXTitle" of window 1
 				end tell
