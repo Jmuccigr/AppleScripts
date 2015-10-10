@@ -32,7 +32,16 @@ on replace(origtext, ftext, rtext)
 end replace
 
 
--- Use applescript to get user directory paths
+-- Get user directory paths
 set myHome to POSIX path of (path to home folder)
 set myDocs to POSIX path of (path to documents folder)
 set myLib to POSIX path of (path to library folder from user domain)
+
+-- Count characters in a text
+on countchar(origtext, ch)
+	set theCount to (count items of origtext)
+	set {oldtids, my text item delimiters} to {my text item delimiters, ch}
+	set keyCount to (count text items of origtext) - 1
+	set my text item delimiters to oldtids
+	return keyCount
+end countchar
