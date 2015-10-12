@@ -45,3 +45,15 @@ on countchar(origtext, ch)
 	set my text item delimiters to oldtids
 	return keyCount
 end countchar
+
+-- Get filename without extension
+on getName(fileName)
+	set delims to AppleScript's text item delimiters
+	set AppleScript's text item delimiters to "."
+	if fileName contains "." then set fileName to (text items 1 thru -2 of fileName) as text
+	set AppleScript's text item delimiters to delims
+	return fileName
+end getName
+
+
+get running of application ""
