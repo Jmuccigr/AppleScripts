@@ -7,15 +7,29 @@
 -- First get the selected text by copying it.
 tell application "System Events" to keystroke "c" using command down
 set thetext to the clipboard
+set deleteCount to 0
+set terminalReturn to ""
+
+if the last item of thetext is return then
+	set deleteCount to 1
+	repeat with i from 0 to deleteCount
+		set terminalReturn to return
+	end repeat
+end if
 
 -- Now convert it
 set temp to ""
 
 -- Prefix and suffix lines with a pipe & convert tabs to pipes
-repeat with i from 1 to the number of paragraphs of thetext
-	set temp to temp & "|" & paragraph i of thetext & "|" & return
+try
+	repeat with i from 1 to the (number of paragraphs of thetext) - deleteCount
+		set temp to temp & "|" & paragraph i of thetext & "|" & return
+	end repeat
 	set temp to replace(temp, tab, "|")
-end repeat
+on error errMsg
+	set the clipboard to errMsg
+	display dialog "Problem adding pipes"
+end try
 
 -- Add a header line which assumes that the first line has the correct number of columns
 set theNewText to paragraph 1 of temp & return & createHeader(thetext)
@@ -24,7 +38,7 @@ repeat with i from 2 to the (count of paragraphs of temp)
 end repeat
 
 -- Paste it in, which is faster than keystroking it
-set the clipboard to theNewText
+set the clipboard to theNewText & terminalReturn
 tell application "System Events" to keystroke "v" using command down
 
 
