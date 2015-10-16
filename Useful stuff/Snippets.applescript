@@ -56,4 +56,8 @@ on getName(fileName)
 end getName
 
 
-get running of application ""
+get running of application "Finder"
+
+-- Check for existence of file
+-- returns true if file exists
+theFileName as alias
