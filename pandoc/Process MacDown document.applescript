@@ -120,7 +120,7 @@ on run
 					--	First have to reset PATH to use homebrew binaries and find xelatex; there are other approaches to this problem.
 					set shcmd to "export PATH=/usr/local/bin:/usr/local/sbin:/usr/texbin:$PATH"
 					--	Now add the pandoc switches.
-					set shcmd to shcmd & "; pandoc -s -S --bibliography=" & bibfile & " --latex-engine=xelatex --self-contained " & refFile
+					set shcmd to shcmd & "; pandoc -s -S --columns 800 --bibliography=" & bibfile & " --latex-engine=xelatex --self-contained " & refFile
 					
 					try
 						set dialogResult to (display dialog "Enter any special pandoc switches here:" default answer "" buttons {"Cancel", "Never mind", "OK"} default button 3)
