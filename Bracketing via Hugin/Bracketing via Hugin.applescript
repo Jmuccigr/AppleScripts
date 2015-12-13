@@ -15,6 +15,7 @@ on open (filelist)
 	set paramValid to false
 	set paramString to ""
 	
+	activate
 	-- Make sure Hugin is installed in the expected place and quit with instructions if it isn't
 	try
 		set HuginPath to (path to applications folder as text) & "Hugin:Hugin.app" as alias
