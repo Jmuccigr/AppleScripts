@@ -61,3 +61,5 @@ get running of application "Finder"
 -- Check for existence of file
 -- returns true if file exists
 theFileName as alias
+-- For a POSIX path, where thePath is not quoted and ends in /
+exists POSIX file thePath as alias
