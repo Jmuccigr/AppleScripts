@@ -108,20 +108,10 @@ on run
 					set AppleScript's text item delimiters to tid
 					--if outputname does not contain "." then error "no extension"
 					if length of (my get_ext(outputname)) = 0 then error "no extension"
-					-- Set template for pandoc
-					set refFile to my set_refFile(outputfile)
-					-- 		change to POSIX form
-					set outputfile to quoted form of POSIX path of outputfile
-					
 					
 					--TO-DO: Let the user choose whether to open output file once created. Checkbox in output-file dialog box?
 					
-					-- Create shell script for pandoc
-					--	First have to reset PATH to use homebrew binaries and find xelatex; there are other approaches to this problem.
-					set shcmd to "export PATH=/usr/local/bin:/usr/local/sbin:/usr/texbin:$PATH"
-					--	Now add the pandoc switches.
-					set shcmd to shcmd & "; pandoc -s -S --columns 800 --bibliography=" & bibfile & " --latex-engine=xelatex --self-contained " & refFile
-					
+					-- Get any special switches the user wants to add
 					try
 						set dialogResult to (display dialog "Enter any special pandoc switches here:" default answer "" buttons {"Cancel", "Never mind", "OK"} default button 3)
 						if the button returned of dialogResult is "OK" then
@@ -136,6 +126,19 @@ on run
 						-- else the button returned is "Never mind"
 						set pandocFlag to ""
 					end try
+					
+					-- Set template for pandoc.
+					set refFile to my set_refFile(outputfile)
+					-- Change to POSIX form
+					set outputfile to quoted form of POSIX path of outputfile
+					
+					-- Create shell script for pandoc
+					--	First have to reset PATH to use homebrew binaries and find xelatex; there are other approaches to this problem.
+					set shcmd to "export PATH=/usr/local/bin:/usr/local/sbin:/usr/texbin:$PATH"
+					--	Now add the pandoc switches.
+					set shcmd to shcmd & "; pandoc -s -S --columns 800 --bibliography=" & bibfile & " --latex-engine=xelatex --self-contained "
+					
+					-- Run the pandoc command
 					try
 						do shell script shcmd & refFile & pandocFlag & " -o " & outputfile & " " & quoted form of fpath
 						do shell script "open " & outputfile
@@ -161,7 +164,6 @@ end run
 -- Pad it with spaces.
 on set_refFile(filename)
 	tell application "MacDown"
-		do shell script "touch " & quoted form of (POSIX path of filename)
 		set ext to my get_ext(filename as string)
 		if ext = "odt" then
 			return " --reference-odt='" & POSIX path of (choose file default location (ottfile) with prompt "Select template for odt file:" of type "org.oasis-open.opendocument.text-template") & "' "
@@ -180,10 +182,14 @@ end set_refFile
 -- Can't use the "name extension" method because the file doesn't exist yet and we should avoid creating it
 on get_ext(filename)
 	try
-		set tid to AppleScript's text item delimiters
-		set AppleScript's text item delimiters to "."
-		set ext to the last text item of filename
-		set AppleScript's text item delimiters to tid
+		if filename does not contain "." then
+			set ext to ""
+		else
+			set tid to AppleScript's text item delimiters
+			set AppleScript's text item delimiters to "."
+			set ext to the last text item of filename
+			set AppleScript's text item delimiters to tid
+		end if
 		return ext
 	on error errmsg
 		display dialog "Fatal error getting extension of file: " & errmsg
