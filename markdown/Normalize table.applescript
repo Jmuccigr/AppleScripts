@@ -16,6 +16,8 @@ def getClipboardData():
 def just(string, type, n):
     " & quote & "Justify a string to length n according to type." & quote & "
 
+    string = unicode(string, 'utf-8')
+
     if type == '::':
         return string.center(n)
     elif type == '-:':
@@ -86,7 +88,7 @@ def normtable(text):
     widths = [2] * columns
     for row in content:
         for i in range(columns):
-            widths[i] = max(len(row[i]), widths[i])
+        widths[i] = max(len(row[i].decode(" & quote & "utf-8" & quote & ")), widths[i])
 
     # Add whitespace to make all the columns the same width and
     formatted = []
@@ -106,7 +108,7 @@ def normtable(text):
 # Read the input, process, and print.
 #unformatted = sys.stdin.read()
 #unformatted = sys.stdin.read() #getClipboardData()
-print normtable(unformatted)"
+print normtable(unformatted).encode('utf-8')"
 	
 	tell application "System Events"
 		keystroke "c" using command down
@@ -116,7 +118,7 @@ print normtable(unformatted)"
 			keystroke "v" using command down
 		on error errmsg
 			set the clipboard to errmsg
-			display alert "Oops" --message errmsg
+			display alert "Oops" message errmsg
 		end try
 	end tell
 end run
