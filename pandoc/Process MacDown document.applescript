@@ -14,24 +14,34 @@ on run
 	end tell
 	
 	-- Set some variables for use later on
-	
 	set validFile to false
 	set ext to ""
 	set hasext to false
 	set fname to ""
 	set fpath to ""
 	set outputfile to ""
+	
+	-- Some needed paths
 	set myHome to POSIX path of (path to home folder)
 	set myDocs to POSIX path of (path to documents folder)
 	set myLib to POSIX path of (path to library folder from user domain)
-	-- For pandoc.
+	
+	-- For pandoc
 	-- Use single-quoted form of POSIX path
 	set bibfile to "'" & myDocs & "My Library.bib'"
+	
 	-- These are the default templates for the output. Use unquoted forms of the POSIX path.
 	set ottfile to myLib & "Application Support/LibreOffice/4/user/template/Butterick 11.ott"
 	set dotmfile to myLib & "Application Support/Microsoft/Office/User Templates/Normal.dotm"
+	
 	-- default output-file extension without leading dot
-	set outputext to "odt"
+	set outputext to "pdf"
+	
+	--Variable for reveal slideshows. Use  "--variable revealjs-url=http://lab.hakim.se/reveal-js" if local reveal.js is lacking.
+	set revealConfig to "-i -V theme=sky -V transition=convex -V transitionSpeed=slow -V revealjs-url=/Users/john_muccigrosso/Documents/github/cloned/reveal.js/ "
+	
+	-- More variables
+	set pandocSwitches to "-s -S --self-contained --columns 800 --bibliography=" & bibfile & " --latex-engine=xelatex "
 	
 	--Wrapping the whole thing in this tell to keep error messages in MacDown (not sure this is necessary)
 	tell application "MacDown"
@@ -115,7 +125,8 @@ on run
 					try
 						set dialogResult to (display dialog "Enter any special pandoc switches here:" default answer "" buttons {"Cancel", "Never mind", "OK"} default button 3)
 						if the button returned of dialogResult is "OK" then
-							set pandocFlag to the text returned of dialogResult
+							set pandocUserSwitches to the text returned of dialogResult & " "
+							if pandocUserSwitches contains "revealjs" then set pandocSwitches to pandocSwitches & revealConfig
 						else
 							error (the button returned of dialogResult)
 						end if
@@ -124,23 +135,23 @@ on run
 							exit repeat -- drop out of the repeat loop and thus the script
 						end if
 						-- else the button returned is "Never mind"
-						set pandocFlag to ""
+						set pandocUserSwitches to ""
 					end try
 					
 					-- Set template for pandoc.
 					set refFile to my set_refFile(outputfile)
 					-- Change to POSIX form
-					set outputfile to quoted form of POSIX path of outputfile
+					set outputfile to quoted form of POSIX path of outputfile & " "
 					
 					-- Create shell script for pandoc
 					--	First have to reset PATH to use homebrew binaries and find xelatex; there are other approaches to this problem.
-					set shcmd to "export PATH=/usr/local/bin:/usr/local/sbin:/usr/texbin:$PATH"
-					--	Now add the pandoc switches.
-					set shcmd to shcmd & "; pandoc -s -S --columns 800 --bibliography=" & bibfile & " --latex-engine=xelatex --self-contained "
+					set shcmd to "export PATH=/usr/local/bin:/usr/local/sbin:/usr/texbin:$PATH; "
+					--	Now add the pandoc switches based on config at top and user input.
+					set shcmd to shcmd & "pandoc " & pandocSwitches & pandocUserSwitches
 					
-					-- Run the pandoc command
+					-- Run the pandoc command & open the resulting file
 					try
-						do shell script shcmd & refFile & pandocFlag & " -o " & outputfile & " " & quoted form of fpath
+						do shell script shcmd & refFile & "-o " & outputfile & quoted form of fpath
 						do shell script "open " & outputfile
 					on error errmsg
 						display alert "pandoc error" message "pandoc reported the following error:" & return & return & errmsg
