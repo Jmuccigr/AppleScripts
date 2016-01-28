@@ -1,7 +1,6 @@
--- A script to take the front document in MacDown and have pandoc process it.
--- Assumes that MacDown is the frontmost app, which can be ensured by putting the script in the Scripts folder for MacDown.
+-- A script to take the front document in the frontmost application and have pandoc process it.
 
-global ottfile, dotmfile
+global ottfile, dotmfile, appName
 
 on run
 	
@@ -10,10 +9,10 @@ on run
 		try
 			if (name of processes as string) contains "AppleScript Editor" then set the visible of process "AppleScript Editor" to false
 		end try
-		tell application "MacDown" to activate
 	end tell
 	
 	-- Set some variables for use later on
+	set ASmethod to false
 	set validFile to false
 	set ext to ""
 	set hasext to false
@@ -43,37 +42,51 @@ on run
 	-- More variables
 	set pandocSwitches to "-s -S --self-contained --columns 800 --bibliography=" & bibfile & " --latex-engine=xelatex "
 	
-	--Wrapping the whole thing in this tell to keep error messages in MacDown (not sure this is necessary)
-	tell application "MacDown"
-		
-		-- Get info for frontmost window	in MacDown
+	
+	
+	tell application "System Events"
+		try
+			set appName to (the name of every process whose frontmost is true) as string
+		on error errMsg
+			display alert "Problem" message "Could not get the name of the frontmost application."
+		end try
+	end tell
+	
+	--Wrapping the whole thing in this tell to keep error messages in the application (not sure this is necessary)
+	tell application appName
+		-- Get info for frontmost window
 		-- The first part won't ever work for MacDown because it doesn't do applescript, but maybe someday.
-		tell application "MacDown" to activate
+		activate
 		try
 			set fpath to (path of document 1) as text
 			set fname to (name of document 1) as text
+			set ASmethod to true
 		on error
 			try
-				tell application "System Events" to tell (process 1 where name is "MacDown")
+				tell application "System Events" to tell (process 1 where name is appName)
 					set fpath to value of attribute "AXDocument" of window 1
 					set fname to value of attribute "AXTitle" of window 1
 				end tell
-				-- When the document hasn't been saved, fpath gets assigned "missing value" for which we create a special error.
-				if fpath is missing value then
-					display alert "Unsaved document" message "The frontmost document appears to be unsaved. Please save it with an extension of \"md\" or \"markdown\" before trying again." buttons "OK" default button 1
-					error "Unsaved document"
-				else
-					-- fpath got assigned and needs to be converted into a real posix path.
-					set fpath to do shell script "x=" & quoted form of fpath & "
-        				x=${x/#file:\\/\\/}
-        				printf ${x//%/\\\\x}"
-				end if
-			on error errmsg
-				-- Either there was no path or something else went wrong.
-				if errmsg ­ "Unsaved document" then display alert "Can't get file" message "Can't get info on the frontmost document." buttons {"Cancel"} giving up after 30
+			on error errMsg
+				-- Something went wrong.
+				display alert "Can't get file" message "Can't get info on the frontmost document." buttons {"OK"} giving up after 30
+				error -128
 			end try
 		end try
-		
+		-- When the document hasn't been saved, fpath gets assigned "" or "missing value", depending on the method used above.
+		if fpath is missing value or fpath = "" then
+			display alert "Unsaved document" message "The frontmost document appears to be unsaved. Please save it with an extension of \"md\" or \"markdown\" before trying again." buttons "OK" default button 1
+			error "Unsaved document"
+		else
+			if not ASmethod then
+				-- fpath got assigned by second method and needs to be converted into a real posix path.
+				-- Second substitution needed because of varying form of fpath value from BBEdit 8. Could be outdated.
+				set fpath to do shell script "x=" & quoted form of fpath & "
+        				x=${x/#file:\\/\\/}
+        				x=${x/#localhost}
+        				printf ${x//%/\\\\x}"
+			end if
+		end if
 		-- We got a file path, now make sure it's a markdown file, based on the file extension, checking if there is one.
 		try
 			set ext to my get_ext(POSIX file fpath as alias as string)
@@ -130,14 +143,13 @@ on run
 						else
 							error (the button returned of dialogResult)
 						end if
-					on error errmsg
-						if errmsg = "MacDown got an error: User canceled." then
+					on error errMsg
+						if errMsg = appName & " got an error: User canceled." then
 							exit repeat -- drop out of the repeat loop and thus the script
 						end if
 						-- else the button returned is "Never mind"
 						set pandocUserSwitches to ""
 					end try
-					
 					-- Set template for pandoc.
 					set refFile to my set_refFile(outputfile)
 					-- Change to POSIX form
@@ -153,11 +165,11 @@ on run
 					try
 						do shell script shcmd & refFile & "-o " & outputfile & quoted form of fpath
 						do shell script "open " & outputfile
-					on error errmsg
-						display alert "pandoc error" message "pandoc reported the following error:" & return & return & errmsg
+					on error errMsg
+						display alert "pandoc error" message "pandoc reported the following error:" & return & return & errMsg
 					end try
-				on error errmsg
-					if errmsg = "no extension" then
+				on error errMsg
+					if errMsg = "no extension" then
 						set alertResult to display alert "No extension" message "The filename must contain an extension, so pandoc knows what type to export it as." buttons {"Cancel", "Retry"} default button 2 cancel button 1
 						set outputfile to ""
 					else
@@ -174,18 +186,22 @@ end run
 -- File choice is based on ext, the file extension
 -- Pad it with spaces.
 on set_refFile(filename)
-	tell application "MacDown"
-		set ext to my get_ext(filename as string)
-		if ext = "odt" then
-			return " --reference-odt='" & POSIX path of (choose file default location (ottfile) with prompt "Select template for odt file:" of type "org.oasis-open.opendocument.text-template") & "' "
-		else
-			if ext = "docx" or ext = "doc" then
-				return " --reference-docx='" & POSIX path of (choose file default location (dotmfile) with prompt "Select template for Word file:" of type "org.openxmlformats.wordprocessingml.template.macroenabled") & "' "
+	try
+		tell application appName
+			set ext to my get_ext(filename as string)
+			if ext = "odt" then
+				return " --reference-odt='" & POSIX path of (choose file default location (ottfile) with prompt "Select template for odt file:" of type "org.oasis-open.opendocument.text-template") & "' "
 			else
-				return " "
+				if ext = "docx" or ext = "doc" then
+					return " --reference-docx='" & POSIX path of (choose file default location (dotmfile) with prompt "Select template for Word file:" of type "org.openxmlformats.wordprocessingml.template.macroenabled") & "' "
+				else
+					return " "
+				end if
 			end if
-		end if
-	end tell
+		end tell
+	on error errMsg
+		display alert "Error" message "Fatal error getting reference file: " & errMsg
+	end try
 end set_refFile
 
 -- Subroutine to get extension from filename
@@ -202,8 +218,8 @@ on get_ext(filename)
 			set AppleScript's text item delimiters to tid
 		end if
 		return ext
-	on error errmsg
-		display dialog "Fatal error getting extension of file: " & errmsg
+	on error errMsg
+		display alert "Error" message "Fatal error getting extension of file: " & errMsg
 		error -128
 	end try
 end get_ext
