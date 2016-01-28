@@ -64,6 +64,8 @@ on run
 		on error
 			try
 				tell application "System Events" to tell (process 1 where name is appName)
+					--Not sure why, but the following is needed with certain apps (e.g., BBEdit 8)
+					activate
 					set fpath to value of attribute "AXDocument" of window 1
 					set fname to value of attribute "AXTitle" of window 1
 				end tell
