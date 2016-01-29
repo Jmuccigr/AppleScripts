@@ -34,7 +34,7 @@ on run
 	set dotmfile to myLib & "Application Support/Microsoft/Office/User Templates/Normal.dotm"
 	
 	-- default output-file extension without leading dot
-	set outputext to "pdf"
+	set outputext to "html"
 	
 	--Variable for reveal slideshows. Use  "--variable revealjs-url=http://lab.hakim.se/reveal-js" if local reveal.js is lacking.
 	set revealConfig to "-i -V theme=sky -V transition=convex -V transitionSpeed=slow -V revealjs-url=/Users/john_muccigrosso/Documents/github/cloned/reveal.js/ "
