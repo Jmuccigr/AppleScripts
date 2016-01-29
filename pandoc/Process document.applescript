@@ -54,9 +54,9 @@ on run
 	
 	--Wrapping the whole thing in this tell to keep error messages in the application (not sure this is necessary)
 	tell application appName
+		activate
 		-- Get info for frontmost window
 		-- The first part won't ever work for MacDown because it doesn't do applescript, but maybe someday.
-		activate
 		try
 			set fpath to (path of document 1) as text
 			set fname to (name of document 1) as text
@@ -76,6 +76,7 @@ on run
 			end try
 		end try
 		-- When the document hasn't been saved, fpath gets assigned "" or "missing value", depending on the method used above.
+		activate
 		if fpath is missing value or fpath = "" then
 			display alert "Unsaved document" message "The frontmost document appears to be unsaved. Please save it with an extension of \"md\" or \"markdown\" before trying again." buttons "OK" default button 1
 			error "Unsaved document"
