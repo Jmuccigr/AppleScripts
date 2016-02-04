@@ -1,13 +1,13 @@
 -- A script to take the front document in the frontmost application and have pandoc process it.
 
-global ottfile, dotmfile, appName
+global appName, ottfile, dotmfile, appName, outputFormats, output_format_list, outputExt, pandocSwitches, revealConfig, pdfConfig, refFile
 
 on run
 	
 	-- Some stuff to make it easier to debug this script
 	tell application "Finder"
 		try
-			if (name of processes as string) contains "AppleScript Editor" then set the visible of process "AppleScript Editor" to false
+			--if (name of processes as string) contains "AppleScript Editor" then set the visible of process "AppleScript Editor" to false
 		end try
 	end tell
 	
@@ -33,15 +33,19 @@ on run
 	set ottfile to myLib & "Application Support/LibreOffice/4/user/template/Butterick 11.ott"
 	set dotmfile to myLib & "Application Support/Microsoft/Office/User Templates/Normal.dotm"
 	
-	-- default output-file extension without leading dot
-	set outputext to "html"
+	-- output options
+	set outputFormats to {"html", "html5", "latex", "pdf", "odt", "docx", "beamer", "slidy", "slideous", "dzslides", "revealjs", "s5", "native", "json", "markdown", "markdown_strict", "markdown_phpextra", "markdown_github", "markdown_mmd", "commonmark", "rst", "context", "man", "mediawiki", "dokuwiki", "textile", "org", "texinfo", "opml", "docbook", "opendocument", "haddock", "rtf", "epub", "epub3", "fb2", "asciidoc", "icml"}
 	
-	--Variable for reveal slideshows. Use  "--variable revealjs-url=http://lab.hakim.se/reveal-js" if local reveal.js is lacking.
-	set revealConfig to "-i -V theme=sky -V transition=convex -V transitionSpeed=slow -V revealjs-url=/Users/john_muccigrosso/Documents/github/cloned/reveal.js/ "
+	-- default output-file extension without leading dot
+	set outputExt to "html"
+	
+	-- Variables specific to output types.
+	-- For reveal.js, use  "--variable revealjs-url=http://lab.hakim.se/reveal-js" if local reveal.js is lacking.
+	set revealConfig to "-i -V theme=sky -V transition=convex -V transitionSpeed=slow -V revealjs-url=/Users/john_muccigrosso/Documents/github/cloned/reveal.js/"
+	set pdfConfig to "--latex-engine=xelatex"
 	
 	-- More variables
-	set pandocSwitches to "-s -S --self-contained --columns 800 --bibliography=" & bibfile & " --latex-engine=xelatex "
-	
+	set pandocSwitches to "-s -S --self-contained --columns 800 --bibliography=" & bibfile
 	
 	
 	tell application "System Events"
@@ -72,7 +76,7 @@ on run
 			on error errMsg
 				-- Something went wrong.
 				display alert "Can't get file" message "Can't get info on the frontmost document." buttons {"OK"} giving up after 30
-				error -128
+				error number -128
 			end try
 		end try
 		-- When the document hasn't been saved, fpath gets assigned "" or "missing value", depending on the method used above.
@@ -91,6 +95,7 @@ on run
 			end if
 		end if
 		-- We got a file path, now make sure it's a markdown file, based on the file extension, checking if there is one.
+		-- To-do: check against list of valid extensions and let user pick or override the input type.
 		try
 			set ext to my get_ext(POSIX file fpath as alias as string)
 		on error
@@ -108,11 +113,7 @@ on run
 		end if
 		
 		if validFile then
-			
-			-- Run the pandoc command using the path we found.
-			
-			--TO-DO: Let the user choose the output filetype.
-			
+			-- Run the pandoc command using the path we found.			
 			set outputfn to fname
 			-- Strip the extension when it exists
 			if hasext then
@@ -123,7 +124,9 @@ on run
 			-- And then add the new extension
 			--    Check for ridiculously long filename
 			if length of fname > 251 then set fname to characters 1 thru 251 of fname as string
-			set fname to fname & "." & outputext
+			set {outputExt, pandocUserSwitches} to my get_output()
+			if outputExt is "" then error number -128
+			set fname to fname & "." & outputExt
 			repeat until outputfile ­ ""
 				try
 					set outputfile to choose file name default name fname default location fpath with prompt "Select location for output:"
@@ -137,24 +140,6 @@ on run
 					
 					--TO-DO: Let the user choose whether to open output file once created. Checkbox in output-file dialog box?
 					
-					-- Get any special switches the user wants to add
-					try
-						set dialogResult to (display dialog "Enter any special pandoc switches here:" default answer "" buttons {"Cancel", "Never mind", "OK"} default button 3)
-						if the button returned of dialogResult is "OK" then
-							set pandocUserSwitches to the text returned of dialogResult & " "
-							if pandocUserSwitches contains "revealjs" then set pandocSwitches to pandocSwitches & revealConfig
-						else
-							error (the button returned of dialogResult)
-						end if
-					on error errMsg
-						if errMsg = appName & " got an error: User canceled." then
-							exit repeat -- drop out of the repeat loop and thus the script
-						end if
-						-- else the button returned is "Never mind"
-						set pandocUserSwitches to ""
-					end try
-					-- Set template for pandoc.
-					set refFile to my set_refFile(outputfile)
 					-- Change to POSIX form
 					set outputfile to quoted form of POSIX path of outputfile & " "
 					
@@ -166,7 +151,7 @@ on run
 					
 					-- Run the pandoc command & open the resulting file
 					try
-						do shell script shcmd & refFile & "-o " & outputfile & quoted form of fpath
+						do shell script shcmd & "-o " & outputfile & quoted form of fpath
 						do shell script "open " & outputfile
 					on error errMsg
 						display alert "pandoc error" message "pandoc reported the following error:" & return & return & errMsg
@@ -186,24 +171,24 @@ on run
 end run
 
 -- Subroutine to set the reference file switch for pandoc
--- File choice is based on ext, the file extension
--- Pad it with spaces.
-on set_refFile(filename)
+-- File choice is based on the selected output-file type
+on set_refFile(output_format_list)
 	try
-		tell application appName
-			set ext to my get_ext(filename as string)
-			if ext = "odt" then
-				return " --reference-odt='" & POSIX path of (choose file default location (ottfile) with prompt "Select template for odt file:" of type "org.oasis-open.opendocument.text-template") & "' "
+		if output_format_list = "odt" then
+			return "--reference-odt='" & POSIX path of (choose file default location (ottfile) with prompt "Select template for odt file:" of type "org.oasis-open.opendocument.text-template") & "'"
+		else
+			if output_format_list = "docx" or output_format_list = "doc" then
+				return "--reference-docx='" & POSIX path of (choose file default location (dotmfile) with prompt "Select template for Word file:" of type "org.openxmlformats.wordprocessingml.template.macroenabled") & "'"
 			else
-				if ext = "docx" or ext = "doc" then
-					return " --reference-docx='" & POSIX path of (choose file default location (dotmfile) with prompt "Select template for Word file:" of type "org.openxmlformats.wordprocessingml.template.macroenabled") & "' "
-				else
-					return " "
-				end if
+				return ""
 			end if
-		end tell
+		end if
 	on error errMsg
-		display alert "Error" message "Fatal error getting reference file: " & errMsg
+		if errMsg = "User canceled." then
+		else
+			display alert "Error" message "Fatal error getting reference file: " & errMsg
+		end if
+		error number -128
 	end try
 end set_refFile
 
@@ -223,6 +208,174 @@ on get_ext(filename)
 		return ext
 	on error errMsg
 		display alert "Error" message "Fatal error getting extension of file: " & errMsg
-		error -128
+		error number -128
 	end try
 end get_ext
+
+on get_output()
+	set otherReply to "Cancel"
+	set output_extension to ""
+	set output_format_list to ""
+	set options to ""
+	set otherOptions to ""
+	set refFile to ""
+	
+	try
+		tell me to activate
+		set outputDialogResult to {choose from list outputFormats with title "Pandoc: Specify output format(s)" with prompt "What output format do you want?" default items outputExt}
+		try
+			if not outputDialogResult then error "User canceled."
+		end try
+		set output_format_list to (outputDialogResult as text)
+		if output_format_list is in (outputFormats as text) then
+			--set output_format_list to outputDialogResult
+			-- Display a dialog box with specified input and output formats, so you can cancel if you made any mistakes and specify more command-line options via a text field. You can change the default answer if you prefer a different one.
+			-- First create options for a given subset of output types.
+			if output_format_list is in {"revealjs", "pdf"} then
+				if output_format_list is "revealjs" then set pandocSwitches to pandocSwitches & " " & revealConfig
+				if output_format_list is "pdf" then set pandocSwitches to pandocSwitches & " " & pdfConfig
+			end if
+			-- Set template file for output where needed.
+			set refFile to my set_refFile(output_format_list)
+			set optionsDialogResult to display dialog "Output format: " & output_format_list & return & return & "To add more command-line options, use the field below." & return & return & "Some reader options:" & return & "--parse-raw --smart --old-dashes --base-header-level=NUMBER --indented-code-classes=CLASSES --default-image-extension=EXTENSION --metadata=KEY[:VAL] --normalize --preserve-tabs --tab-stop=NUMBER --track-changes=accept|reject|all --extract-media=DIR" & return & return & "Some writer options:" & return & "--data-dir=DIRECTORY --standalone --no-wrap --columns=NUMBER --toc --toc-depth=NUMBER --no-highlight --highlight-style=STYLE" & return & return & "Some options affecting specific writers:" & return & "--ascii --reference-links --chapters --number-sections --number-offset=NUMBER[,NUMBER,...] --no-tex-ligatures --listings --incremental --slide-level=NUMBER --section-divs --email-obfuscation=none|javascript|references --id-prefix=STRING --css=URL --latex-engine=pdflatex|lualatex|xelatex --latex-engine-opt=STRING --bibliography=FILE" buttons {"Cancel", "OK"} default button "OK" cancel button "Cancel" default answer pandocSwitches with title "Pandoc: Specify other options"
+			if button returned of optionsDialogResult is "OK" then
+				-- User didn't cancel, so grab those responses
+				-- To-do: investigate using an array of extensions and doing a lookup.
+				set options to text returned of optionsDialogResult
+				--set otherOptions to text returned of otherDialogResult
+				-- set the output extension
+				if output_format_list is "native" then
+					set output_extension to "hs"
+				end if
+				if output_format_list is "haddock" then
+					set output_extension to "-hs"
+				end if
+				if output_format_list is "json" then
+					set output_extension to "json"
+				end if
+				if output_format_list is "plain" then
+					set output_extension to "txt"
+				end if
+				if output_format_list is "mediawiki" then
+					set output_extension to "txt"
+				end if
+				if output_format_list is "dokuwiki" then
+					set output_extension to "txt"
+				end if
+				if output_format_list is "asciidoc" then
+					set output_extension to "txt"
+				end if
+				if output_format_list is "markdown" then
+					set output_extension to "md"
+				end if
+				if output_format_list is "markdown_strict" then
+					set output_extension to "md"
+				end if
+				if output_format_list is "markdown_phpextra" then
+					set output_extension to "md"
+				end if
+				if output_format_list is "markdown_github" then
+					set output_extension to "md"
+				end if
+				if output_format_list is "markdown_mmd" then
+					set output_extension to "md"
+				end if
+				if output_format_list is "commonmark" then
+					set output_extension to "md"
+				end if
+				if output_format_list is "rst" then
+					set output_extension to "rst"
+				end if
+				if output_format_list is "html" then
+					set output_extension to "html"
+				end if
+				if output_format_list is "html5" then
+					set output_extension to "html"
+				end if
+				if output_format_list is "slidy" then
+					set output_extension to "html"
+				end if
+				if output_format_list is "slideous" then
+					set output_extension to "html"
+				end if
+				if output_format_list is "dzslides" then
+					set output_extension to "html"
+				end if
+				if output_format_list is "revealjs" then
+					set output_extension to "html"
+				end if
+				if output_format_list is "s5" then
+					set output_extension to "html"
+				end if
+				if output_format_list is "latex" then
+					set output_extension to "tex"
+				end if
+				if output_format_list is "pdf" then
+					set output_extension to "pdf"
+					set output_format_list to "latex"
+				end if
+				if output_format_list is "beamer" then
+					set output_extension to "pdf"
+				end if
+				if output_format_list is "context" then
+					set output_extension to "tex"
+				end if
+				if output_format_list is "rst" then
+					set output_extension to "rst"
+				end if
+				if output_format_list is "man" then
+					set output_extension to "man"
+				end if
+				if output_format_list is "textile" then
+					set output_extension to "textile"
+				end if
+				if output_format_list is "org" then
+					set output_extension to "org"
+				end if
+				if output_format_list is "texinfo" then
+					set output_extension to "texi"
+				end if
+				if output_format_list is "opml" then
+					set output_extension to "opml"
+				end if
+				if output_format_list is "docbook" then
+					set output_extension to "db"
+				end if
+				if output_format_list is "opendocument" then
+					set output_extension to "xml"
+				end if
+				if output_format_list is "odt" then
+					set output_extension to "odt"
+				end if
+				if output_format_list is "docx" then
+					set output_extension to "docx"
+				end if
+				if output_format_list is "rtf" then
+					set output_extension to "rtf"
+				end if
+				if output_format_list is "epub" then
+					set output_extension to "epub"
+				end if
+				if output_format_list is "epub3" then
+					set output_extension to "epub"
+				end if
+				if output_format_list is "fb2" then
+					set output_extension to "fb2"
+				end if
+				if output_format_list is "icml" then
+					set output_extension to "icml"
+				end if
+				
+			else
+				error "User canceled."
+			end if
+		end if
+		-- Return the extension and the concatenated options
+		return {output_extension, " -t " & output_format_list & space & options & space & refFile & space}
+	on error errMsg
+		if errMsg ­ "User canceled." then
+			display alert "Output File Error:" message errMsg
+		end if
+		error number -128
+	end try
+end get_output
