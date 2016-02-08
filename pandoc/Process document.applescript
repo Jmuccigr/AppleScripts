@@ -41,7 +41,7 @@ on run
 	
 	-- Variables specific to output types.
 	-- For reveal.js, use  "--variable revealjs-url=http://lab.hakim.se/reveal-js" if local reveal.js is lacking.
-	set revealConfig to "-i -V center=false -V width=\\" & quote & "100%\\" & quote & " -V theme=gray -V transition=convex -V transitionSpeed=slow -V revealjs-url=/Users/john_muccigrosso/Documents/github/cloned/reveal.js/"
+	set revealConfig to "-i -V center=false -V width=\\" & quote & "100%\\" & quote & " -V theme=gray -V transition=convex -V transitionSpeed=slow -V revealjs-url=/Users/john_muccigrosso/Documents/github/local/reveal.js/"
 	set pdfConfig to "--latex-engine=xelatex"
 	
 	-- More variables
