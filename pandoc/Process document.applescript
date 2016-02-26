@@ -147,11 +147,11 @@ on run
 					--	First have to reset PATH to use homebrew binaries and find xelatex; there are other approaches to this problem.
 					set shcmd to "export PATH=/usr/local/bin:/usr/local/sbin:/usr/texbin:$PATH; "
 					--	Now add the pandoc switches based on config at top and user input.
-					set shcmd to shcmd & "pandoc " & pandocSwitches & pandocUserSwitches
+					set shcmd to shcmd & "pandoc " & quoted form of fpath & pandocUserSwitches
 					
 					-- Run the pandoc command & open the resulting file
 					try
-						do shell script shcmd & "-o " & outputfile & quoted form of fpath
+						do shell script shcmd & "-o " & outputfile
 						do shell script "open " & outputfile
 					on error errMsg
 						display alert "pandoc error" message "pandoc reported the following error:" & return & return & errMsg
