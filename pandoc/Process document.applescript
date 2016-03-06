@@ -27,7 +27,7 @@ on run
 	
 	-- For pandoc
 	-- Use single-quoted form of POSIX path
-	set bibfile to "'" & myDocs & "My Library.bib'"
+	set bibfile to "'" & myDocs & "My Library.json'"
 	
 	-- These are the default templates for the output. Use unquoted forms of the POSIX path.
 	set ottfile to myLib & "Application Support/LibreOffice/4/user/template/Butterick 11.ott"
