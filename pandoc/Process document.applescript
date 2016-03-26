@@ -1,21 +1,15 @@
 -- A script to take the front document in the frontmost application and have pandoc process it.
 
-global appName, ottfile, dotmfile, appName, outputFormats, output_format_list, outputExt, pandocSwitches, revealConfig, pdfConfig, refFile
+global appName, ottfile, dotmfile, outputFormats, output_format_list, outputExt, pandocSwitches, revealConfig, pdfConfig, refFile
 
 on run
-	
-	-- Some stuff to make it easier to debug this script
-	tell application "Finder"
-		try
-			--if (name of processes as string) contains "AppleScript Editor" then set the visible of process "AppleScript Editor" to false
-		end try
-	end tell
 	
 	-- Set some variables for use later on
 	set ASmethod to false
 	set validFile to false
-	set ext to ""
 	set hasext to false
+	set appName to ""
+	set ext to ""
 	set fname to ""
 	set fpath to ""
 	set outputfile to ""
@@ -54,6 +48,7 @@ on run
 			set appName to (the name of every process whose frontmost is true) as string
 		on error errMsg
 			display alert "Problem" message "Could not get the name of the frontmost application."
+			error number -128
 		end try
 	end tell
 	
@@ -76,7 +71,7 @@ on run
 				end tell
 			on error errMsg
 				-- Something went wrong.
-				display alert "Can't get file" message "Can't get info on the frontmost document." buttons {"OK"} giving up after 30
+				display alert "Can't get file" message "Can't get info on the frontmost document:" & return & return & errMsg buttons {"OK"} giving up after 30
 				error number -128
 			end try
 		end try
