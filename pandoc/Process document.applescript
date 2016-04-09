@@ -36,7 +36,7 @@ on run
 	-- Variables specific to output types.
 	-- For reveal.js, use  "--variable revealjs-url=http://lab.hakim.se/reveal-js" if local reveal.js is lacking.
 	-- Removing ' -V width=\\" & quote & "& quote & "100%\\" ' while bug prevents correct thumbnails
-	set revealConfig to "-i -V center=false -V theme=gray -V transition=convex -V transitionSpeed=slow -V revealjs-url=/Users/john_muccigrosso/Documents/github/local/reveal.js/"
+	set revealConfig to "-i -V center=false -V theme=gray -V transition=convex -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=/Users/john_muccigrosso/Documents/github/local/reveal.js/"
 	set pdfConfig to "--latex-engine=xelatex"
 	
 	-- More variables
