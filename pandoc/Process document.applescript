@@ -1,6 +1,6 @@
 -- A script to take the front document in the frontmost application and have pandoc process it.
 
-global appName, ottfile, dotmfile, outputFormats, output_format_list, outputExt, pandocSwitches, revealConfig, pdfConfig, refFile
+global appName, ottfile, dotmfile, outputFormats, output_format_list, outputExt, pandocSwitches, htmlConfig, revealConfig, pdfConfig, refFile
 
 on run
 	
@@ -36,8 +36,9 @@ on run
 	-- Variables specific to output types.
 	-- For reveal.js, use  "--variable revealjs-url=http://lab.hakim.se/reveal-js" if local reveal.js is lacking.
 	-- Removing ' -V width=\\" & quote & "& quote & "100%\\" ' while bug prevents correct thumbnails
-	set revealConfig to "-i -V center=false -V theme=grayfull -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=/Users/john_muccigrosso/Documents/github/local/reveal.js/"
+	set htmlConfig to "--self-contained"
 	set pdfConfig to "--latex-engine=xelatex"
+	set revealConfig to "-i -V center=false -V theme=grayfull -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=/Users/john_muccigrosso/Documents/github/local/reveal.js/"
 	
 	-- More variables
 	set pandocSwitches to "-s -S --columns 800 --bibliography=" & bibfile
@@ -227,9 +228,18 @@ on get_output()
 			--set output_format_list to outputDialogResult
 			-- Display a dialog box with specified input and output formats, so you can cancel if you made any mistakes and specify more command-line options via a text field. You can change the default answer if you prefer a different one.
 			-- First create options for a given subset of output types.
-			if output_format_list is in {"revealjs", "pdf"} then
-				if output_format_list is "revealjs" then set pandocSwitches to pandocSwitches & " " & revealConfig
-				if output_format_list is "pdf" then set pandocSwitches to pandocSwitches & " " & pdfConfig
+			if output_format_list is in {"html", "pdf", "revealjs"} then
+				if output_format_list is "html" then
+					set pandocSwitches to pandocSwitches & " " & htmlConfig
+				else
+					if output_format_list is "pdf" then
+						set pandocSwitches to pandocSwitches & " " & pdfConfig
+					else
+						if output_format_list is "revealjs" then
+							set pandocSwitches to pandocSwitches & " " & revealConfig
+						end if
+					end if
+				end if
 			end if
 			-- Set template file for output where needed.
 			set refFile to my set_refFile(output_format_list)
