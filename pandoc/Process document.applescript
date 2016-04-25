@@ -15,13 +15,12 @@ on run
 	set outputfile to ""
 	
 	-- Some needed paths
-	set myHome to POSIX path of (path to home folder)
 	set myDocs to POSIX path of (path to documents folder)
 	set myLib to POSIX path of (path to library folder from user domain)
 	
 	-- For pandoc
 	-- Use single-quoted form of POSIX path
-	set bibfile to "'" & myDocs & "My Library.json'"
+	set bibfile to quoted form of (myDocs & "My Library.json")
 	
 	-- These are the default templates for the output. Use unquoted forms of the POSIX path.
 	set ottfile to myLib & "Application Support/LibreOffice/4/user/template/Butterick 11.ott"
@@ -36,8 +35,8 @@ on run
 	-- Variables specific to output types.
 	-- For reveal.js, use  "--variable revealjs-url=http://lab.hakim.se/reveal-js" if local reveal.js is lacking.
 	-- Removing ' -V width=\\" & quote & "& quote & "100%\\" ' while bug prevents correct thumbnails
-	set htmlConfig to "--self-contained"
-	set pdfConfig to "--latex-engine=xelatex"
+	set htmlConfig to "--self-contained --template=" & quoted form of (myDocs & "github/local/pandoc-templates/default.html")
+	set pdfConfig to "--latex-engine=xelatex --template=" & quoted form of (myDocs & "github/local/pandoc-templates/default.latex")
 	set revealConfig to "-i -V center=false -V theme=grayfull -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=/Users/john_muccigrosso/Documents/github/local/reveal.js/"
 	
 	-- More variables
@@ -248,7 +247,7 @@ on get_output()
 				-- User didn't cancel, so grab those responses
 				-- To-do: investigate using an array of extensions and doing a lookup.
 				set options to text returned of optionsDialogResult
-				--set otherOptions to text returned of otherDialogResult
+				-- set otherOptions to text returned of otherDialogResult
 				-- set the output extension
 				if output_format_list is "native" then
 					set output_extension to "hs"
@@ -371,7 +370,6 @@ on get_output()
 				if output_format_list is "icml" then
 					set output_extension to "icml"
 				end if
-				
 			else
 				error "User canceled."
 			end if
