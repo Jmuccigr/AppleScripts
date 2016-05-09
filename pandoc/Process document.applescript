@@ -16,11 +16,12 @@ on run
 	
 	-- Some needed paths
 	set myDocs to POSIX path of (path to documents folder)
+	set myGit to myDocs & "github/local/"
 	set myLib to POSIX path of (path to library folder from user domain)
 	
 	-- For pandoc
 	-- Use single-quoted form of POSIX path
-	set bibfile to quoted form of (myDocs & "My Library.json")
+	set bibfile to quoted form of (myGit & "miscellaneous/My Library.json")
 	
 	-- These are the default templates for the output. Use unquoted forms of the POSIX path.
 	set ottfile to myLib & "Application Support/LibreOffice/4/user/template/Butterick 11.ott"
@@ -35,8 +36,8 @@ on run
 	-- Variables specific to output types.
 	-- For reveal.js, use  "--variable revealjs-url=http://lab.hakim.se/reveal-js" if local reveal.js is lacking.
 	-- Removing ' -V width=\\" & quote & "& quote & "100%\\" ' while bug prevents correct thumbnails
-	set htmlConfig to "--self-contained --template=" & quoted form of (myDocs & "github/local/pandoc-templates/default.html")
-	set pdfConfig to "--latex-engine=xelatex --template=" & quoted form of (myDocs & "github/local/pandoc-templates/default.latex")
+	set htmlConfig to "--self-contained --template=" & quoted form of (myGit & "pandoc-templates/default.html")
+	set pdfConfig to "--latex-engine=xelatex --template=" & quoted form of (mygit & "pandoc-templates/default.latex")
 	set revealConfig to "-i -V center=false -V theme=grayfull -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=/Users/john_muccigrosso/Documents/github/local/reveal.js/"
 	
 	-- More variables
