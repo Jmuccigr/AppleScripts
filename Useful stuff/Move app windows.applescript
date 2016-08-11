@@ -18,8 +18,9 @@ tell application "System Events"
 	-- Stop when the apps have all been moved or the loop has run enough times
 	repeat until i = 5 or (mailDone and messagesDone)
 		set theApps to the name of every process
-		if "Mail" is in theApps and not mailDone then
-			tell application "Mail"
+		--		if "Mail" is in theApps and not mailDone then
+		if "MailMate" is in theApps and not mailDone then
+			tell application "MailMate 2"
 				set the bounds of the first window to {174, 922, 1450, 1696}
 				set mailDone to true
 			end tell
