@@ -57,7 +57,7 @@ on run
 	tell application appName
 		activate
 		-- Get info for frontmost window
-		-- The first part won't ever work for MacDown because it doesn't do applescript, but maybe someday.
+		-- The first part won't ever work for MacDown because it doesn't have "path" in its applescript properties, but maybe someday.
 		try
 			set fpath to (path of document 1) as text
 			set fname to (name of document 1) as text
