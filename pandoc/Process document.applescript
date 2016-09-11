@@ -52,7 +52,7 @@ on run
 			error number -128
 		end try
 	end tell
-	
+
 	--Wrapping the whole thing in this tell to keep error messages in the application (not sure this is necessary)
 	tell application appName
 		activate
@@ -115,54 +115,57 @@ on run
 			-- Strip the extension when it exists
 			if hasext then
 				repeat with i from 1 to (number of characters in ext) + 1
-					set fname to characters 1 through ((length of fname) - 1) of fname as string
+					set outputfn to characters 1 through ((length of outputfn) - 1) of outputfn as string
 				end repeat
 			end if
 			-- And then add the new extension
 			--    Check for ridiculously long filename
-			if length of fname > 251 then set fname to characters 1 thru 251 of fname as string
+			if length of outputfn > 251 then set outputfn to characters 1 thru 251 of outputfn as string
 			set {outputExt, pandocUserSwitches} to my get_output()
 			if outputExt is "" then error number -128
-			set fname to fname & "." & outputExt
+			set outputfn to outputfn & "." & outputExt
+			set fpath to (do shell script "dirname  " & quoted form of fpath) & "/"
 			repeat until outputfile ­ ""
 				try
-					set outputfile to choose file name default name fname default location fpath with prompt "Select location for output:"
-					-- Make sure it's got an extension or pandoc won't know what to do with it
+					set outputfile to choose file name default name outputfn default location fpath with prompt "Select location for output:"
+					-- Complain if it doesn't have an extension.
 					set tid to AppleScript's text item delimiters
 					set AppleScript's text item delimiters to ":"
 					set outputname to the last text item of (outputfile as string)
 					set AppleScript's text item delimiters to tid
 					--if outputname does not contain "." then error "no extension"
 					if length of (my get_ext(outputname)) = 0 then error "no extension"
-					
-					--TO-DO: Let the user choose whether to open output file once created. Checkbox in output-file dialog box?
-					
-					-- Change to POSIX form
-					set outputfile to quoted form of POSIX path of outputfile & " "
-					
-					-- Create shell script for pandoc
-					--	First have to reset PATH to use homebrew binaries and find xelatex; there are other approaches to this problem.
-					set shcmd to "export PATH=/usr/local/bin:/usr/local/sbin:/usr/texbin:$PATH; "
-					--	Now add the pandoc switches based on config at top and user input.
-					set shcmd to shcmd & "pandoc " & quoted form of fpath & pandocUserSwitches
-					
-					-- Run the pandoc command & open the resulting file
-					try
-						do shell script shcmd & "-o " & outputfile
-						do shell script "open " & outputfile
-					on error errMsg
-						display alert "pandoc error" message "pandoc reported the following error:" & return & return & errMsg
-					end try
 				on error errMsg
 					if errMsg = "no extension" then
-						set alertResult to display alert "No extension" message "The filename must contain an extension, so pandoc knows what type to export it as." buttons {"Cancel", "Retry"} default button 2 cancel button 1
-						set outputfile to ""
+						set alertResult to button returned of (display alert "No extension" message "The filename usually contains an extension, so your system will know how to open the resulting file." buttons {"Leave it alone", "Cancel", "Retry"} default button 3 cancel button 2)
+						if alertResult = "Retry" then
+							set outputfile to ""
+						else -- result was "leave it alone"
+							exit repeat
+						end if
 					else
-						exit repeat
+						error number -128
 					end if
 				end try
-				
 			end repeat -- output filename check
+			
+			--TO-DO: Let the user choose whether to open output file once created. Checkbox in output-file dialog box?
+			
+			-- Change to POSIX form
+			set outputfile to quoted form of POSIX path of outputfile & " "
+			-- Create shell script for pandoc
+			--	First have to reset PATH to use homebrew binaries and find xelatex; there are other approaches to this problem.
+			--set shcmd to "export PATH=/usr/local/bin:/usr/local/sbin:/usr/texbin:$PATH; "
+			set shcmd to "export PATH=/usr/local/bin:/usr/local/sbin:/Library/TeX/texbin:$PATH; "
+			--	Now add the pandoc switches based on config at top and user input.
+			set shcmd to shcmd & "pandoc " & quoted form of (fpath & fname) & pandocUserSwitches
+			-- Run the pandoc command & open the resulting file
+			try
+				do shell script shcmd & "-o " & outputfile
+				do shell script "open " & outputfile
+			on error errMsg
+				display alert "pandoc error" message "pandoc reported the following error:" & return & return & errMsg
+			end try
 		end if -- validFile check
 	end tell
 end run
