@@ -155,7 +155,6 @@ on run
 			set outputfile to quoted form of POSIX path of outputfile & " "
 			-- Create shell script for pandoc
 			--	First have to reset PATH to use homebrew binaries and find xelatex; there are other approaches to this problem.
-			--set shcmd to "export PATH=/usr/local/bin:/usr/local/sbin:/usr/texbin:$PATH; "
 			set shcmd to "export PATH=/usr/local/bin:/usr/local/sbin:/Library/TeX/texbin:$PATH; "
 			--	Now add the pandoc switches based on config at top and user input.
 			set shcmd to shcmd & "pandoc " & quoted form of (fpath & fname) & pandocUserSwitches
