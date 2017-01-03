@@ -63,3 +63,5 @@ get running of application "Finder"
 theFileName as alias
 -- For a POSIX path, where thePath is not quoted and ends in /
 exists POSIX file thePath as alias
+
+-- To handle POSIX file paths, append "as alias" to "POSIX file theFile"
