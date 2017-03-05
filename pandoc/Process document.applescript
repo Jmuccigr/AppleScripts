@@ -52,7 +52,7 @@ on run
 			error number -128
 		end try
 	end tell
-
+	
 	--Wrapping the whole thing in this tell to keep error messages in the application (not sure this is necessary)
 	tell application appName
 		activate
@@ -80,7 +80,7 @@ on run
 		activate
 		if fpath is missing value or fpath = "" then
 			display alert "Unsaved document" message "The frontmost document appears to be unsaved. Please save it with an extension of \"md\" or \"markdown\" before trying again." buttons "OK" default button 1
-			error "Unsaved document"
+			error number -128
 		else
 			if not ASmethod then
 				-- fpath got assigned by second method and needs to be converted into a real posix path.
