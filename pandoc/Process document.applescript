@@ -3,7 +3,6 @@
 global appName, ottfile, dotmfile, outputFormats, output_format_list, outputExt, pandocSwitches, htmlConfig, revealConfig, pdfConfig, refFile
 
 on run
-	
 	-- Set some variables for use later on
 	set ASmethod to false
 	set validFile to false
@@ -42,7 +41,6 @@ on run
 	
 	-- More variables
 	set pandocSwitches to "-s -S --columns 800 --bibliography=" & bibfile
-	
 	
 	tell application "System Events"
 		try
@@ -156,9 +154,9 @@ on run
 			-- Create shell script for pandoc
 			--	First have to reset PATH to use homebrew binaries and find xelatex; there are other approaches to this 
 			--    Switch to directory where working file is so relative paths (e.g., for images) work
-			set shcmd to "export PATH=/usr/local/bin:/usr/local/sbin:/Library/TeX/texbin:$PATH; cd " & fpath & "; "
+			set shcmd to "export PATH=/usr/local/bin:/usr/local/sbin:/Library/TeX/texbin:$PATH; cd " & quoted form of fpath & "; "
 			--	Now add the pandoc switches based on config at top and user input.
-			set shcmd to shcmd & "pandoc " & quoted form of (fpath & fname) & pandocUserSwitches
+			set shcmd to shcmd & "pandoc " & quoted form of fname & pandocUserSwitches
 			-- Run the pandoc command & open the resulting file
 			try
 				do shell script shcmd & "-o " & outputfile
