@@ -62,6 +62,7 @@ get running of application "Finder"
 -- returns true if file exists
 theFileName as alias
 -- For a POSIX path, where thePath is not quoted and ends in /
+-- Missing file returns an error, so use 'on error' not 'else'
 exists POSIX file thePath as alias
 
 -- To handle POSIX file paths, append "as alias" to "POSIX file theFile"
