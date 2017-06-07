@@ -1,3 +1,5 @@
+-- Error to cancel script
+error number -128
 
 -- Get info on front window of app
 try
