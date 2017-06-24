@@ -1,4 +1,4 @@
--- Quick script to eject volume that is MS-DOS format, smaller than 64GB and ejectable, that is, it's an SD card for a camera.
+-- Quick script to sync SD card for a camera with on-computer script folder
 -- By John Muccigrosso
 -- v. 0.2
 
@@ -18,7 +18,7 @@ tell application "Finder"
 				if (exists POSIX file hdPath as alias) and (exists POSIX file ssdPath as alias) then -- Not clear to me why we don't need the quoted form
 					-- Sync them up, hard drive to SD card first
 					do shell script "rsync -vau " & quoted form of hdPath & " " & quoted form of ssdPath & " 1>/dev/null"
-					do shell script "rsync -vau " & quoted form of ssdPath & " " &  quoted form of hdPath & " 1>/dev/null"
+					do shell script "rsync -vau " & quoted form of ssdPath & " " & quoted form of hdPath & " 1>/dev/null"
 					display notification "Sync successful!" sound name "chime"
 				end if
 			end repeat
