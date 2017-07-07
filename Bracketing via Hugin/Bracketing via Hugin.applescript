@@ -10,7 +10,7 @@ on open (filelist)
 	-- Set some variables
 	set flist to ""
 	set userCanceled to false
-	set huginPosixPath to "/Applications/Hugin/Hugin.app/Contents/MacOS/"
+	set huginPosixPath to "/Applications/Hugin/HuginStitchProject.app/Contents/MacOS/"
 	set HuginPresent to true
 	set paramValid to false
 	set paramString to ""
