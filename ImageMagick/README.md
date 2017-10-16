@@ -17,4 +17,5 @@ Each script also has a second mode, activated by holding down the option key. In
 
 I've also included a zip file of a folder containing the scripts as applications. I think it should look the same on your computer as on mine, as long as the view is set to show the icons. I've got them arranged geometrically to match the part of the image that each works on.
 
+![Contents of zip file](http://jmuccigr.github.io/images/trim_apps.png)
 Naturally let me know if something's not working.
