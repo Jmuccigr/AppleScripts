@@ -41,7 +41,7 @@ on run
 	set revealConfig to "+smart -i -V center=false -V theme=grayfull -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=/Users/john_muccigrosso/Documents/github/local/reveal.js/"
 	
 	-- Standard variables
-	set pandocSwitches to "-s --columns 800 --bibliography=" & bibfile
+	set pandocSwitches to " -s --columns 800 --bibliography=" & bibfile
 	
 	tell application "System Events"
 		try
@@ -177,7 +177,7 @@ on set_refFile(output_format_list)
 			return "--reference-odt='" & POSIX path of (choose file default location (ottfile) with prompt "Select template for odt file:" of type "org.oasis-open.opendocument.text-template") & "'"
 		else
 			if output_format_list = "docx" or output_format_list = "doc" then
-				return "--reference-docx='" & POSIX path of (choose file default location (dotmfile) with prompt "Select template for Word file:" of type "org.openxmlformats.wordprocessingml.template.macroenabled") & "'"
+				return "--reference-doc='" & POSIX path of (choose file default location (dotmfile) with prompt "Select template for Word file:" of type "org.openxmlformats.wordprocessingml.template.macroenabled") & "'"
 			else
 				return ""
 			end if
@@ -243,7 +243,7 @@ on get_output()
 			end if
 			-- Set template file for output where needed.
 			set refFile to my set_refFile(output_format_list)
-			set optionsDialogResult to display dialog "Output format: " & output_format_list & return & return & "To add more command-line options, use the field below." & return & return & "Some reader options:" & return & " +smart --parse-raw --old-dashes --base-header-level=NUMBER --indented-code-classes=CLASSES --default-image-extension=EXTENSION --metadata=KEY[:VAL] --normalize --preserve-tabs --tab-stop=NUMBER --track-changes=accept|reject|all --extract-media=DIR" & return & return & "Some writer options:" & return & "-smart --data-dir=DIRECTORY --standalone  --self-contained --no-wrap --columns=NUMBER --toc --toc-depth=NUMBER --no-highlight --highlight-style=STYLE" & return & return & "Some options affecting specific writers:" & return & "--ascii --reference-links --chapters --number-sections --number-offset=NUMBER[,NUMBER,...] --no-tex-ligatures --listings --incremental --slide-level=NUMBER --section-divs --email-obfuscation=none|javascript|references --id-prefix=STRING --css=URL --pdf-engine=pdflatex|lualatex|xelatex --pdf-engine-opt=STRING --bibliography=FILE" buttons {"Cancel", "OK"} default button "OK" cancel button "Cancel" default answer pandocSwitches with title "Pandoc: Specify other options"
+			set optionsDialogResult to display dialog "Output format: " & output_format_list & return & return & "To add more command-line options, use the field below." & return & return & "Some reader options:" & return & "+smart --parse-raw --old-dashes --base-header-level=NUMBER --indented-code-classes=CLASSES --default-image-extension=EXTENSION --metadata=KEY[:VAL] --normalize --preserve-tabs --tab-stop=NUMBER --track-changes=accept|reject|all --extract-media=DIR" & return & return & "Some writer options:" & return & "+smart --data-dir=DIRECTORY --standalone  --self-contained --no-wrap --columns=NUMBER --toc --toc-depth=NUMBER --no-highlight --highlight-style=STYLE" & return & return & "Some options affecting specific writers:" & return & "--ascii --reference-links --chapters --number-sections --number-offset=NUMBER[,NUMBER,...] --no-tex-ligatures --listings --incremental --slide-level=NUMBER --section-divs --email-obfuscation=none|javascript|references --id-prefix=STRING --css=URL --pdf-engine=pdflatex|lualatex|xelatex --pdf-engine-opt=STRING --bibliography=FILE" buttons {"Cancel", "OK"} default button "OK" cancel button "Cancel" default answer pandocSwitches with title "Pandoc: Specify other options"
 			if button returned of optionsDialogResult is "OK" then
 				-- User didn't cancel, so grab those responses
 				-- To-do: investigate using an array of extensions and doing a lookup.
