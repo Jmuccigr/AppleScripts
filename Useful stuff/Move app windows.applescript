@@ -32,8 +32,8 @@ tell application "System Events"
 	repeat until i = 5 or (mailDone and messagesDone)
 		set theApps to the name of every process
 		-- if "Mail" is in theApps and not mailDone then
-		if "MailMate" is in theApps and not mailDone then
-			tell application "MailMate 2"
+		if "Mail" is in theApps and not mailDone then
+			tell application "Mail"
 				set the bounds of the first window to mailWbounds
 				set mailDone to true
 			end tell
