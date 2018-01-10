@@ -174,7 +174,7 @@ end run
 on set_refFile(output_format_list)
 	try
 		if output_format_list = "odt" then
-			return "--reference-odt='" & POSIX path of (choose file default location (ottfile) with prompt "Select template for odt file:" of type "org.oasis-open.opendocument.text-template") & "'"
+			return "--reference-doc='" & POSIX path of (choose file default location (ottfile) with prompt "Select template for odt file:" of type "org.oasis-open.opendocument.text-template") & "'"
 		else
 			if output_format_list = "docx" or output_format_list = "doc" then
 				return "--reference-doc='" & POSIX path of (choose file default location (dotmfile) with prompt "Select template for Word file:" of type "org.openxmlformats.wordprocessingml.template.macroenabled") & "'"
