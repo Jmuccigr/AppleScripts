@@ -16,9 +16,9 @@ tell application "System Events"
 		tell application "Finder"
 			set screensize to bounds of window of desktop
 		end tell
-		if screensize = {0, 0, 1600, 2000} then
-			set mailWbounds to {162, 1223, 1438, 1996}
-			set messageWbounds to {708, 1223, 1438, 1996}
+		if screensize = {0, 0, 1600, 1800} then
+			set mailWbounds to {81, 923, 1521, 1800}
+			set messageWbounds to {789, 923, 1519, 1799}
 		else
 			set mailWbounds to {174, 922, 1450, 1696}
 			set messageWbounds to {723, 922, 1453, 1696}
