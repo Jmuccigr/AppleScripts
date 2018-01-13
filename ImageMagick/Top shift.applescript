@@ -1,4 +1,4 @@
--- Shift images to the bottom using imagemagick
+-- Shift images to the top using imagemagick
 -- Chop off 3% of pixels on one side, and then add a white border of the same size to the opposite side
 -- If the option key is down, increase the chopped region to 10%
 
@@ -14,7 +14,7 @@ on open of finderObjects
 	repeat with filename in (finderObjects)
 		set fname to quoted form of POSIX path of filename
 		do shell script "lh=`/usr/local/bin/identify -format %h " & fname & "`; lh=$(( lh * " & pct & "/100 ));
-		/usr/local/bin/convert +repage -gravity south -chop 0x${lh} -gravity north -background white -splice 0x${lh} +repage " & fname & " $TMPDIR/tempfile.png"
+		$(bash -l -c 'which convert') +repage -gravity north -chop 0x${lh} -gravity south -background white -splice 0x${lh} +repage " & fname & " $TMPDIR/tempfile.png"
 		tell application "Finder"
 			delete file filename
 			do shell script "cp $TMPDIR/tempfile.png " & fname

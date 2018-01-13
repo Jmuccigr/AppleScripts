@@ -13,9 +13,9 @@ on open of finderObjects
 	end if
 	repeat with filename in (finderObjects)
 		set fname to quoted form of POSIX path of filename
-		do shell script "lh=`/usr/local/bin/convert " & fname & " -format " & quote & "%[fx:max(5,ceil(h*" & pct & "/100))]\" info:`; 
-		/usr/local/bin/convert +repage -gravity south -chop 0x${lh} -fuzz 2% -trim -bordercolor white -border " & border & " +repage " & fname & " $TMPDIR/tempfile.png"
-		--		do shell script "lh=`/usr/local/bin/convert " & fname & " -format " & quote & "%[fx:ceil(w*" & pct & "/100)]\" info:`; osascript -e \"display dialog  \"$lh\"\";" #/usr/local/bin/convert +repage -gravity south -chop 0x${lh} -fuzz 2% -trim -bordercolor white -border 3 +repage " & fname & " $TMPDIR/tempfile.png"
+		do shell script "lh=`$(bash -l -c 'which convert') " & fname & " -format " & quote & "%[fx:max(5,ceil(h*" & pct & "/100))]\" info:`; 
+		$(bash -l -c 'which convert') +repage -gravity south -chop 0x${lh} -fuzz 2% -trim -bordercolor white -border " & border & " +repage " & fname & " $TMPDIR/tempfile.png"
+		--		do shell script "lh=`$(bash -l -c 'which convert') " & fname & " -format " & quote & "%[fx:ceil(w*" & pct & "/100)]\" info:`; osascript -e \"display dialog  \"$lh\"\";" #$(bash -l -c 'which convert') +repage -gravity south -chop 0x${lh} -fuzz 2% -trim -bordercolor white -border 3 +repage " & fname & " $TMPDIR/tempfile.png"
 		tell application "Finder"
 			delete file filename
 			do shell script "cp $TMPDIR/tempfile.png " & fname

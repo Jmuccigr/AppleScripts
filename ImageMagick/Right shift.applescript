@@ -14,7 +14,7 @@ on open of finderObjects
 	repeat with filename in (finderObjects)
 		set fname to quoted form of POSIX path of filename
 		do shell script "lw=`/usr/local/bin/identify -format %w " & fname & "`; lw=$(( lw * " & pct & "/100 ));
-		/usr/local/bin/convert +repage -gravity east -chop ${lw}x0 -gravity west -background white -splice ${lw}x0 +repage " & fname & " $TMPDIR/tempfile.png"
+		$(bash -l -c 'which convert') +repage -gravity east -chop ${lw}x0 -gravity west -background white -splice ${lw}x0 +repage " & fname & " $TMPDIR/tempfile.png"
 		tell application "Finder"
 			delete file filename
 			do shell script "cp $TMPDIR/tempfile.png " & fname

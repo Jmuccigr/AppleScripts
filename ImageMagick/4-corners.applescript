@@ -13,8 +13,7 @@ on open of finderObjects
 	end if
 	repeat with filename in (finderObjects)
 		set fname to quoted form of POSIX path of filename
-		do shell script "size=`/usr/local/bin/convert " & fname & " -format " & quote & "%[fx:" & pct & "*min(w,h)/100]" & quote & " info:` 
-		/usr/local/bin/convert \\( -size ${size}x${size} -background white xc: -write mpr:block +delete \\) " & fname & " mpr:block  -gravity southeast -compose over -composite mpr:block -gravity northeast -compose over -composite mpr:block -gravity northwest -compose over -composite mpr:block -gravity southwest -compose over -composite -fuzz 2% -trim -bordercolor white -border " & border & " +repage $TMPDIR/tempfile.png"
+		do shell script "size=`$(bash -l -c 'which convert') " & fname & " -format " & quote & "%[fx:" & pct & "*min(w,h)/100]" & quote & " info:`; $(bash -l -c 'which convert') \\( -size ${size}x${size} -background white xc: -write mpr:block +delete \\) " & fname & " mpr:block  -gravity southeast -compose over -composite mpr:block -gravity northeast -compose over -composite mpr:block -gravity northwest -compose over -composite mpr:block -gravity southwest -compose over -composite -fuzz 2% -trim -bordercolor white -border " & border & " +repage $TMPDIR/tempfile.png"
 		tell application "Finder"
 			delete file filename
 			do shell script "cp $TMPDIR/tempfile.png " & fname

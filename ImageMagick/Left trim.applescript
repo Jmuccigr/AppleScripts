@@ -13,8 +13,8 @@ on open of finderObjects
 	end if
 	repeat with filename in (finderObjects)
 		set fname to quoted form of POSIX path of filename
-		do shell script "lw=`/usr/local/bin/convert " & fname & " -format " & quote & "%[fx:max(5,ceil(w*" & pct & "/100))]\" info:`; 
-		/usr/local/bin/convert +repage -gravity west -chop ${lw}x0 -fuzz 2% -trim -bordercolor white -border " & border & " +repage " & fname & " $TMPDIR/tempfile.png"
+		do shell script "lw=`$(bash -l -c 'which convert') " & fname & " -format " & quote & "%[fx:max(5,ceil(w*" & pct & "/100))]\" info:`; 
+		$(bash -l -c 'which convert') +repage -gravity west -chop ${lw}x0 -fuzz 2% -trim -bordercolor white -border " & border & " +repage " & fname & " $TMPDIR/tempfile.png"
 		tell application "Finder"
 			delete file filename
 			do shell script "cp $TMPDIR/tempfile.png " & fname
