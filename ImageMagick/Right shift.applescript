@@ -1,9 +1,10 @@
 -- Shift images to the right using imagemagick
 -- Chop off 3% of pixels on one side, and then add a white border of the same size to the opposite side
 -- If the option key is down, increase the chopped region to 10%
+-- If the command key is down, re-splice the chopped region, effectively erasing it
+-- There are better ways to do that, but this keeps the scripting simple.
 
 on open of finderObjects
-	set pct to "3"
 	
 	if option_down of modifierKeysPressed() then
 		set pct to "10"
@@ -11,10 +12,16 @@ on open of finderObjects
 	else
 		set pct to "3"
 	end if
+	if command_down of modifierKeysPressed() then
+		set side to "east"
+		beep 2
+	else
+		set side to "west"
+	end if
 	repeat with filename in (finderObjects)
 		set fname to quoted form of POSIX path of filename
 		do shell script "lw=`/usr/local/bin/identify -format %w " & fname & "`; lw=$(( lw * " & pct & "/100 ));
-		$(bash -l -c 'which convert') +repage -gravity east -chop ${lw}x0 -gravity west -background white -splice ${lw}x0 +repage " & fname & " $TMPDIR/tempfile.png"
+		$(bash -l -c 'which convert') +repage -gravity east -chop ${lw}x0 -gravity " & side & " -background white -splice ${lw}x0 +repage " & fname & " $TMPDIR/tempfile.png"
 		tell application "Finder"
 			delete file filename
 			do shell script "cp $TMPDIR/tempfile.png " & fname
