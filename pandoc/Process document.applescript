@@ -38,7 +38,7 @@ on run
 	set beamerConfig to "+smart --pdf-engine=xelatex -i --template=" & quoted form of (myGit & "pandoc-templates/default.latex") & " -V theme=Madrid -V colortheme=beetle -V fonttheme=structuresmallcapsserif"
 	set htmlConfig to "+smart --self-contained --template=" & quoted form of (myGit & "pandoc-templates/default.html4")
 	set pdfConfig to "+smart --pdf-engine=xelatex --template=" & quoted form of (myGit & "pandoc-templates/default.latex")
-	set revealConfig to "+smart -i -V center=false -V theme=grayfull -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=/Users/john_muccigrosso/Documents/github/local/reveal.js/"
+	set revealConfig to "+smart -i --self-contained -V center=false -V theme=grayfull -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=/Users/john_muccigrosso/Documents/github/local/reveal.js/"
 	
 	-- Standard variables
 	set pandocSwitches to " -s --columns 800 --bibliography=" & bibfile
