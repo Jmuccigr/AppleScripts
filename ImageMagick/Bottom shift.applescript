@@ -3,9 +3,10 @@
 -- If the option key is down, increase the chopped region to 10%
 -- If the command key is down, re-splice the chopped region, effectively erasing it
 -- There are better ways to do that, but this keeps the scripting simple.
+-- If the shift key is down, the quicklook behavior is reversed
 
 on open of finderObjects
-	
+	set ct to the count of finderObjects
 	if option_down of modifierKeysPressed() then
 		set pct to "10"
 		beep
@@ -18,6 +19,13 @@ on open of finderObjects
 	else
 		set side to "north"
 	end if
+	if shift_down of modifierKeysPressed() then
+		if ct > 3 then
+			set ct to 0
+		else
+			set ct to 4
+		end if
+	end if
 	repeat with filename in (finderObjects)
 		set fname to quoted form of POSIX path of filename
 		do shell script "lh=`/usr/local/bin/identify -format %h " & fname & "`; lh=$(( lh * " & pct & "/100 ));
@@ -25,7 +33,9 @@ on open of finderObjects
 		tell application "Finder"
 			delete file filename
 			do shell script "cp $TMPDIR/tempfile.png " & fname
-			do shell script "qlmanage -p " & fname
+			if ct < 4 then
+				do shell script "qlmanage -p " & fname
+			end if
 			select file filename
 		end tell
 	end repeat
