@@ -12,7 +12,7 @@ on open of finderObjects
 	end if
 	repeat with filename in (finderObjects)
 		set fname to quoted form of POSIX path of filename
-		do shell script "orig_dim=($(/usr/local/bin/convert " & fname & " -shave 10x10 -bordercolor white -border 10x10 -blur 0,8 -normalize -fuzz 2% -trim -format " & quote & "%W %H %X %Y %w" & quote & " info:)); w=${orig_dim[0]}; h=${orig_dim[1]}; x=${orig_dim[2]}; y=${orig_dim[3]}; new_w=${orig_dim[4]}; echo $w; x_dis=$(( (w - new_w) / 2)); /usr/local/bin/convert \\( -size " & quote & "$w" & quote & "x$h -background white xc: -write mpr:bgimage +delete \\) mpr:bgimage \\( -crop " & quote & "$w" & quote & "x$h+$x+$y " & fname & " \\) -compose divide_dst -gravity northwest -geometry +$x_dis+$y -composite $TMPDIR/tempfile.png"
+		do shell script "orig_dim=($(/usr/local/bin/magick " & fname & " -shave 10x10 -bordercolor white -border 10x10 -blur 0,8 -normalize -fuzz 2% -trim -format " & quote & "%W %H %X %Y %w" & quote & " info:)); w=${orig_dim[0]}; h=${orig_dim[1]}; x=${orig_dim[2]}; y=${orig_dim[3]}; new_w=${orig_dim[4]}; x_dis=$(( (w - new_w) / 2)); /usr/local/bin/convert \\( -size " & quote & "$w" & quote & "x$h -background white xc: -write mpr:bgimage +delete \\) mpr:bgimage \\( " & fname & " -crop " & quote & "$w" & quote & "x$h+$x+$y \\) -compose divide_dst -gravity northwest -geometry +$x_dis+$y -composite $TMPDIR/tempfile.png"
 		tell application "Finder"
 			delete file filename
 			do shell script "cp $TMPDIR/tempfile.png " & fname
