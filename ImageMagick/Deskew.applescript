@@ -5,7 +5,7 @@ on open of finderObjects
 	
 	repeat with filename in (finderObjects)
 		set fname to quoted form of POSIX path of filename
-		do shell script "/usr/local/bin/convert +repage -deskew " & amount & " +repage " & fname & " $TMPDIR/tempfile.png"
+		do shell script "/usr/local/bin/magick " & fname & " +repage -deskew " & amount & " +repage $TMPDIR/tempfile.png"
 		tell application "Finder"
 			delete file filename
 			do shell script "cp $TMPDIR/tempfile.png " & fname
