@@ -38,7 +38,7 @@ on run
 	set beamerConfig to "+smart --pdf-engine=xelatex -i --template=" & quoted form of (myGit & "pandoc-templates/default.latex") & " -V theme=Madrid -V colortheme=beetle -V fonttheme=structuresmallcapsserif"
 	set htmlConfig to "+smart --self-contained --template=" & quoted form of (myGit & "pandoc-templates/default.html4")
 	set pdfConfig to "+smart --pdf-engine=xelatex --template=" & quoted form of (myGit & "pandoc-templates/default.latex")
-	set revealConfig to "+smart -i --self-contained -V center=false -V theme=gray_lecture -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=/Users/john_muccigrosso/Documents/github/local/reveal.js/"
+	set revealConfig to "+smart -i --self-contained -V center=false -V theme=gray_lecture -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=" & quoted form of (myGit & "reveal.js/")
 	
 	-- Standard variables
 	set pandocSwitches to " -s --columns 800 --bibliography=" & bibfile
@@ -100,8 +100,8 @@ on run
 		set hasext to (length of ext > 0)
 		if ext = "md" or ext = "markdown" then set validFile to true
 		
-		if fname ­ "" and not validFile then
-			set alertResult to display alert "Not markdown" as warning message Â
+		if fname Â­ "" and not validFile then
+			set alertResult to display alert "Not markdown" as warning message Ã‚
 				"The file doesn't appear to be in markdown format. Proceed anyway?" buttons {"Yes", "No"} default button 2 giving up after 30
 			if button returned of alertResult = "Yes" then
 				set validFile to true
@@ -124,7 +124,7 @@ on run
 			if outputExt is "" then error number -128
 			set outputfn to outputfn & "." & outputExt
 			set fpath to (do shell script "dirname  " & quoted form of fpath) & "/"
-			repeat until outputfile ­ ""
+			repeat until outputfile Â­ ""
 				try
 					set outputfile to choose file name default name outputfn default location fpath with prompt "Select location for output:"
 					-- Complain if it doesn't have an extension.
@@ -378,7 +378,7 @@ on get_output()
 		-- Return the extension and the concatenated options
 		return {output_extension, " -t " & output_format_list & options & space & refFile & space}
 	on error errMsg
-		if errMsg ­ "User canceled." then
+		if errMsg Â­ "User canceled." then
 			display alert "Output File Error:" message errMsg
 		end if
 		error number -128
