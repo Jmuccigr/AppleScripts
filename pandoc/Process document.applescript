@@ -1,6 +1,6 @@
 -- A script to take the front document in the frontmost application and have pandoc process it.
 
-global appName, ottfile, dotmfile, outputFormats, output_format_list, outputExt, pandocSwitches, beamerConfig, htmlConfig, revealConfig, pdfConfig, refFile
+global appName, ottfile, dotmfile, pptxthemefile, outputFormats, output_format_list, outputExt, pandocSwitches, beamerConfig, htmlConfig, revealConfig, pdfConfig, refFile
 
 on run
 	-- Set some variables for use later on
@@ -25,9 +25,10 @@ on run
 	-- These are the default templates for the output. Use unquoted forms of the POSIX path.
 	set ottfile to myLib & "Application Support/LibreOffice/4/user/template/Butterick 11.ott"
 	set dotmfile to myLib & "Application Support/Microsoft/Office/User Templates/Normal.dotm"
+	set pptxthemefile to myLib & "Application Support/Microsoft/Office/User Templates/My Templates/pandoc.potx"
 	
 	-- output options
-	set outputFormats to {"html", "html5", "latex", "pdf", "odt", "docx", "beamer", "slidy", "slideous", "dzslides", "revealjs", "s5", "native", "json", "markdown", "markdown_strict", "markdown_phpextra", "markdown_github", "markdown_mmd", "commonmark", "rst", "context", "man", "mediawiki", "dokuwiki", "textile", "org", "texinfo", "opml", "docbook", "opendocument", "haddock", "rtf", "epub", "epub3", "fb2", "asciidoc", "icml"}
+	set outputFormats to {"html", "html5", "latex", "pdf", "odt", "docx", "beamer", "slidy", "slideous", "dzslides", "pptx", "revealjs", "s5", "native", "json", "plain", "markdown", "markdown_strict", "markdown_phpextra", "gfm", "markdown_mmd", "commonmark", "rst", "context", "man", "mediawiki", "dokuwiki", "textile", "org", "texinfo", "opml", "docbook", "opendocument", "haddock", "rtf", "epub", "epub2", "epub3", "fb2", "asciidoc", "icml"}
 	
 	-- default output-file extension without leading dot
 	set outputExt to "html"
@@ -259,61 +260,22 @@ on get_output()
 				if output_format_list is "json" then
 					set output_extension to "json"
 				end if
-				if output_format_list is "plain" then
+				if output_format_list is in {"plain", "mediawiki", "dokuwiki", "asciidoc"} then
 					set output_extension to "txt"
 				end if
-				if output_format_list is "mediawiki" then
-					set output_extension to "txt"
-				end if
-				if output_format_list is "dokuwiki" then
-					set output_extension to "txt"
-				end if
-				if output_format_list is "asciidoc" then
-					set output_extension to "txt"
-				end if
-				if output_format_list is "markdown" then
-					set output_extension to "md"
-				end if
-				if output_format_list is "markdown_strict" then
-					set output_extension to "md"
-				end if
-				if output_format_list is "markdown_phpextra" then
-					set output_extension to "md"
-				end if
-				if output_format_list is "markdown_github" then
-					set output_extension to "md"
-				end if
-				if output_format_list is "markdown_mmd" then
-					set output_extension to "md"
-				end if
-				if output_format_list is "commonmark" then
+				if output_format_list is in {"markdown", "markdown_strict", "markdown_phpextra", "gfm", "markdown_mmd", "commonmark"} then
 					set output_extension to "md"
 				end if
 				if output_format_list is "rst" then
 					set output_extension to "rst"
 				end if
-				if output_format_list is "html" then
+				if output_format_list is in {"html", "html5", "slidy", "slideous", "dzslides", "revealjs", "s5"} then
 					set output_extension to "html"
 				end if
-				if output_format_list is "html5" then
-					set output_extension to "html"
+				if output_format_list is "pptx" then
+					set output_extension to "pptx"
 				end if
-				if output_format_list is "slidy" then
-					set output_extension to "html"
-				end if
-				if output_format_list is "slideous" then
-					set output_extension to "html"
-				end if
-				if output_format_list is "dzslides" then
-					set output_extension to "html"
-				end if
-				if output_format_list is "revealjs" then
-					set output_extension to "html"
-				end if
-				if output_format_list is "s5" then
-					set output_extension to "html"
-				end if
-				if output_format_list is "latex" then
+				if output_format_list is in {"latex", "context"} then
 					set output_extension to "tex"
 				end if
 				if output_format_list is "pdf" then
@@ -322,9 +284,6 @@ on get_output()
 				end if
 				if output_format_list is "beamer" then
 					set output_extension to "pdf"
-				end if
-				if output_format_list is "context" then
-					set output_extension to "tex"
 				end if
 				if output_format_list is "rst" then
 					set output_extension to "rst"
@@ -359,10 +318,7 @@ on get_output()
 				if output_format_list is "rtf" then
 					set output_extension to "rtf"
 				end if
-				if output_format_list is "epub" then
-					set output_extension to "epub"
-				end if
-				if output_format_list is "epub3" then
+				if output_format_list is in {"epub", "epub2", "epub3"} then
 					set output_extension to "epub"
 				end if
 				if output_format_list is "fb2" then
