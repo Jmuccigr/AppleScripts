@@ -1,6 +1,6 @@
 -- A script to take the front document in the frontmost application and have pandoc process it.
 
-global appName, ottfile, dotmfile, pptxthemefile, outputFormats, output_format_list, outputExt, pandocSwitches, beamerConfig, htmlConfig, revealConfig, pdfConfig, refFile
+global appName, ottfile, dotmfile, pptxthemefile, outputFormats, output_format_list, outputExt, pandocSwitches, beamerConfig, htmlConfig, html5Config, revealConfig, pdfConfig, refFile
 
 on run
 	-- Set some variables for use later on
@@ -38,6 +38,7 @@ on run
 	-- Removing ' -V width=\\" & quote & "& quote & "100%\\" ' while bug prevents correct thumbnails
 	set beamerConfig to "+smart --pdf-engine=xelatex -i --template=" & quoted form of (myGit & "pandoc-templates/default.latex") & " -V theme=Madrid -V colortheme=beetle -V fonttheme=structuresmallcapsserif"
 	set htmlConfig to "+smart --self-contained --template=" & quoted form of (myGit & "pandoc-templates/default.html4")
+	set html5Config to "+smart --self-contained --template=" & quoted form of (myGit & "pandoc-templates/default.html5")
 	set pdfConfig to "+smart --pdf-engine=xelatex --template=" & quoted form of (myGit & "pandoc-templates/default.latex")
 	set revealConfig to "+smart -i --self-contained -V center=false -V theme=gray_lecture -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=" & quoted form of (myGit & "reveal.js/")
 	
@@ -231,9 +232,11 @@ on get_output()
 			--set output_format_list to outputDialogResult
 			-- Display a dialog box with specified input and output formats, so you can cancel if you made any mistakes and specify more command-line options via a text field. You can change the default answer if you prefer a different one.
 			-- First create options for a given subset of output types.
-			if output_format_list is in {"html", "pdf", "revealjs", "beamer"} then
+			if output_format_list is in {"html", "html5", "pdf", "revealjs", "beamer"} then
 				if output_format_list is "html" then
 					set pandocSwitches to htmlConfig & " " & pandocSwitches
+				else if output_format_list is "html5" then
+					set pandocSwitches to html5Config & " " & pandocSwitches
 				else if output_format_list is "pdf" then
 					set pandocSwitches to pdfConfig & " " & pandocSwitches
 				else if output_format_list is "revealjs" then
