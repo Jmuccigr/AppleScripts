@@ -1,0 +1,19 @@
+---
+title: Image Extraction
+author: John D. Muccigrosso
+date: Sunday, 29 September 2019
+---
+
+These AppleScripts and associated droplet apps (do we still call them that?) will extract images from common file types.
+
+## Get PDF images
+
+This script relies on the [poppler](https://poppler.freedesktop.org) set of utilities to do its work. pdfinfo reads the number of pages, just for error-checking purposes, and pdfimages does the dirty work. Drop a PDF on it and the script will make sure it has images and then extract all the images in their original format from what page range you ask it to, and save them with your chosen name in the original folder.
+
+I've embedded the two binaries in the app bundle and it seems to work. Let me know if it doesn't.
+
+Be warned: some PDFs have images put in them in strange ways, so what comes up sometimes needs some massaging. A simple `magick -append` will often do the trick, but sometimes it takes more.
+
+## Get Word images
+
+This script is a little simpler since it just unzips the word/media folder inside the docx bundle and deposits those files inside the original folder. Right now it unzips everything, but I should probably have it just do the image files. Since `unzip` is built into MacOS, this doesn't require any monkey business.
