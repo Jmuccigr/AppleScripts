@@ -8,7 +8,7 @@ These AppleScripts and associated droplet apps (do we still call them that?) wil
 
 ## Get PDF images
 
-This script relies on the [poppler](https://poppler.freedesktop.org) set of utilities to do its work. pdfinfo reads the number of pages, just for error-checking purposes, and pdfimages does the dirty work. Drop a PDF on it and the script will make sure it has images and then extract all the images in their original format from what page range you ask it to, and save them with your chosen name in the original folder.
+This script relies on the [poppler](https://poppler.freedesktop.org) set of utilities to do its work. pdfinfo reads the number of pages, just for error-checking purposes, and pdfimages does the dirty work. Drop a PDF on it and the script will make sure it has images and then extract all the images in their original format (except for jb2e which becomes png) from the page range you ask it to, and save the images with your chosen name in the original folder.
 
 I've embedded the two binaries in the app bundle and it seems to work. Let me know if it doesn't.
 

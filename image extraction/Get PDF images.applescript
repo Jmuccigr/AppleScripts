@@ -9,6 +9,9 @@ on open fname
 		quit
 	end if
 	
+	# Set file types to be handled
+	set filetypes to "  -png -tiff -j -jp2 -ccitt "
+	
 	# Use the version of the script embedded in the app
 	set imagePath to quoted form of ((POSIX path of (path to me) as string) & "Contents/Resources/pdfimages")
 	set infoPath to quoted form of ((POSIX path of (path to me) as string) & "Contents/Resources/pdfinfo")
@@ -39,5 +42,5 @@ on open fname
 		if (lpage > pageCount) or (lpage < fpage) then display alert "Invalid page number" message "You must enter a valid page number."
 	end repeat
 	set outputname to text returned of (display dialog "What's the output file name?" default answer "output_" with title "Name of output images")
-	do shell script (imagePath & " -all -f " & fpage & " -l " & lpage & " " & quoted form of pfile & " " & quoted form of (fpath & outputname))
+	do shell script (imagePath & filetypes & " -f " & fpage & " -l " & lpage & " " & quoted form of pfile & " " & quoted form of (fpath & outputname))
 end open
