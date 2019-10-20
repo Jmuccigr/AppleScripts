@@ -23,5 +23,5 @@ on open fname
 	
 	# Extract files in the word/media directory into the same folder as the file.
 	# Could check for image files, but haven't yet.
-	do shell script "unzip -n -j -d " & fpath & " " & quoted form of pfile & " word/media/*"
+	do shell script "unzip -n -j -d " & quoted form of fpath & " " & quoted form of pfile & " word/media/*"
 end open
