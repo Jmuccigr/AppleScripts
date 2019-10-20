@@ -21,7 +21,7 @@ on open fname
 	set fpath to (do shell script "dirname " & quoted form of pfile) & "/"
 	
 	# Make sure there are images in the file
-	set imageCount to (do shell script (imagePath & " -list " & quoted form of pfile & " | wc -l")) * 1 - 2
+	set imageCount to ((do shell script (imagePath & " -list " & quoted form of pfile & " | wc -l")) as integer) - 2
 	if imageCount = 0 then
 		display alert "No images!" message "Oops. This file has no images in it."
 		quit
