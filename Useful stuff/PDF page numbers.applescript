@@ -1,12 +1,9 @@
 on open fname
 	# An app to overlay page numbers on an existing PDF
 	
-	# Make sure the file is a PDF, based on extension
-	tell application "Finder"
-		set ext to (name extension of file fname) as string
-	end tell
-	set ext to (do shell script "echo " & ext & " | tr '[:upper:]' '[:lower:]'")
-	if ext is not "pdf" then
+	# Make sure the file is a PDF, based on file info
+	set ftype to (do shell script "file -bI " & quoted form of (POSIX path of fname))
+	if characters 1 thru 15 of ftype as string ­ "application/pdf" then
 		display alert "Wrong file type" message "This does not appear to be a PDF file. Quitting."
 		quit
 	end if
