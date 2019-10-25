@@ -36,7 +36,12 @@ on open fname
 		set fpage to text returned of (display dialog "There are " & pageCount & " pages in this PDF. What's the first page to extract images from?" default answer "1" with title "First Page") as number
 		if fpage > pageCount or fpage < 1 then display alert "Invalid page number" message "First page must be a valid number."
 	end repeat
-	set lpage to 0
+	# Don't ask about last page to process if the first page _is_ the last page of the document
+	if fpage = pageCount then
+		set lpage to pageCount
+	else
+		set lpage to 0
+	end if
 	repeat until (lpage ² pageCount) and (lpage ³ fpage)
 		set lpage to text returned of (display dialog "There are " & pageCount & " pages in this PDF and you're starting on page " & fpage & ". What's the last page to extract images from?" default answer fpage with title "Last Page") as number
 		if (lpage > pageCount) or (lpage < fpage) then display alert "Invalid page number" message "You must enter a valid page number."
