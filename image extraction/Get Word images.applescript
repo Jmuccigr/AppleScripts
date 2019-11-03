@@ -13,7 +13,7 @@ on open fname
 	# System will create the new folder automatically
 	tell application "Finder"
 		set fnameString to characters 1 thru 15 of (((name of file fname) as string) & "              ") as string
-		set fnameString to (do shell script "echo " & fnameString & " | tr ' ' '_'")
+		set fnameString to (do shell script "echo " & quoted form of fnameString & " | tr ' ' '_'")
 	end tell
 	set dateString to (do shell script " date +%Y-%m-%d_%H.%M.%S")
 	
