@@ -27,7 +27,11 @@ on open fname
 	
 	# Set page size based on the existing file, if readable, or ask for input
 	if pageSize is in {"letter", "A4"} then
-		set paperSize to pageSize
+		if pageSize is "letter" then
+			set paperSize to pageSize
+		else
+			set paperSize to "a4paper"
+		end if
 	else
 		try
 			set paperChoice to {choose from list sizes with title "Paper Size" default items "A4" cancel button name "Cancel" without multiple selections allowed and empty selection allowed}
@@ -48,9 +52,13 @@ on open fname
 	
 	if (paperChoice as string) contains "landscape" then set orientation to ", landscape"
 	
+	# Allow for choice of start-page number
+	set pageReply to (display dialog "Starting page number" with title "Start Page" with icon note default answer "1")
+	set startPage to the text returned of pageReply as integer
+	
 	# Create a PDF with numbered pages for merging
 	try
-		do shell script "echo '\\documentclass[12pt," & paperSize & "]{article}\n \\usepackage{multido}\n \\usepackage[hmargin=.8cm,vmargin=1.5cm,nohead,nofoot" & orientation & "]{geometry}\n \\\\begin{document}\n \\multido{}{" & pageCount & "}{\\\\vphantom{x}\\\\newpage}\n \\end{document}' > $TMPDIR/numbers.tex"
+		do shell script "echo '\\documentclass[12pt," & paperSize & "]{article}\n \\usepackage{multido}\n \\usepackage[hmargin=.8cm,vmargin=.75cm,nohead,nofoot" & orientation & "]{geometry}\n \\\\begin{document}\n \\\\setcounter{page}{" & startPage & "}\n\\multido{}{" & pageCount & "}{\\\\vphantom{x}\\\\newpage}\n \\end{document}' > $TMPDIR/numbers.tex"
 		do shell script ("cd $TMPDIR; " & latexPath & " $TMPDIR/numbers.tex")
 	on error errMsg number errNum
 		display alert "Error!" message "Something went wrong creating the numbered pages: " & return & errMsg
