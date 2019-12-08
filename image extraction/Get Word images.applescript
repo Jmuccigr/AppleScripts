@@ -4,9 +4,16 @@ on open fname
 		set ext to (name extension of file fname) as string
 	end tell
 	set ext to (do shell script "echo " & ext & " | tr '[:upper:]' '[:lower:]'")
-	if ext is not "docx" then
-		display alert "Wrong file type" message "This does not appear to be a new Word file. Quitting."
+	if ext is not in {"docx", "pptx"} then
+		display alert "Wrong file type" message "This does not appear to be a new Word or PowerPoint file. Quitting."
 		quit
+	end if
+	
+	-- Set appropriate dir name depending on file type
+	if ext = "docx" then
+		set mspath to "word"
+	else
+		set mspath to "ppt"
 	end if
 	
 	# Create likely unique name for destination folder
@@ -23,5 +30,5 @@ on open fname
 	
 	# Extract files in the word/media directory into the same folder as the file.
 	# Could check for image files, but haven't yet.
-	do shell script "unzip -n -j -d " & quoted form of fpath & " " & quoted form of pfile & " word/media/*"
+	do shell script "unzip -n -j -d " & quoted form of fpath & " " & quoted form of pfile & " " & mspath & "/media/*"
 end open
