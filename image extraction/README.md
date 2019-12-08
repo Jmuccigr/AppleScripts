@@ -14,6 +14,8 @@ I've embedded the two binaries in the app bundle and it seems to work. Let me kn
 
 Be warned: some PDFs have images put in them in strange ways, so what comes up sometimes needs some massaging. A simple `magick -append` will often do the trick, but sometimes it takes more.
 
-## Get Word images
+## Get Office images
 
-This script is a little simpler since it just unzips the word/media folder inside the docx bundle and deposits those files inside the original folder, creating what is hopefully a uniquely named sub-folder. (The name is based on the date and time and filename, so it **should** be unique.) Right now the unzips everything, but I should probably have it just do the image files, though it doesn't look like unzip's support of regex is so great. Since `unzip` is built into MacOS, this doesn't require any monkey business.
+This script is a little simpler since it just unzips the word or pptx /media folder inside the docx/pptx bundle and deposits those files inside the original folder, creating what is hopefully a uniquely named sub-folder. (The name is based on the date and time and filename, so it **should** be unique.) Right now the unzips everything, but I should probably have it just do the image files, though it doesn't look like unzip's support of regex is so great. Since `unzip` is built into MacOS, this doesn't require any monkey business.
+
+I've also included zipped versions of the app versions.
