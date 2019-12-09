@@ -12,7 +12,11 @@ This script relies on the [poppler](https://poppler.freedesktop.org) set of util
 
 I've embedded the two binaries in the app bundle and it seems to work. Let me know if it doesn't.
 
-Be warned: some PDFs have images put in them in strange ways, so what comes up sometimes needs some massaging. A simple `magick -append` will often do the trick, but sometimes it takes more.
+Be warned: some PDFs have images put in them in strange ways, so what comes up sometimes needs some massaging. A simple `magick -append` will often do the trick, but sometimes it takes more. I've made a droplet that handles that for you, too, over in another repository.
+
+## Get All PDF images
+
+As the name suggests, this just pulls **all** the images from a PDF and dumps them into a directory. For when the PDF is small enough or you just don't want to take the time to figure out which pages you want. Conveniently pdfimages gives the images page-based names.
 
 ## Get Office images
 
