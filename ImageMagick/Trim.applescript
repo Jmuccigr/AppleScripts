@@ -1,8 +1,18 @@
 -- Trim images using imagemagick
 -- Trim and then add a white border to the result
 -- If the option key is down, be more aggressive in matching the pixels for trimming
+-- If the shift key is down, the quicklook behavior is reversed
 
 on open of finderObjects
+	set ct to the count of finderObjects
+	if shift_down of modifierKeysPressed() then
+		if ct > 3 then
+			set ct to 0
+		else
+			set ct to 4
+		end if
+	end if
+	
 	set border to "3"
 	
 	if option_down of modifierKeysPressed() then
@@ -17,7 +27,9 @@ on open of finderObjects
 		tell application "Finder"
 			delete file filename
 			do shell script "cp $TMPDIR/tempfile.png " & fname
-			do shell script "qlmanage -p " & fname
+			if ct < 4 then
+				do shell script "qlmanage -p " & fname
+			end if
 			select file filename
 		end tell
 	end repeat
