@@ -28,8 +28,7 @@ on open of finderObjects
 	end if
 	repeat with filename in (finderObjects)
 		set fname to quoted form of POSIX path of filename
-		do shell script "lh=`/usr/local/bin/identify -format %h " & fname & "`; lh=$(( lh * " & pct & "/100 ));
-		$(bash -l -c 'which convert') +repage -gravity south -chop 0x${lh} -gravity " & side & " -background white -splice 0x${lh} +repage " & fname & " $TMPDIR/tempfile.png"
+		do shell script "lh=`/usr/local/bin/identify -format %h " & fname & "`; lh=$(( lh * " & pct & "/100 ));\n\t\t$(bash -l -c 'which magick') " & fname & " +repage -gravity south -chop 0x${lh} -gravity " & side & " -background white -splice 0x${lh} +repage $TMPDIR/tempfile.png"
 		tell application "Finder"
 			delete file filename
 			do shell script "cp $TMPDIR/tempfile.png " & fname

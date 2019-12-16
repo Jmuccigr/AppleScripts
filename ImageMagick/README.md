@@ -1,6 +1,6 @@
 # ImageMagick scripts
 
-This is a set of AppleScripts that simply take a file (or files) via drag-and-drop and process it with ImageMagick. As long as the `magic` command is on your system, they should work.
+This is a set of AppleScripts that simply take a file (or files) via drag-and-drop and process it with ImageMagick. As long as the `magick` command is on your system, they should work.
 
 There are six sets of them:
 
