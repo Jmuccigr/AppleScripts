@@ -1,6 +1,7 @@
 -- Deskew images using imagemagick
 
 on open of finderObjects
+	set ct to the count of finderObjects
 	set amount to "40%"
 	
 	repeat with filename in (finderObjects)
@@ -9,7 +10,9 @@ on open of finderObjects
 		tell application "Finder"
 			delete file filename
 			do shell script "cp $TMPDIR/tempfile.png " & fname
-			do shell script "qlmanage -p " & fname
+			if ct < 4 then
+				do shell script "qlmanage -p " & fname
+			end if
 			select file filename
 		end tell
 	end repeat
