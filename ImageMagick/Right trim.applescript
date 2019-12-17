@@ -3,6 +3,7 @@
 -- If the option key is down, shrink the chopped region to only .5%
 
 on open of finderObjects
+	set ct to the count of finderObjects
 	set border to "3"
 	
 	if option_down of modifierKeysPressed() then
@@ -13,12 +14,13 @@ on open of finderObjects
 	end if
 	repeat with filename in (finderObjects)
 		set fname to quoted form of POSIX path of filename
-		do shell script "lw=`$(bash -l -c 'which convert') " & fname & " -format " & quote & "%[fx:max(5,ceil(w*" & pct & "/100))]\" info:`; 
-		$(bash -l -c 'which convert') +repage -gravity east -chop ${lw}x0 -fuzz 2% -trim -bordercolor white -border " & border & " +repage " & fname & " $TMPDIR/tempfile.png"
+		do shell script "lw=`$(bash -l -c 'which magick') " & fname & " -format " & quote & "%[fx:max(5,ceil(w*" & pct & "/100))]\" info:`; \n\t\t$(bash -l -c 'which magick') " & fname & " +repage -gravity east -chop ${lw}x0 -fuzz 2% -trim -bordercolor white -border " & border & " +repage $TMPDIR/tempfile.png"
 		tell application "Finder"
 			delete file filename
 			do shell script "cp $TMPDIR/tempfile.png " & fname
-			do shell script "qlmanage -p " & fname
+			if ct < 4 then
+				do shell script "qlmanage -p " & fname
+			end if
 			select file filename
 		end tell
 	end repeat
