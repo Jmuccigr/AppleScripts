@@ -1,6 +1,6 @@
 -- Trim bottom-right corner of images using imagemagick
 -- Blank out a square 5% in size, trim image, and add a then white border to the result
--- If the option key is down, shrink the square to only 1%
+-- If the option key is down, shrink the square to only 2%
 
 on open of finderObjects
 	set border to "3"
@@ -13,8 +13,7 @@ on open of finderObjects
 	end if
 	repeat with filename in (finderObjects)
 		set fname to quoted form of POSIX path of filename
-		do shell script "size=`$(bash -l -c 'which convert') " & fname & " -format " & quote & "%[fx:" & pct & "*min(w,h)/100]" & quote & " info:`
-$(bash -l -c 'which convert') +repage " & fname & " \\( -size ${size}x${size} -background white xc: \\) -gravity southwest -compose over -composite -fuzz 2% -trim -bordercolor white -border " & border & " +repage $TMPDIR/tempfile.png"
+		do shell script "size=`$(bash -l -c 'which magick') " & fname & " -format " & quote & "%[fx:" & pct & "*min(w,h)/100]" & quote & " info:`\n$(bash -l -c 'which magick') " & fname & " +repage \\( -size ${size}x${size} -background white xc: \\) -gravity southwest -compose over -composite -fuzz 2% -trim -bordercolor white -border " & border & " +repage $TMPDIR/tempfile.png"
 		tell application "Finder"
 			delete file filename
 			do shell script "cp $TMPDIR/tempfile.png " & fname
