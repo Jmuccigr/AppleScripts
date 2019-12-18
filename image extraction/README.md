@@ -16,10 +16,10 @@ Be warned: some PDFs have images put in them in strange ways, so what comes up s
 
 ## Get All PDF images
 
-As the name suggests, this just pulls **all** the images from a PDF and dumps them into a directory. For when the PDF is small enough or you just don't want to take the time to figure out which pages you want. Conveniently pdfimages gives the images page-based names.
+As the name suggests, this just pulls **all** the images from a PDF and dumps them into a directory. For when the PDF is small enough or you just don't want to take the time to figure out which pages you want. Conveniently pdfimages gives the images page-based names, so you can figure out where they came from after the extraction is done.
 
 ## Get Office images
 
-This script is a little simpler since it just unzips the word or pptx /media folder inside the docx/pptx bundle and deposits those files inside the original folder, creating what is hopefully a uniquely named sub-folder. (The name is based on the date and time and filename, so it **should** be unique.) Right now the unzips everything, but I should probably have it just do the image files, though it doesn't look like unzip's support of regex is so great. Since `unzip` is built into MacOS, this doesn't require any monkey business.
+This script is a little simpler since it just unzips the word or pptx /media folder inside the docx/pptx bundle and deposits those files inside the original folder, creating what is hopefully a uniquely named sub-folder. (The name is based on the date and time and filename, so it **should** be unique.) Right now it unzips all the files in the media folder, and I should probably have it just do the image files, though it doesn't look like unzip's support of regex is so great. Since `unzip` is built into MacOS, this doesn't require any extra stuff.
 
 I've also included zipped versions of the app versions.
