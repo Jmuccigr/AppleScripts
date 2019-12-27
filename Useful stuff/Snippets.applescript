@@ -67,6 +67,17 @@ theFileName as alias
 -- Missing file returns an error, so use 'on error' not 'else'
 exists POSIX file thePath as alias
 
+
+# Create likely unique name for destination folder using date and time
+tell application "Finder"
+	set fnameString to characters 1 thru 15 of (((name of file fname) as string) & "              ") as string
+	set fnameString to (do shell script "echo " & quoted form of fnameString & " | tr ' ' '_'")
+end tell
+set dateString to (do shell script " date +%Y-%m-%d_%H.%M.%S")
+# Get info on the file to combine for path and name
+set pfile to the POSIX path of fname
+set fpath to (do shell script "dirname " & quoted form of pfile) & "/" & dateString & "_" & fnameString & "_images"
+
 -- To handle POSIX file paths, append "as alias" to "POSIX file theFile"
 
 (*
