@@ -34,8 +34,8 @@ on open of finderObjects
 		# Get info on the file to combine for path and name
 		set pfile to the POSIX path of filename
 		set outputFile to (do shell script "dirname " & quoted form of pfile) & "/" & dateString & "_" & fnameString & ".pdf"
-		
-		do shell script "$(which gs) -o " & outputFile & " -sDEVICE=pdfwrite " & options & " " & fname
+
+		do shell script "/usr/local/bin/gs -o " & (quoted form of outputFile) & " -sDEVICE=pdfwrite " & options & " " & (quoted form of fname)
 	end repeat
 end open
 
