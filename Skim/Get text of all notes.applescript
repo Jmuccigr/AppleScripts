@@ -1,6 +1,7 @@
 -- Use Skim to extract notes from a PDF
 
 tell application "Skim"
+	activate
 	if (count of documents) = 0 then
 		display alert "Nothing open" message "There's no active document!"
 		error number -128
@@ -8,6 +9,7 @@ tell application "Skim"
 	
 	-- Set some variables
 	set t to ""
+	set ct to 0
 	--set action to "Revert"
 	
 	-- Allow the user to enter a starting page number for the PDF. Make it 1 if no sensible input.
@@ -28,9 +30,13 @@ tell application "Skim"
 		if modified then
 			set action to button returned of (display dialog "This document has already been modified." & return & "Should we leave it alone after reading the notes, or revert it to its last saved state?" buttons {"Cancel", "Revert", "Leave alone"} cancel button "Cancel" default button "Leave alone" with title "File modified" with icon caution)
 		end if
-*)
+		*)
+		
 		convert notes
-		set ct to count of notes
+		delay 1
+		repeat until ct > 0
+			set ct to count of notes
+		end repeat
 		repeat with i from 1 to ct
 			set n to (get text for note i) as string
 			set n to my replace(n, return, " ")
@@ -45,7 +51,7 @@ tell application "Skim"
 		if action = "Revert" then
 			--revert
 		end if
-*)
+		*)
 	end tell
 end tell
 
