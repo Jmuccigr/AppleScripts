@@ -1,6 +1,6 @@
 -- A script to take the front document in the frontmost application and have pandoc process it.
 
-global appName, ottfile, dotmfile, pptxthemefile, outputFormats, output_format_list, outputExt, pandocSwitches, beamerConfig, htmlConfig, html5Config, revealConfig, pdfConfig, refFile
+global appName, ottfile, dotmfile, pptxthemefile, outputFormats, output_format_list, outputExt, pandocSwitches, beamerConfig, htmlConfig, html5Config, revealConfig, pdfConfig, refFile, myName
 
 on run
 	-- Set some variables for use later on
@@ -17,6 +17,7 @@ on run
 	set myDocs to POSIX path of (path to documents folder)
 	set myGit to myDocs & "github/local/"
 	set myLib to POSIX path of (path to library folder from user domain)
+	set myName to (do shell script "whoami")
 	
 	-- For pandoc
 	-- Use single-quoted form of POSIX path
@@ -86,10 +87,7 @@ on run
 			if not ASmethod then
 				-- fpath got assigned by second method and needs to be converted into a real posix path.
 				-- Second substitution needed because of varying form of fpath value from BBEdit 8. Could be outdated.
-				set fpath to do shell script "x=" & quoted form of fpath & "
-        				x=${x/#file:\\/\\/}
-        				x=${x/#localhost}
-        				printf ${x//%/\\\\x}"
+				set fpath to do shell script "x=" & quoted form of fpath & "\n        \t\t\t\tx=${x/#file:\\/\\/}\n        \t\t\t\tx=${x/#localhost}\n        \t\t\t\tprintf ${x//%/\\\\x}"
 			end if
 		end if
 		-- We got a file path, now make sure it's a markdown file, based on the file extension, checking if there is one.
@@ -163,6 +161,7 @@ on run
 			-- Run the pandoc command & open the resulting file
 			try
 				do shell script shcmd & "-o " & outputfile
+				set the clipboard to shcmd & "-o " & outputfile
 				do shell script "open " & outputfile
 			on error errMsg
 				display alert "pandoc error" message "pandoc reported the following error:" & return & return & errMsg
@@ -247,6 +246,18 @@ on get_output()
 			end if
 			-- Set template file for output where needed.
 			set refFile to my set_refFile(output_format_list)
+			-- Check for filters to run. Assumes filters have been copied into pandoc's default data directory
+			set filterChoices to paragraphs of (do shell script "ls /Users/" & myName & "/.local/share/pandoc/filters/")
+			set filterText to ""
+			set filterCount to 0
+			repeat with filter in filterChoices
+				set filterchoice to (display dialog "Do you want to run the filter " & filter & "?" buttons {"Cancel", "No", "Yes"} default button 3)
+				if button returned of filterchoice = "Yes" then
+					set filterText to filterText & " --filter " & filter
+					set filterCount to filterCount + 1
+				end if
+			end repeat
+			-- Allow manual settings
 			set optionsDialogResult to display dialog "Output format: " & output_format_list & return & return & "To add more command-line options, use the field below." & return & return & "Some reader options:" & return & "+smart --parse-raw --old-dashes --base-header-level=NUMBER --indented-code-classes=CLASSES --default-image-extension=EXTENSION --metadata=KEY[:VAL] --normalize --preserve-tabs --tab-stop=NUMBER --track-changes=accept|reject|all --extract-media=DIR" & return & return & "Some writer options:" & return & "+smart --data-dir=DIRECTORY --standalone  --self-contained --no-wrap --columns=NUMBER --toc --toc-depth=NUMBER --no-highlight --highlight-style=STYLE" & return & return & "Some options affecting specific writers:" & return & "--ascii --reference-links --chapters --number-sections --number-offset=NUMBER[,NUMBER,...] --no-tex-ligatures --listings --incremental --slide-level=NUMBER --section-divs --email-obfuscation=none|javascript|references --id-prefix=STRING --css=URL --pdf-engine=pdflatex|lualatex|xelatex --pdf-engine-opt=STRING --bibliography=FILE" buttons {"Cancel", "OK"} default button "OK" cancel button "Cancel" default answer pandocSwitches with title "Pandoc: Specify other options"
 			if button returned of optionsDialogResult is "OK" then
 				-- User didn't cancel, so grab those responses
@@ -335,7 +346,7 @@ on get_output()
 			end if
 		end if
 		-- Return the extension and the concatenated options
-		return {output_extension, " -t " & output_format_list & options & space & refFile & space}
+		return {output_extension, " -t " & output_format_list & filterText & space & options & space & refFile & space}
 	on error errMsg
 		if errMsg ­ "User canceled." then
 			display alert "Output File Error:" message errMsg
