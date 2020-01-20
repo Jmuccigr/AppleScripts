@@ -16,6 +16,8 @@ on open fname
 	set imagePath to quoted form of ((POSIX path of (path to me) as string) & "Contents/Resources/pdfimages")
 	set infoPath to quoted form of ((POSIX path of (path to me) as string) & "Contents/Resources/pdfinfo")
 	
+	# Check that the embedded binaries are working
+	set binaryCheck to (do shell script infoPath & " -v")
 	# Get info on the file
 	set pfile to the POSIX path of fname
 	set fpath to (do shell script "dirname " & quoted form of pfile) & "/"
@@ -43,4 +45,8 @@ on open fname
 		end repeat
 		do shell script (imagePath & filetypes & " -f " & i & " -l " & i & " " & quoted form of pfile & " " & quoted form of (fpath & outputname))
 	end repeat
+	
+	-- Notify of completion
+	display notification ("Finished extracting " & imageCount & " images from your file.") with title "Image extraction" sound name "beep"
+	
 end open
