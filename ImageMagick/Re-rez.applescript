@@ -11,7 +11,7 @@ on open of finderObjects
 		set fname to quoted form of POSIX path of filename
 		set tid to AppleScript's text item delimiters
 		set AppleScript's text item delimiters to " "
-		set {wid, ht, dimx, dimy} to the text items of (do shell script "$(which magick) " & fname & " -format " & quote & "%W %H %x %y" & quote & " info:")
+		set {wid, ht, dimx, dimy} to the text items of (do shell script "/usr/local/bin/magick " & fname & " -format " & quote & "%W %H %x %y" & quote & " info:")
 		set AppleScript's text item delimiters to tid
 		-- Calculate new resolution in cm
 		set resW to wid / (8 * 2.54)
@@ -26,7 +26,7 @@ on open of finderObjects
 			else
 				set dimNew to resH
 			end if
-			do shell script "$(which magick) " & fname & " -units PixelsPerCentimeter -density " & (dimNew) & " $TMPDIR/tempfile." & ext
+			do shell script "/usr/local/bin/magick " & fname & " -units PixelsPerCentimeter -density " & dimNew & "x" & dimNew & " $TMPDIR/tempfile." & ext
 			tell application "Finder"
 				delete file filename
 				do shell script "cp $TMPDIR/tempfile." & ext & " " & fname
