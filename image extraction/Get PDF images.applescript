@@ -10,11 +10,11 @@ on open fname
 	end if
 	
 	# Set file types to be handled
-	set filetypes to "  -png -tiff -j -jp2 -ccitt "
+	set filetypes to " -png -tiff -j -jp2 -ccitt "
 	
-	# Use the version of the script embedded in the app
-	set imagePath to quoted form of ((POSIX path of (path to me) as string) & "Contents/Resources/pdfimages")
-	set infoPath to quoted form of ((POSIX path of (path to me) as string) & "Contents/Resources/pdfinfo")
+	# Explicit paths
+	set imagePath to "/usr/local/bin/pdfimages"
+	set infoPath to "/usr/local/bin/pdfinfo"
 	
 	# Get info on the file
 	set pfile to the POSIX path of fname
@@ -28,7 +28,7 @@ on open fname
 	end if
 	
 	# Get number of pages for input checking
-	set pageCount to (do shell script infoPath & " " & quoted form of pfile & " | grep Pages | sed 's/Pages://'") as number
+	set pageCount to (do shell script infoPath & " " & quoted form of pfile & " | grep 'Pages:' | sed 's/Pages://'") as number
 	
 	# Get pages to process, making sure that they're valid pages for the document
 	set fpage to (pageCount + 1)
@@ -36,6 +36,7 @@ on open fname
 		set fpage to text returned of (display dialog "There are " & pageCount & " pages in this PDF. What's the first page to extract images from?" default answer "1" with title "First Page") as number
 		if fpage > pageCount or fpage < 1 then display alert "Invalid page number" message "First page must be a valid number."
 	end repeat
+	
 	# Don't ask about last page to process if the first page _is_ the last page of the document
 	if fpage = pageCount then
 		set lpage to pageCount
@@ -47,5 +48,10 @@ on open fname
 		if (lpage > pageCount) or (lpage < fpage) then display alert "Invalid page number" message "You must enter a valid page number."
 	end repeat
 	set outputname to text returned of (display dialog "What's the output file name?" default answer "output_" with title "Name of output images")
+	
 	do shell script (imagePath & filetypes & " -f " & fpage & " -l " & lpage & " " & quoted form of pfile & " " & quoted form of (fpath & outputname))
+	
+	-- Notify of completion
+	display notification ("Finished extracting images from your file.") with title "Image extraction" sound name "beep"
+	
 end open
