@@ -1,3 +1,7 @@
+# Explicit paths
+set imagePath to "/usr/local/bin/pdfimages"
+set infoPath to "/usr/local/bin/pdfinfo"
+
 on open fname
 	# Make sure the file is a PDF, based on extension
 	tell application "Finder"
@@ -22,11 +26,21 @@ on open fname
 	set pfile to the POSIX path of fname
 	set fpath to (do shell script "dirname " & quoted form of pfile) & "/"
 	
+	# Create likely unique name for destination folder
+	tell application "Finder"
+		set fnameString to characters 1 thru 15 of (((name of file fname) as string) & "              ") as string
+		set fnameString to (do shell script "echo " & quoted form of fnameString & " | tr ' ' '_'")
+	end tell
+	set dateString to (do shell script " date +%Y-%m-%d_%H.%M.%S")
+	
+	
 	# Make sure there are images in the file
 	set imageCount to ((do shell script (imagePath & " -list " & quoted form of pfile & " | wc -l")) as integer) - 2
 	if imageCount = 0 then
 		display alert "No images!" message "Oops. This file has no images in it."
 		quit
+	else
+		set fpath to (do shell script "dirname " & quoted form of pfile) & "/" & dateString & "_" & fnameString & "_images/"
 	end if
 	
 	# If there are a lot of images in the file, make sure that's ok
@@ -36,6 +50,9 @@ on open fname
 	
 	# Get number of pages for input checking
 	set pageCount to (do shell script infoPath & " " & quoted form of pfile & " | grep Pages | sed 's/Pages://'") as number
+	
+	# Make destination folder
+	do shell script ("mkdir " & quoted form of fpath)
 	
 	# Get pages to process, making sure that they're valid pages for the document
 	repeat with i from 1 to pageCount
