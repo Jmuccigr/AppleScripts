@@ -1,6 +1,7 @@
 -- Change the resolution of images so they'll fit on 8.5x11 paper without changes using imagemagick
 -- Esp. helpful if you're converting them to PDF
 -- If the option key is down, ignore the "close enough" check (= force change)
+-- Changes the files in place, since this is not irreversible.
 
 on open of finderObjects
 	repeat with filename in (finderObjects)
@@ -26,12 +27,14 @@ on open of finderObjects
 			else
 				set dimNew to resH
 			end if
-			do shell script "/usr/local/bin/magick " & fname & " -units PixelsPerCentimeter -density " & dimNew & "x" & dimNew & " $TMPDIR/tempfile." & ext
+			do shell script "/usr/local/bin/magick mogrify -units PixelsPerCentimeter -density " & dimNew & "x" & dimNew & " " & fname --& "& " $TMPDIR/tempfile." & ext
+			(*
 			tell application "Finder"
 				delete file filename
 				do shell script "cp $TMPDIR/tempfile." & ext & " " & fname
 				select file filename
 			end tell
+*)
 		end if
 	end repeat
 end open
