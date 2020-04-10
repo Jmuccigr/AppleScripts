@@ -1,3 +1,6 @@
+# Extract images from specific pages in a PDF, saving them to a new folder with the original file
+# Uses homebrew installed versions of binaries
+
 on open fname
 	# Make sure the file is a PDF, based on extension
 	tell application "Finder"
@@ -12,7 +15,7 @@ on open fname
 	# Set file types to be handled
 	set filetypes to " -png -tiff -j -jp2 -ccitt "
 	
-	# Explicit paths
+	# Explicit paths to binaries
 	set imagePath to "/usr/local/bin/pdfimages"
 	set infoPath to "/usr/local/bin/pdfinfo"
 	
@@ -88,7 +91,7 @@ on open fname
 	set fpath to (do shell script "dirname " & quoted form of pfile) & "/" & dateString & "_" & fnameString & "_images/"
 	do shell script ("mkdir " & quoted form of fpath)
 	
-	do shell script (imagePath & filetypes & " -f " & fpage & " -l " & lpage & " " & " " & quoted form of pfile & " " & quoted form of (fpath & outputname))
+	do shell script (imagePath & filetypes & " -f " & fpage & " -l " & lpage & " -p " & quoted form of pfile & " " & quoted form of (fpath & outputname))
 	
 	-- Notify of completion
 	display notification ("Finished extracting images from your file.") with title "Image extraction" sound name "beep"
