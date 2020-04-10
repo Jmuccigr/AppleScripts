@@ -1,6 +1,5 @@
-# Explicit paths
-set imagePath to "/usr/local/bin/pdfimages"
-set infoPath to "/usr/local/bin/pdfinfo"
+# Extract all the images in a PDF, saving them to a new folder with the original file
+# Uses homebrew installed versions of binaries
 
 on open fname
 	# Make sure the file is a PDF, based on extension
@@ -16,9 +15,9 @@ on open fname
 	# Set file types to be handled
 	set filetypes to "  -png -tiff -j -jp2 -ccitt "
 	
-	# Use the version of the script embedded in the app
-	set imagePath to quoted form of ((POSIX path of (path to me) as string) & "Contents/Resources/pdfimages")
-	set infoPath to quoted form of ((POSIX path of (path to me) as string) & "Contents/Resources/pdfinfo")
+	# Explicit paths to binaries
+	set imagePath to "/usr/local/bin/pdfimages"
+	set infoPath to "/usr/local/bin/pdfinfo"
 	
 	# Check that the embedded binaries are working
 	set binaryCheck to (do shell script infoPath & " -v")
@@ -60,7 +59,7 @@ on open fname
 		repeat until the number of characters in outputname = 4
 			set outputname to "0" & outputname
 		end repeat
-		do shell script (imagePath & filetypes & " -f " & i & " -l " & i & " " & quoted form of pfile & " " & quoted form of (fpath & outputname))
+		do shell script (imagePath & filetypes & " -f " & i & " -l " & i & " -p " & quoted form of pfile & " " & quoted form of (fpath & outputname))
 	end repeat
 	
 	-- Notify of completion
