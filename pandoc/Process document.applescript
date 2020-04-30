@@ -346,7 +346,7 @@ on get_output()
 			end if
 		end if
 		-- Return the extension and the concatenated options
-		return {output_extension, " -t " & output_format_list & filterText & space & options & space & refFile & space}
+		return {output_extension, " -t " & output_format_list & filterText & options & space & refFile & space}
 	on error errMsg
 		if errMsg ­ "User canceled." then
 			display alert "Output File Error:" message errMsg
