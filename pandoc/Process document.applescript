@@ -1,6 +1,6 @@
 -- A script to take the front document in the frontmost application and have pandoc process it.
 
-global appName, ottfile, dotmfile, pptxthemefile, outputFormats, output_format_list, outputExt, pandocSwitches, beamerConfig, htmlConfig, html5Config, revealConfig, pdfConfig, refFile, myName
+global appName, ottfile, dotmfile, pptxthemefile, outputFormats, output_format_list, outputExt, pandocSwitches, beamerConfig, htmlConfig, html5Config, revealConfig, pdfConfig, refFile, myName, filterText
 
 on run
 	-- Set some variables for use later on
@@ -45,6 +45,7 @@ on run
 	
 	-- Standard variables
 	set pandocSwitches to " -s --columns 800 --bibliography=" & bibfile
+	set filterText to ""
 	
 	tell application "System Events"
 		try
@@ -248,7 +249,6 @@ on get_output()
 			set refFile to my set_refFile(output_format_list)
 			-- Check for filters to run. Assumes filters have been copied into pandoc's default data directory
 			set filterChoices to paragraphs of (do shell script "ls /Users/" & myName & "/.local/share/pandoc/filters/")
-			set filterText to ""
 			set filterCount to 0
 			repeat with filter in filterChoices
 				set filterchoice to (display dialog "Do you want to run the filter " & filter & "?" buttons {"Cancel", "No", "Yes"} default button 3)
@@ -346,7 +346,7 @@ on get_output()
 			end if
 		end if
 		-- Return the extension and the concatenated options
-		return {output_extension, " -t " & output_format_list & filterText & options & space & refFile & space}
+		return {output_extension, filterText & " -t " & output_format_list & options & space & refFile & space}
 	on error errMsg
 		if errMsg ­ "User canceled." then
 			display alert "Output File Error:" message errMsg
