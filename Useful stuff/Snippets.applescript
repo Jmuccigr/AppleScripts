@@ -159,3 +159,6 @@ on isModifierKeyPressed(checkKey)
 	
 	return modiferKeysDOWN
 end isModifierKeyPressed
+
+	-- Notify of completion
+	display notification ("message.") with title "title" sound name "beep"
