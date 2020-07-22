@@ -1,4 +1,4 @@
-#iPhoto-related AppleScripts:
+# iPhoto-related AppleScripts:
 
 - Add photos to album: adds the selected photos to a comma-separated list of albums. Checks that photos are selected and that albums exist. Non-existent albums are ignored with an error.
 - List albums for image: displays date, time, comments and keywords of photo and a list of albums that contain the photo. Will do multiple photos in sequence.

@@ -1,4 +1,4 @@
-#Eject SD Card
+# Eject SD Card
 
 Ejects SD cards based on their characteristics:
 
