@@ -28,13 +28,6 @@ on open of finderObjects
 				set dimNew to resH
 			end if
 			do shell script "/usr/local/bin/magick mogrify -units PixelsPerCentimeter -density " & dimNew & "x" & dimNew & " " & fname --& "& " $TMPDIR/tempfile." & ext
-			(*
-			tell application "Finder"
-				delete file filename
-				do shell script "cp $TMPDIR/tempfile." & ext & " " & fname
-				select file filename
-			end tell
-*)
 		end if
 	end repeat
 end open
