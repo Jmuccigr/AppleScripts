@@ -3,12 +3,22 @@
 -- If the option key is down, ignore the "close enough" check (= force change)
 -- Changes the files in place, since this is not irreversible.
 
+set extraflag to " "
+
 on open of finderObjects
+	-- Need this before the loop or else you have to keep the option key down for all files
+	if option_down of modifierKeysPressed() then
+		set checkSize to false
+		beep
+	else
+		set checkSize to true
+	end if
 	repeat with filename in (finderObjects)
 		set closeEnough to false
 		tell application "Finder"
 			set ext to (name extension of filename) as string
 		end tell
+		if ext is in {"tiff", "tif"} then set extraflag to " -define tiff:preserve-compression=true "
 		set fname to quoted form of POSIX path of filename
 		set tid to AppleScript's text item delimiters
 		set AppleScript's text item delimiters to " "
@@ -17,7 +27,7 @@ on open of finderObjects
 		-- Calculate new resolution in cm
 		set resW to wid / (8 * 2.54)
 		set resH to ht / (10.5 * 2.54)
-		if not option_down of modifierKeysPressed() then
+		if checkSize then
 			-- Don't do anything if the dimensions are close enough
 			if ((resW < dimx * 1.01 and resW > 0.9 * dimx) and (resH < dimy * 1.01 and resH > 0.9 * dimy)) then set closeEnough to true
 		end if
@@ -27,7 +37,7 @@ on open of finderObjects
 			else
 				set dimNew to resH
 			end if
-			do shell script "/usr/local/bin/magick mogrify -units PixelsPerCentimeter -density " & dimNew & "x" & dimNew & " " & fname --& "& " $TMPDIR/tempfile." & ext
+			do shell script "/usr/local/bin/magick mogrify -units PixelsPerCentimeter -density " & dimNew & "x" & dimNew & extraflag & fname --& "& " $TMPDIR/tempfile." & ext
 		end if
 	end repeat
 end open
