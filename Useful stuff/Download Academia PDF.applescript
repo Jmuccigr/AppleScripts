@@ -2,6 +2,7 @@
 -- with the current page. https://github.com/ryanfb/academia-dl
 
 on run
+	-- Get the current URL, different methods for different browsers
 	set currentURL to ""
 	tell application "System Events" to set browserApp to the name of (process 1 where frontmost is true)
 	if browserApp = "Safari" then
@@ -25,6 +26,8 @@ on run
 		display alert "Unsupported browser" as critical message "This browser is not yet supported."
 		error -128
 	end if
+	
+	-- Check for academia.edu website, even though the ruby script does this, too
 	set tid to AppleScript's text item delimiters
 	set AppleScript's text item delimiters to "/"
 	if text item 3 of currentURL does not contain "academia.edu" then
@@ -32,9 +35,15 @@ on run
 		display alert "Not academia.edu" message "This only works on an academia.edu page." as critical
 		error -128
 	end if
+	
+	-- Make sure the output filename isn't too big
 	set fname to the last text item of currentURL
 	set AppleScript's text item delimiters to tid
-	set fname to (characters 1 thru 251 of fname) as string
+	set URLlength to the length of fname
+	if URLlength > 251 then set URLlength to 251
+	set fname to (characters 1 thru URLlength of fname) as string
+	
+	-- Go get the file. Note that the PATH has to be set to avoid defaulting to the system ruby
 	set myHome to POSIX path of (path to home folder)
 	set myPath to quote & "$HOME/.rbenv/shims:$HOME/.rbenv/bin:/usr/local/bin:$PATH" & quote
 	set resp to do shell script ("export PATH=" & myPath & ";" & myHome & "Documents/github/local/academia-dl/academia-dl.rb \"" & currentURL & "\" 2>&1")
