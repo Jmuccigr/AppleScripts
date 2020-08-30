@@ -18,6 +18,7 @@ on open fname
 	set sizes to {"A4", "A4 landscape", "letter", "letter landscape"}
 	set orientation to ""
 	set tkPath to "/usr/local/bin/pdftk"
+	set qpdfPath to "/usr/local/bin/qpdf"
 	set infoPath to "/usr/local/bin/pdfinfo"
 	set latexPath to "/Library/TeX/texbin/pdflatex"
 	
@@ -74,5 +75,10 @@ on open fname
 	else
 		set outputFile to (resultFile as string)
 	end if
-	do shell script "cd $TMPDIR; " & tkPath & " " & pfile & " multistamp numbers.pdf output " & quoted form of POSIX path of outputFile
+	--do shell script "cd $TMPDIR; " & tkPath & " " & pfile & " multistamp numbers.pdf output " & quoted form of POSIX path of outputFile
+	do shell script "cd $TMPDIR; " & qpdfPath & " " & pfile & " --underlay numbers.pdf -- " & quoted form of POSIX path of outputFile
+	
+	-- Notify of completion
+	display notification ("Your PDF now has page numbers.") with title "Numbering done" sound name "beep"
+	
 end open
