@@ -18,8 +18,8 @@ on open of finderObjects
 			do shell script "cp $TMPDIR/tempfile.png " & fname
 			if ct < 4 then
 				do shell script "qlmanage -p " & fname
+				select file filename
 			end if
-			select file filename
 		end tell
 	end repeat
 end open
