@@ -7,6 +7,9 @@ on open of finderObjects
 		display alert "No point!" message "This process requires more than one file to work on."
 		error -128
 	end if
+	set w to 0
+	set h to 0
+	set changed to false
 	if shift_down of modifierKeysPressed() then
 		if ct > 3 then
 			set ct to 0
@@ -14,9 +17,6 @@ on open of finderObjects
 			set ct to 4
 		end if
 	end if
-	set w to 0
-	set h to 0
-	set changed to false
 	-- First loop through to get the dimensions
 	repeat with filename in (finderObjects)
 		set fname to quoted form of POSIX path of filename
@@ -25,17 +25,14 @@ on open of finderObjects
 		tell application "Finder"
 			set ext to name extension of filename
 			if ext contains "tif" then
-				set tiff to " -compress " & comp
+				set tiff to " -quality 100 -compress " & comp
 			end if
 		end tell
-		if (newW > w) then
-			if w ­ 0 then set changed to true
-			set w to newW
+		if not changed then
+			if (newW ­ w or newH ­ h) and w ­ 0 then set changed to true
 		end if
-		if (newH > h) then
-			if h ­ 0 then set changed to true
-			set h to newH
-		end if
+		if (newW > w) then set w to newW
+		if (newH > h) then set h to newH
 	end repeat
 	if not changed then
 		display alert "No need!" message "All of these files are already the same size. Exiting..."
