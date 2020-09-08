@@ -15,6 +15,7 @@ There are four sets of them:
     - One script that just deskews the image.
     - One script that recenters an image within its frame.
     - One script that changes the image resolution so that it fill one dimension of an A4 or 8.5x11" piece of paper. Good for putting those images into a PDF.
+    - One script that resizes a bunch of images to the maximum dimensions of the group, using a white background.
 1. Append multiple images
     - One script that attaches (appends) a series of images to one another.
 
