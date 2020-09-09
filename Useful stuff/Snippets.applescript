@@ -58,6 +58,11 @@ on getName(fileName)
 end getName
 
 
+do shell script "i=" & posixfilename & ";echo $(i##*.)"
+-- filename=$(basename -- "$fullfile")
+-- extension="${filename##*.}"
+-- filename="${filename%.*}"
+
 get running of application "Finder"
 
 -- Check for existence of file
@@ -160,5 +165,14 @@ on isModifierKeyPressed(checkKey)
 	return modiferKeysDOWN
 end isModifierKeyPressed
 
-	-- Notify of completion
-	display notification ("message.") with title "title" sound name "beep"
+-- Use Image Events app to work with images. It has no user interaction, so can't display things
+on getDims(fileName)
+	tell application "Image Events"
+		set i to open fileName
+		set d to the dimensions of i & (the file type of i as string)
+	end tell
+	return d
+end getDims
+
+-- Notify of completion
+display notification ("message.") with title "title" sound name "beep"
