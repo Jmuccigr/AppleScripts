@@ -3,20 +3,26 @@
 
 on open of finderObjects
 	set ct to the count of finderObjects
-	if shift_down of modifierKeysPressed() then
-		if ct > 3 then
-			set ct to 0
-		else
-			set ct to 4
-		end if
+	if ct < 4 then
+		set show to true
+	else
+		set show to false
 	end if
+	if shift_down of modifierKeysPressed() then set show to not show
 	repeat with filename in (finderObjects)
+		set tiff to ""
 		set fname to quoted form of POSIX path of filename
-		do shell script "orig_dim=($(/usr/local/bin/magick " & fname & " -shave 10x10 -bordercolor white -border 10x10 -blur 0,8 -normalize -fuzz 2% -trim -format " & quote & "%W %H %X %Y %w" & quote & " info:)); w=${orig_dim[0]}; h=${orig_dim[1]}; x=${orig_dim[2]}; y=${orig_dim[3]}; new_w=${orig_dim[4]}; x_dis=$(( (w - new_w) / 2)); /usr/local/bin/convert \\( -size " & quote & "$w" & quote & "x$h -background white xc: -write mpr:bgimage +delete \\) mpr:bgimage \\( " & fname & " -crop " & quote & "$w" & quote & "x$h+$x+$y \\) -compose divide_dst -gravity northwest -geometry +$x_dis+$y -composite $TMPDIR/tempfile.png"
+		tell application "Finder"
+			set ext to name extension of filename
+			if ext contains "tif" then
+				set tiff to " -compress " & (do shell script "/usr/local/bin/identify -format \"%C\" " & fname)
+			end if
+		end tell
+		do shell script "orig_dim=($(/usr/local/bin/magick " & fname & " -shave 10x10 -bordercolor white -border 10x10 -blur 0,8 -normalize -fuzz 2% -trim -format " & quote & "%W %H %X %Y %w" & quote & " info:)); w=${orig_dim[0]}; h=${orig_dim[1]}; x=${orig_dim[2]}; y=${orig_dim[3]}; new_w=${orig_dim[4]}; x_dis=$(( (w - new_w) / 2)); /usr/local/bin/magick \\( -size " & quote & "$w" & quote & "x$h -background white xc: -write mpr:bgimage +delete \\) mpr:bgimage \\( " & fname & " -crop " & quote & "$w" & quote & "x$h+$x+$y  \\) -compose divide_dst -gravity northwest -geometry +$x_dis+$y -composite" & tiff & " $TMPDIR/tempfile." & ext
 		tell application "Finder"
 			delete file filename
-			do shell script "cp $TMPDIR/tempfile.png " & fname
-			if ct < 4 then
+			do shell script "mv $TMPDIR/tempfile." & ext & " " & fname
+			if show then
 				do shell script "qlmanage -p " & fname
 				select file filename
 			end if
