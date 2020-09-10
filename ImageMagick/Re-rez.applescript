@@ -24,12 +24,10 @@ on open of finderObjects
 			set i to open filename
 			set {wid, ht, dimx, dimy} to (the dimensions of i & the resolution of i)
 		end tell
-		display dialog {wid, " ", ht, " ", dimx, " ", dimy} as string
 		set fname to quoted form of POSIX path of filename
 		-- Calculate new resolution in cm
 		set resW to wid / 8 as integer
 		set resH to ht / 10.5 as integer
-		display dialog (resW & space & resH) as string
 		if checkSize then
 			-- Don't do anything if the dimensions are close enough
 			if ((resW < dimx * 1.01 and resW > 0.99 * dimx) and (resH < dimy * 1.01 and resH > 0.99 * dimy)) then set closeEnough to true

@@ -161,8 +161,8 @@ on run
 			set shcmd to shcmd & "pandoc " & quoted form of fname & pandocUserSwitches
 			-- Run the pandoc command & open the resulting file
 			try
-				do shell script shcmd & "-o " & outputfile
 				set the clipboard to shcmd & "-o " & outputfile
+				do shell script shcmd & "-o " & outputfile
 				do shell script "open " & outputfile
 			on error errMsg
 				display alert "pandoc error" message "pandoc reported the following error:" & return & return & errMsg
