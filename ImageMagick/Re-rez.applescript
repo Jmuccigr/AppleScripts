@@ -20,14 +20,24 @@ on open of finderObjects
 		else
 			set extraflag to " "
 		end if
-		tell application "Image Events"
-			set i to open filename
-			set {wid, ht, dimx, dimy} to (the dimensions of i & the resolution of i)
-		end tell
+		if ext is not in {"jpg", "jpeg"} then
+			tell application "Image Events"
+				set i to open filename
+				set {wid, ht, dimx, dimy} to (the dimensions of i & the resolution of i)
+				set multiplier to 1
+			end tell
+		else
+			set {wid, ht, dimx, dimy, units} to the words of (do shell script "/usr/local/bin/exiftool -s3 -t -ImageWidth -ImageHeight -exif:xresolution -exif:yresolution -exif:resolutionunit " & the quoted form of the POSIX path of filename)
+			if units ­ "inches" then
+				set multiplier to 2.54
+			else
+				set multiplier to 1
+			end if
+		end if
 		set fname to quoted form of POSIX path of filename
-		-- Calculate new resolution in cm
-		set resW to wid / 8 as integer
-		set resH to ht / 10.5 as integer
+		-- Calculate new resolution in inches
+		set resW to wid * multiplier / 8 as integer
+		set resH to ht * multiplier / 10.5 as integer
 		if checkSize then
 			-- Don't do anything if the dimensions are close enough
 			if ((resW < dimx * 1.01 and resW > 0.99 * dimx) and (resH < dimy * 1.01 and resH > 0.99 * dimy)) then set closeEnough to true
