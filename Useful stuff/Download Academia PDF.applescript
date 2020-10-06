@@ -46,11 +46,15 @@ on run
 	-- Go get the file. Note that the PATH has to be set to avoid defaulting to the system ruby
 	set myHome to POSIX path of (path to home folder)
 	set myPath to quote & "$HOME/.rbenv/shims:$HOME/.rbenv/bin:/usr/local/bin:$PATH" & quote
-	set resp to do shell script ("export PATH=" & myPath & ";" & myHome & "Documents/github/local/academia-dl/academia-dl.rb \"" & currentURL & "\" 2>&1")
-	if resp ­ "" then
-		do shell script "afplay /System/Library/Sounds/Basso.aiff"
-		display alert "Oops!" message resp as critical giving up after 30
-	else
-		display notification "File downloaded: " & fname & ".pdf" with title "Success!" sound name "default"
-	end if
+	try
+		set resp to do shell script ("export PATH=" & myPath & ";" & myHome & "Documents/github/local/academia-dl/academia-dl.rb \"" & currentURL & "\" 2>&1")
+		if resp ­ "" then
+			do shell script "afplay /System/Library/Sounds/Basso.aiff"
+			display alert "Oops!" message resp as critical giving up after 30
+		else
+			display notification "File downloaded: " & fname & ".pdf" with title "Success!" sound name "default"
+		end if
+	on error errMsg number errNum
+		display alert "Problem" message errNum & ": " & errMsg
+	end try
 end run
