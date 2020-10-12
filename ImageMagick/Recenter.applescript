@@ -16,9 +16,11 @@ on open of finderObjects
 			set ext to name extension of filename
 			if ext contains "tif" then
 				set tiff to " -compress " & (do shell script "/usr/local/bin/identify -format \"%C\" " & fname)
+				if tiff contains "Group4" then set tiff to " -alpha off -monochrome -compress Group4 -quality 100 "
 			end if
 		end tell
-		do shell script "orig_dim=($(/usr/local/bin/magick " & fname & " -shave 10x10 -bordercolor white -border 10x10 -blur 0,8 -normalize -fuzz 2% -trim -format " & quote & "%W %H %X %Y %w" & quote & " info:)); w=${orig_dim[0]}; h=${orig_dim[1]}; x=${orig_dim[2]}; y=${orig_dim[3]}; new_w=${orig_dim[4]}; x_dis=$(( (w - new_w) / 2)); /usr/local/bin/magick \\( -size " & quote & "$w" & quote & "x$h -background white xc: -write mpr:bgimage +delete \\) mpr:bgimage \\( " & fname & " -crop " & quote & "$w" & quote & "x$h+$x+$y  \\) -compose divide_dst -gravity northwest -geometry +$x_dis+$y -composite" & tiff & " $TMPDIR/tempfile." & ext
+		set qual to (do shell script "/usr/local/bin/identify -format \"%Q\" " & fname)
+		do shell script "orig_dim=($(/usr/local/bin/magick " & fname & " -shave 10x10 -bordercolor white -border 10x10 -blur 0,8 -normalize -fuzz 2% -trim -format " & quote & "%W %H %X %Y %w" & quote & " info:)); w=${orig_dim[0]}; h=${orig_dim[1]}; x=${orig_dim[2]}; y=${orig_dim[3]}; new_w=${orig_dim[4]}; x_dis=$(( (w - new_w) / 2)); /usr/local/bin/magick \\( -size " & quote & "$w" & quote & "x$h -background white xc: -write mpr:bgimage +delete \\) mpr:bgimage \\( " & fname & " -crop " & quote & "$w" & quote & "x$h+$x+$y  \\) -compose divide_dst -gravity northwest -geometry +$x_dis+$y -composite" & tiff & " -quality " & qual & " $TMPDIR/tempfile." & ext
 		tell application "Finder"
 			delete file filename
 			do shell script "mv $TMPDIR/tempfile." & ext & " " & fname
