@@ -66,7 +66,7 @@ do shell script "i=" & posixfilename & ";echo $(i##*.)"
 get running of application "Finder"
 
 -- Check for existence of file
--- returns true if file exists
+-- returns true if file exists, an error if it doesn't
 theFileName as alias
 -- For a POSIX path, where thePath is not quoted and ends in /
 -- Missing file returns an error, so use 'on error' not 'else'
