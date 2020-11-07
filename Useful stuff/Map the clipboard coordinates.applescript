@@ -7,6 +7,8 @@ on run
 	-- Get rid of internal spaces, leaving a single comma.
 	set coords to (do shell script "echo " & quoted form of coords & " | perl -pe 's/\\s+/,/g' | perl -pe 's/\\,+/,/' | perl -pe 's/,$//'")
 	--	set coords to (do shell script "echo " & coords & "'")
-	
-	tell application "Safari" to open location ("http://www.google.com/maps/place/" & coords)
+	--	Remove any third value, like an altitude, which Google apparently can't handle
+	set coords to (do shell script "echo " & quoted form of coords & " | perl -pe 's/(.+,.+),.*/\\1/' ")
+	-- Open in the default browser
+	open location ("http://www.google.com/maps/place/" & coords)
 end run
