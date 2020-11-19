@@ -57,6 +57,8 @@ on getName(fileName)
 	return fileName
 end getName
 
+-- Get extension without filename
+tell application "Finder" to set ext to the name extension of fileName
 
 do shell script "i=" & posixfilename & ";echo $(i##*.)"
 -- filename=$(basename -- "$fullfile")
