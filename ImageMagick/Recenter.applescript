@@ -14,7 +14,7 @@ on open of finderObjects
 		set fname to quoted form of POSIX path of filename
 		tell application "Finder"
 			set ext to name extension of filename
-			if ext contains "tif" then
+			if ext in {"tif", "tiff"} then
 				set tiff to " -compress " & (do shell script "/usr/local/bin/identify -format \"%C\" " & fname)
 				if tiff contains "Group4" then set tiff to " -alpha off -monochrome -compress Group4 -quality 100 "
 			end if
