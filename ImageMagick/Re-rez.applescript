@@ -4,7 +4,7 @@
 -- Changes the files in place, since this is not irreversible.
 
 
-on open of finderObjects
+on open finderObjects
 	-- Need this before the loop or else you have to keep the option key down for all files
 	if option_down of modifierKeysPressed() then
 		set checkSize to true
@@ -14,24 +14,39 @@ on open of finderObjects
 	end if
 	repeat with filename in (finderObjects)
 		set closeEnough to false
+		tell application "Finder" to set ext to the name extension of filename
+		if ext is in {"jpg", "jpeg"} then
+			set jpg to true
+		else
+			set jpg to false
+		end if
 		tell application "Finder" to set ext to (name extension of filename) as string
-		if ext is in {"tiff", "tif"} then
+		if not jpg then
 			set extraflag to " -define tiff:preserve-compression=true "
 		else
 			set extraflag to " "
 		end if
-		if ext is not in {"jpg", "jpeg"} then
+		if not jpg then
 			tell application "Image Events"
 				set i to open filename
 				set {wid, ht, dimx, dimy} to (the dimensions of i & the resolution of i)
 				set multiplier to 1
 			end tell
 		else
-			set {wid, ht, dimx, dimy, units} to the words of (do shell script "/usr/local/bin/exiftool -s3 -t -ImageWidth -ImageHeight -exif:xresolution -exif:yresolution -exif:resolutionunit " & the quoted form of the POSIX path of filename)
-			if units ­ "inches" then
-				set multiplier to 2.54
+			set exifresponse to the words of (do shell script "/usr/local/bin/exiftool -s3 -t -ImageWidth -ImageHeight -exif:xresolution -exif:yresolution -exif:resolutionunit " & the quoted form of the POSIX path of filename)
+			if the number of words of exifresponse = 4 then
+				set {wid, ht, dimx, dimy, units} to exifresponse
+				if units ­ "inches" then
+					set multiplier to 2.54
+				else
+					set multiplier to 1
+				end if
 			else
-				set multiplier to 1
+				tell application "Image Events"
+					set i to open filename
+					set {wid, ht, dimx, dimy} to (the dimensions of i & the resolution of i)
+					set multiplier to 1
+				end tell
 			end if
 		end if
 		set fname to quoted form of POSIX path of filename
@@ -48,6 +63,8 @@ on open of finderObjects
 			else
 				set dimNew to resH
 			end if
+			-- Change exif data for jpeg as well as the other density data
+			if jpg then do shell script "/usr/local/bin/exiftool -units=inches -xresolution=" & dimNew & " -yresolution=" & dimNew & " " & the quoted form of the POSIX path of filename
 			do shell script "/usr/local/bin/magick mogrify -units PixelsPerInch -density " & dimNew & "x" & dimNew & extraflag & fname
 		end if
 	end repeat
