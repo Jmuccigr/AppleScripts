@@ -251,7 +251,7 @@ on get_output()
 			set filterChoices to paragraphs of (do shell script "ls /Users/" & myName & "/.local/share/pandoc/filters/")
 			set filterCount to 0
 			repeat with filter in filterChoices
-				set filterchoice to (display dialog "Do you want to run the filter " & filter & "?" buttons {"Cancel", "No", "Yes"} default button 3)
+				set filterchoice to (display dialog "Do you want to run the filter " & filter & "?" buttons {"Cancel", "Yes", "No"} default button 3)
 				if button returned of filterchoice = "Yes" then
 					set filterText to filterText & " --filter " & filter
 					set filterCount to filterCount + 1
