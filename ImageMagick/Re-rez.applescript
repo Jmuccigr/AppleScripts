@@ -33,8 +33,13 @@ on open finderObjects
 				set multiplier to 1
 			end tell
 		else
-			set exifresponse to the words of (do shell script "/usr/local/bin/exiftool -s3 -t -ImageWidth -ImageHeight -exif:xresolution -exif:yresolution -exif:resolutionunit " & the quoted form of the POSIX path of filename)
-			if the number of words of exifresponse = 4 then
+			try
+				set exifresponse to the words of (do shell script "/usr/local/bin/exiftool -s3 -t -ImageWidth -ImageHeight -exif:xresolution -exif:yresolution -exif:resolutionunit " & the quoted form of the POSIX path of filename)
+			on error errMsg number errNum
+				display alert "exiftool error " & errNum message errMsg
+				error number -128
+			end try
+			if the number of items of exifresponse ³ 4 then
 				set {wid, ht, dimx, dimy, units} to exifresponse
 				if units ­ "inches" then
 					set multiplier to 2.54
@@ -64,7 +69,7 @@ on open finderObjects
 				set dimNew to resH
 			end if
 			-- Change exif data for jpeg as well as the other density data
-			if jpg then do shell script "/usr/local/bin/exiftool -units=inches -xresolution=" & dimNew & " -yresolution=" & dimNew & " " & the quoted form of the POSIX path of filename
+			if jpg then do shell script "/usr/local/bin/exiftool -preserve -overwrite_original_in_place -units=inches -xresolution=" & dimNew & " -yresolution=" & dimNew & " " & the quoted form of the POSIX path of filename
 			do shell script "/usr/local/bin/magick mogrify -units PixelsPerInch -density " & dimNew & "x" & dimNew & extraflag & fname
 		end if
 	end repeat
