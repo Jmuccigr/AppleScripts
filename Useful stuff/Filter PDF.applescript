@@ -47,6 +47,7 @@ on open of finderObjects
 		if watermark then
 			set waterreply to (display dialog "Watermark removal can remove any instance of the text you enter, whether or not it appears as a proper watermark." with title "Warning" with icon caution default answer "Enter watermark text")
 			set watermarkText to the text returned of waterreply
+			set watermarkText to (do shell script "echo " & watermarkText & " | sed 's/ /.*/'")
 			if watermarkText ­ "" then
 				set newText to ""
 				-- Create string of spaces to replace watermark, so qpdf doesn't complain about file length
