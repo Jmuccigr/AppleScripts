@@ -76,7 +76,7 @@ on open of finderObjects
 			else if options = " " then
 				beep
 				display alert "No changes" message "No changes were specified for the file, so no new file was created."
-				error -128
+			error number -128
 			end if
 		end if
 		
