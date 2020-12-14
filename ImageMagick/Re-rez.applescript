@@ -21,7 +21,7 @@ on open finderObjects
 			set jpg to false
 		end if
 		tell application "Finder" to set ext to (name extension of filename) as string
-		if not jpg then
+		if ext is in {"tiff", "tif"} then
 			set extraflag to " -define tiff:preserve-compression=true "
 		else
 			set extraflag to " "
