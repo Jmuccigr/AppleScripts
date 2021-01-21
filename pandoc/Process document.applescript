@@ -37,11 +37,11 @@ on run
 	-- Variables specific to output types.
 	-- For reveal.js, use  "--variable revealjs-url=http://lab.hakim.se/reveal-js" if local reveal.js is lacking.
 	-- Removing ' -V width=\\" & quote & "& quote & "100%\\" ' while bug prevents correct thumbnails
-	set beamerConfig to "+smart --pdf-engine=xelatex -i --template=" & quoted form of (myGit & "pandoc-templates/default.latex") & " -V theme=Madrid -V colortheme=beetle -V fonttheme=structuresmallcapsserif"
+	set beamerConfig to "+smart --pdf-engine=xelatex -i --template=" & quoted form of (myGit & "pandoc-templates/my_beamer.latex") & " -V theme=Madrid -V colortheme=beetle -V fonttheme=structuresmallcapsserif"
 	set htmlConfig to "+smart --self-contained --template=" & quoted form of (myGit & "pandoc-templates/default.html4")
 	set html5Config to "+smart --self-contained --template=" & quoted form of (myGit & "pandoc-templates/default.html5")
 	set pdfConfig to "+smart --pdf-engine=xelatex --template=" & quoted form of (myGit & "pandoc-templates/default.latex")
-	set revealConfig to "+smart -i --self-contained -V center=false -V theme=gray_lecture -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=" & quoted form of (myGit & "reveal.js/")
+	set revealConfig to " -i --self-contained -V center=false -V theme=gray_lecture -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=" & quoted form of (myGit & "reveal.js/")
 	
 	-- Standard variables
 	set pandocSwitches to " -s --columns 800 --citeproc --bibliography=" & bibfile
@@ -250,8 +250,13 @@ on get_output()
 			-- Check for filters to run. Assumes filters have been copied into pandoc's default data directory
 			set filterChoices to paragraphs of (do shell script "ls /Users/" & myName & "/.local/share/pandoc/filters/")
 			set filterCount to 0
+			if output_format_list is "html" then
+				set defAnswer to 1
+			else
+				set defAnswer to 2
+			end if
 			repeat with filter in filterChoices
-				set filterchoice to (display dialog "Do you want to run the filter " & filter & "?" buttons {"Cancel", "No", "Yes"} default button 3)
+				set filterchoice to (display dialog "Do you want to run the filter " & filter & "?" buttons {"Cancel", "No", "Yes"} default button defAnswer)
 				if button returned of filterchoice = "Yes" then
 					set filterText to filterText & " --filter " & filter
 					set filterCount to filterCount + 1
