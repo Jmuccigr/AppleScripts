@@ -33,6 +33,11 @@ on replace(origtext, ftext, rtext)
 	return newtext
 end replace
 
+on padded(str)
+	set str to "00" & str
+	set l to the number of characters of str
+	return characters (l - 1) thru l of str as string
+end padded
 
 -- Get user directory paths
 set myHome to POSIX path of (path to home folder)
