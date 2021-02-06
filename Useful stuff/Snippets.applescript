@@ -177,6 +177,7 @@ on getDims(fileName)
 	tell application "Image Events"
 		set i to open fileName
 		set d to the dimensions of i & (the file type of i as string)
+		close i
 	end tell
 	return d
 end getDims

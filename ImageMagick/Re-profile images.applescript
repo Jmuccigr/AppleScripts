@@ -19,8 +19,8 @@ on quit
 	set profileList to {}
 	repeat with imageFile in (iPhoneImageFiles)
 		tell application "Image Events"
-			set i to open imageFile
 			try
+			set i to open imageFile
 				set prof to the name of the embedded profile of i
 				set profileList to profileList & imageFile
 				set foundProfile to true
@@ -28,6 +28,7 @@ on quit
 				set prof to ""
 				set fixList to fixList & imageFile
 			end try
+			close i
 		end tell
 	end repeat
 	if (count of fixList) = 0 then
