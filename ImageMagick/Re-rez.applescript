@@ -31,6 +31,7 @@ on open finderObjects
 				set i to open filename
 				set {wid, ht, dimx, dimy} to (the dimensions of i & the resolution of i)
 				set multiplier to 1
+				close i
 			end tell
 		else
 			try
@@ -51,6 +52,7 @@ on open finderObjects
 					set i to open filename
 					set {wid, ht, dimx, dimy} to (the dimensions of i & the resolution of i)
 					set multiplier to 1
+					close i
 				end tell
 			end if
 		end if
@@ -70,7 +72,7 @@ on open finderObjects
 			end if
 			-- Change exif data for jpeg as well as the other density data
 			if jpg then do shell script "/usr/local/bin/exiftool -preserve -overwrite_original_in_place -units=inches -xresolution=" & dimNew & " -yresolution=" & dimNew & " " & the quoted form of the POSIX path of filename
-			do shell script "/usr/local/bin/magick mogrify -units PixelsPerInch -density " & dimNew & "x" & dimNew & extraflag & fname
+			do shell script "/usr/local/bin/magick mogrify" & extraflag & "-units PixelsPerInch -density " & dimNew & "x" & dimNew & " " & fname
 		end if
 	end repeat
 	display notification "Your files now all will fit natively on a page." with title "Resolution adjustment complete" sound name "default"
