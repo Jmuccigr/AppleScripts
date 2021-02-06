@@ -250,10 +250,10 @@ on get_output()
 			-- Check for filters to run. Assumes filters have been copied into pandoc's default data directory
 			set filterChoices to paragraphs of (do shell script "ls /Users/" & myName & "/.local/share/pandoc/filters/")
 			set filterCount to 0
-			if output_format_list is "html" then
-				set defAnswer to 1
-			else
+			if output_format_list is in {"html", "html5", "revealjs", "beamer"} then
 				set defAnswer to 2
+			else
+				set defAnswer to 3
 			end if
 			repeat with filter in filterChoices
 				set filterchoice to (display dialog "Do you want to run the filter " & filter & "?" buttons {"Cancel", "No", "Yes"} default button defAnswer)
