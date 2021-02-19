@@ -29,7 +29,7 @@ on run
 	set pptxthemefile to myLib & "Application Support/Microsoft/Office/User Templates/My Templates/pandoc.potx"
 	
 	-- output options
-	set outputFormats to {"html", "html5", "latex", "pdf", "odt", "docx", "beamer", "slidy", "slideous", "dzslides", "pptx", "revealjs", "s5", "native", "json", "plain", "markdown", "markdown_strict", "markdown_phpextra", "gfm", "markdown_mmd", "commonmark", "rst", "context", "man", "mediawiki", "dokuwiki", "textile", "org", "texinfo", "opml", "docbook", "opendocument", "haddock", "rtf", "epub", "epub2", "epub3", "fb2", "asciidoc", "icml"}
+	set outputFormats to {"html", "html5", "latex", "pdf", "odt", "docx", "beamer", "slidy", "slideous", "dzslides", "pptx", "revealjs", "s5", "native", "json", "plain", "markdown", "markdown_strict", "markdown_phpextra", "gfm", "markdown_mmd", "commonmark", "rst", "context", "man", "mediawiki", "dokuwiki", "textile", "org", "texinfo", "opml", "docbook", "opendocument", "haddock", "rtf", "epub3", "epub2", "epub", "fb2", "asciidoc", "icml"}
 	
 	-- default output-file extension without leading dot
 	set outputExt to "html"
@@ -161,7 +161,7 @@ on run
 			set shcmd to shcmd & "pandoc " & quoted form of fname & pandocUserSwitches
 			-- Run the pandoc command & open the resulting file
 			try
-				set the clipboard to shcmd & "-o " & outputfile
+				--set the clipboard to shcmd & "-o " & outputfile
 				do shell script shcmd & "-o " & outputfile
 				do shell script "open " & outputfile
 			on error errMsg
@@ -232,7 +232,7 @@ on get_output()
 			--set output_format_list to outputDialogResult
 			-- Display a dialog box with specified input and output formats, so you can cancel if you made any mistakes and specify more command-line options via a text field. You can change the default answer if you prefer a different one.
 			-- First create options for a given subset of output types.
-			if output_format_list is in {"html", "html5", "pdf", "revealjs", "beamer"} then
+			if output_format_list is in {"html", "html5", "pdf", "revealjs", "beamer", "epub", "epub2", "epub3"} then
 				if output_format_list is "html" then
 					set pandocSwitches to htmlConfig & " " & pandocSwitches
 				else if output_format_list is "html5" then
@@ -243,6 +243,8 @@ on get_output()
 					set pandocSwitches to revealConfig & " " & pandocSwitches
 				else if output_format_list is "beamer" then
 					set pandocSwitches to beamerConfig & " " & pandocSwitches
+				else if output_format_list contains "epub" then
+					set pandocSwitches to " --toc " & pandocSwitches
 				end if
 			end if
 			-- Set template file for output where needed.
