@@ -5,7 +5,7 @@ tell application "Photos"
 		display alert "No photos selected" message "You need to select a single photo."
 		return
 	end if
-	-- Select phot itself for info retrieval
+	-- Select photo itself for info retrieval
 	set firstPhoto to item 1 of selectedphoto
 	set fname to the filename of firstPhoto
 	set exportFolder to (choose folder with prompt "Export as File" default location path to downloads folder) as text
