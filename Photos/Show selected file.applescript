@@ -22,6 +22,10 @@ tell application "Photos"
 		set photoID to the first text item of photoID
 		set AppleScript's text item delimiters to tid
 		set fname to (do shell script "find " & myHome & "Pictures/Fun.photoslibrary/originals -name \"" & photoID & "*\" -print")
+		if the (count of paragraphs of fname) > 1 then
+			display alert "Oops!" message "There appear multiple copies of this image."
+			set fname to paragraph 2 of fname
+		end if
 		tell application "Finder"
 			reveal POSIX file fname as alias
 			activate
