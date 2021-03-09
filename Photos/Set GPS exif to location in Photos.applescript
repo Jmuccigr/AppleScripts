@@ -1,4 +1,7 @@
 tell application "Photos"
+	activate
+	set myHome to POSIX path of (path to home folder)
+	set j to ""
 	-- This determines how close the Photos and original file GPS coords can be w/o updating
 	set precision to 5
 	-- Get the selection. Right now only handling one image.
@@ -6,16 +9,33 @@ tell application "Photos"
 	if i = {} then
 		display alert "No selection" message "There is no photo selected." giving up after 30
 	else
-		-- First get the actual image file location
-		set j to item 1 of i
-		set myHome to POSIX path of (path to home folder)
-		try
-			set photoID to the id of j
-		on error
-			beep
-			display alert "Oops" message "Something went wrong. Are you selecting a photo in a Smart Album by chance?"
-			error number -128
-		end try
+		repeat until j is not ""
+			try
+				set j to item 1 of i
+				-- First get the actual image file location
+				set photoID to the id of j
+			on error
+				try
+					set reply to button returned of (display dialog "You might be in a Smart Album. Shall I try to find the original photo?" buttons {"No", "Yes"} default button 2 cancel button 1)
+					if reply = "Yes" then
+						tell application "System Events" to tell process "Photos" to click menu item "Show in All Photos" of menu 1 of menu bar item "File" of menu bar 1
+						-- Apparently need to wait for the app to catch up to the switch in albums
+						delay 1
+						set i to the selection
+						set j to item 1 of i
+						set photoID to the id of j
+					else
+						error
+					end if
+				on error errMsg number errNum
+					if errMsg is not "Photos got an error: User canceled." then display alert errNum message "Can't get to photo:" & return & errMsg
+					error number -128
+				end try
+			end try
+		end repeat
+		
+		
+		-- Now get the original file
 		set tid to AppleScript's text item delimiters
 		set AppleScript's text item delimiters to "/"
 		set photoID to the first text item of photoID
