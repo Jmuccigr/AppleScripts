@@ -2,20 +2,33 @@
 -- This function doesn't exist for all photos apparently.
 
 tell application "Photos"
+	set i to {}
 	set i to the selection
-	if i = {} then
-		display alert "No selection" message "There is no photo selected." giving up after 30
+	if the number of items of i > 10 then
+		display alert "No items" message "You don't appear to have any photos selected." giving up after 30
+		error number -128
 	else
 		set j to item 1 of i
 		set myHome to POSIX path of (path to home folder)
-		
-		--		set fname to do shell script "find " & myHome & "Pictures/ -name \"" & the filename of j & "\" -print"
 		try
 			set photoID to the id of j
 		on error
-			beep
-			display alert "Oops" message "Something went wrong. Are you selecting a photo in a Smart Album by chance?"
-			error number -128
+			set reply to button returned of (display dialog "You might be in a Smart Album. Shall I try to find the original photo?" buttons {"No", "Yes"} default button 2 cancel button 1)
+			try
+				if reply = "Yes" then
+					tell application "System Events" to tell process "Photos" to click menu item "Show in All Photos" of menu 1 of menu bar item "File" of menu bar 1
+					-- Apparently need to wait for the app to catch up to the switch in albums
+					delay 1
+					set i to the selection
+					set j to item 1 of i
+					set photoID to the id of j
+				else
+					error
+				end if
+			on error errMsg number errNum
+				if errMsg is not "Photos got an error: User canceled." then display alert errNum message "Can't get to photo:" & return & errMsg
+				error number -128
+			end try
 		end try
 		set tid to AppleScript's text item delimiters
 		set AppleScript's text item delimiters to "/"
