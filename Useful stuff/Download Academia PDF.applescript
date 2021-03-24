@@ -9,8 +9,8 @@ on run
 		tell application "Safari" to set currentURL to ((URL of document 1) as string)
 	else if browserApp = "Chromium" then
 		tell application "Chromium" to set currentURL to the URL of the active tab of window 1
-	else if browserApp = "Google Chrome" then
-		tell application "Google Chrome" to set currentURL to the URL of the active tab of window 1
+		--	else if browserApp = "Google Chrome" then
+		--		tell application "Google Chrome" to set currentURL to the URL of the active tab of window 1
 	else if browserApp = "FireFox" then
 		tell application "Firefox"
 			tell application "System Events"
