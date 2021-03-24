@@ -53,6 +53,7 @@ tell application "Skim"
 		
 		repeat with i from 1 to ct
 			set n to (get text for note i) as string
+			set n to (the text of note i) as string
 			-- Assume that any end-of-line hyphens are broken words and not needed. (True more often than not.)
 			set n to my replace(n, "-" & return, "")
 			set n to my replace(n, "- ", "")
