@@ -98,7 +98,7 @@ tell application "Photos"
 					end if
 				end if
 			else
-				display alert "Already set!" message "Photo " & photoName & return & "The coordinates in the original image are close enough to the Photos data." as informational giving up after 30
+				display notification ("The coordinates in image " & photoName & " are close enough to the Photos data.") with title "Already set!" sound name "funk"
 			end if
 		end repeat
 	end if
