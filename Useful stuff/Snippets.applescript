@@ -33,10 +33,16 @@ on replace(origtext, ftext, rtext)
 	return newtext
 end replace
 
-on padded(str)
-	set str to "00" & str
+-- Pad a string with leading characters. Return a string of a specified length, starting from the end
+padded("123", 5, "0")
+
+on padded(str,  total, padding)
+	set max to (total - (number of characters of str))
+	repeat with i from 1 to max
+		set str to padding & str
+	end repeat
 	set l to the number of characters of str
-	return characters (l - 1) thru l of str as string
+	return characters (l - total + 1) thru l of str as string
 end padded
 
 -- Get user directory paths
@@ -89,6 +95,12 @@ set dateString to (do shell script " date +%Y-%m-%d_%H.%M.%S")
 # Get info on the file to combine for path and name
 set pfile to the POSIX path of fname
 set fpath to (do shell script "dirname " & quoted form of pfile) & "/" & dateString & "_" & fnameString & "_images"
+
+-- Open file for writing
+set myFile to (open for access tempFile with write permission)
+set eof myFile to 0
+write (the clipboard as (theType)) to myFile -- as whatever
+close access myFile
 
 -- To handle POSIX file paths, append "as alias" to "POSIX file theFile"
 
