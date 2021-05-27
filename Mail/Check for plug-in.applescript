@@ -12,8 +12,17 @@ on run
 					set openPref to button returned of (display dialog "QuoteFix is not running. Open Preferences?" buttons {"Yes", "No"} default button 1 with title "No QuoteFix")
 					if openPref = "Yes" then
 						tell application "System Events" to keystroke "," using command down
+						error number -128
 					end if
 				end if
+				try
+					set blocker to paragraph 2 of (do shell script "log show --last 1m --style syslog --info --predicate 'eventMessage BEGINSWITH[c] \"Loaded MailTrackerBlocker\"'")
+				on error
+					set openPref to button returned of (display dialog "Mail Tracker Blocker is not running. Open Preferences?" buttons {"Yes", "No"} default button 1 with title "No Blocker")
+					if openPref = "Yes" then
+						tell application "System Events" to keystroke "," using command down
+					end if
+				end try
 			end tell
 		else
 			tell application "Mail" to activate
