@@ -3,6 +3,7 @@ tell application "Photos"
 	set myHome to POSIX path of (path to home folder)
 	-- This determines how close the Photos and original file GPS coords can be w/o updating
 	set precision to 5
+	set margin to 10 ^ (-(precision - 1))
 	-- Get the selection. Right now only handling one image.
 	set i to the selection
 	if i = {} then
@@ -78,8 +79,9 @@ tell application "Photos"
 				set fileLat to my roundoff(fileLat, precision)
 				set fileLong to my roundoff(fileLong, precision)
 				-- If the coords are the same up to the desired precision, leave it alone
-				set latDiff to (precision * (fileLat - lat) > 10 ^ (-(precision - 1)))
-				set longDiff to (precision * (fileLong - long) > 10 ^ (-(precision - 1)))
+				set latDiff to (my abs(fileLat - lat) > margin)
+				set longDiff to (my abs(fileLong - long) > margin)
+				
 			else
 				-- Just set this variable to indicate that the file needs its coords set
 				set longDiff to true
@@ -108,6 +110,16 @@ on roundoff(value, places)
 	set newValue to (round (10 ^ places * value)) / (10 ^ places)
 	return newValue
 end roundoff
+
+on abs(num)
+	try
+		set num to num as number
+		if num < 0 then set num to (num * -1)
+		return num
+	on error
+		display alert "Not a number!" message "Can't get the absolute value of something that isn't a number" as warning giving up after 30
+	end try
+end abs
 
 on do_submenu(app_name, menu_name, menu_item, submenu_item)
 	try
