@@ -36,7 +36,7 @@ end replace
 -- Pad a string with leading characters. Return a string of a specified length, starting from the end
 padded("123", 5, "0")
 
-on padded(str,  total, padding)
+on padded(str, total, padding)
 	set max to (total - (number of characters of str))
 	repeat with i from 1 to max
 		set str to padding & str
@@ -44,6 +44,19 @@ on padded(str,  total, padding)
 	set l to the number of characters of str
 	return characters (l - total + 1) thru l of str as string
 end padded
+
+-- Get absolute value of a number
+my abs("-11.88")
+
+on abs(num)
+	try
+		set num to num as number
+		if num < 0 then set num to (num * -1)
+		return num
+	on error
+		display alert "Not a number!" message "Can't get the absolute value of something that isn't a number" as warning giving up after 30
+	end try
+end abs
 
 -- Get user directory paths
 set myHome to POSIX path of (path to home folder)
