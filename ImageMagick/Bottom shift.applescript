@@ -43,7 +43,7 @@ on open of finderObjects
 			set newExt to "png"
 		end if
 		set fname to quoted form of POSIX path of filename
-		do shell script "lh=`/usr/local/bin/identify -format %h " & fname & "`; lh=$(( lh * " & pct & "/100 ));\n\t\t$(bash -l -c 'which magick') " & fname & " +repage -gravity south -chop 0x${lh} -gravity " & side & " -background white -splice 0x${lh} + repage " & comp & " $TMPDIR/tempfile.png"
+		do shell script "lh=`/usr/local/bin/identify -format %h " & fname & "`; lh=$(( lh * " & pct & "/100 ));\n\t\t$(bash -l -c 'which magick') " & fname & " +repage -gravity south -chop 0x${lh} -gravity " & side & " -background white -splice 0x${lh} +repage " & comp & " $TMPDIR/tempfile.png"
 		tell application "Finder"
 			delete file filename
 			if ext ­ "png" then
