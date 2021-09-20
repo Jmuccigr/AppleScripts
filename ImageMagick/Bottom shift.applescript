@@ -27,11 +27,30 @@ on open of finderObjects
 		end if
 	end if
 	repeat with filename in (finderObjects)
+		tell application "Finder" to set ext to the name extension of filename
+		if ext contains "tif" then
+			set tiff to " -define tiff:preserve-compression=true "
+			set newExt to "tiff"
+			set comp to (do shell script "/usr/local/bin/identify -format %C " & POSIX path of filename)
+			if comp = "Group4" then
+				set comp to " -alpha off -monochrome -compress Group4 -quality 100 "
+			else
+				set comp to " -compress " & comp & " "
+			end if
+		else
+			set tiff to ""
+			set comp to ""
+			set newExt to "png"
+		end if
 		set fname to quoted form of POSIX path of filename
-		do shell script "lh=`/usr/local/bin/identify -format %h " & fname & "`; lh=$(( lh * " & pct & "/100 ));\n\t\t$(bash -l -c 'which magick') " & fname & " +repage -gravity south -chop 0x${lh} -gravity " & side & " -background white -splice 0x${lh} +repage $TMPDIR/tempfile.png"
+		do shell script "lh=`/usr/local/bin/identify -format %h " & fname & "`; lh=$(( lh * " & pct & "/100 ));\n\t\t$(bash -l -c 'which magick') " & fname & " +repage -gravity south -chop 0x${lh} -gravity " & side & " -background white -splice 0x${lh} + repage " & comp & " $TMPDIR/tempfile.png"
 		tell application "Finder"
 			delete file filename
-			do shell script "cp $TMPDIR/tempfile.png " & fname
+			if ext ­ "png" then
+				do shell script "$(bash -l -c 'which magick') $TMPDIR/tempfile." & newExt & " -format " & ext & " " & tiff & fname
+			else
+				do shell script "cp $TMPDIR/tempfile." & newExt & " " & fname
+			end if
 			if ct < 4 then
 				do shell script "qlmanage -p " & fname
 				select file filename
