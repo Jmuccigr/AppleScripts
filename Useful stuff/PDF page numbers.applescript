@@ -1,11 +1,13 @@
-on open fname
-	# An app to overlay page numbers on an existing PDF
-	
+# An app to overlay page numbers on an existing PDF
+
+on open of finderObjects
+	# Get only the first of multiple items
+	set fname to item 1 of finderObjects
 	# Make sure the file is a PDF, based on file info
 	set ftype to (do shell script "file -bI " & quoted form of (POSIX path of fname))
 	if characters 1 thru 15 of ftype as string ­ "application/pdf" then
 		display alert "Wrong file type" message "This does not appear to be a PDF file. Quitting."
-		quit
+		error number -128
 	end if
 	
 	# Get some info on the file
@@ -17,7 +19,6 @@ on open fname
 	set paperChoice to "none"
 	set sizes to {"A4", "A4 landscape", "letter", "letter landscape"}
 	set orientation to ""
-	set tkPath to "/usr/local/bin/pdftk"
 	set qpdfPath to "/usr/local/bin/qpdf"
 	set infoPath to "/usr/local/bin/pdfinfo"
 	set latexPath to "/Library/TeX/texbin/pdflatex"
@@ -75,7 +76,6 @@ on open fname
 	else
 		set outputFile to (resultFile as string)
 	end if
-	--do shell script "cd $TMPDIR; " & tkPath & " " & pfile & " multistamp numbers.pdf output " & quoted form of POSIX path of outputFile
 	do shell script "cd $TMPDIR; " & qpdfPath & " " & pfile & " --underlay numbers.pdf -- " & quoted form of POSIX path of outputFile
 	
 	-- Notify of completion
