@@ -41,7 +41,7 @@ on run
 	set htmlConfig to "+smart --self-contained --template=" & quoted form of (myGit & "pandoc-templates/default.html4")
 	set html5Config to "+smart --self-contained --template=" & quoted form of (myGit & "pandoc-templates/default.html5")
 	set pdfConfig to "+smart --pdf-engine=xelatex --template=" & quoted form of (myGit & "pandoc-templates/default.latex")
-	set revealConfig to " -i --self-contained --slide-level=2 -V center=false --css=" & myname & "/Documents/gray_lecture.css -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=" & quoted form of ("/usr/local/lib/node_modules/reveal.js/")
+	set revealConfig to " -i --self-contained --slide-level=2 -V center=false --css=" & myName & "/Documents/gray_lecture.css -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=" & quoted form of ("/usr/local/lib/node_modules/reveal.js/")
 	
 	-- Standard variables
 	set pandocSwitches to " -s --columns 800 --citeproc --bibliography=" & bibfile
@@ -49,7 +49,7 @@ on run
 	
 	tell application "System Events"
 		try
-			set appName to (the name of every process whose frontmost is true) as string
+			set appName to (the displayed name of every process whose frontmost is true) as string
 		on error errMsg
 			display alert "Problem" message "Could not get the name of the frontmost application."
 			error number -128
@@ -67,7 +67,7 @@ on run
 			set ASmethod to true
 		on error
 			try
-				tell application "System Events" to tell (process 1 where name is appName)
+				tell application "System Events" to tell (process 1 where displayed name is appName)
 					--Not sure why, but the following is needed with certain apps (e.g., BBEdit 8)
 					activate
 					set fpath to value of attribute "AXDocument" of window 1
