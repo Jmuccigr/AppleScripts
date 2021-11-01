@@ -4,7 +4,9 @@
 on run
 	set quotefix to false
 	tell application "System Events"
-		if the name of (every process where background only is false) does not contain "Mail" then
+		if the name of (every process where background only is false) contains "Mail" then
+			tell application "Mail" to activate
+		else
 			tell application "Mail"
 				activate
 				set quotefix to my do_submenu("Mail", "Mail", "QuoteFix is enabled")
@@ -24,8 +26,6 @@ on run
 					end if
 				end try
 			end tell
-		else
-			tell application "Mail" to activate
 		end if
 	end tell
 end run
