@@ -47,7 +47,7 @@ on open of finderObjects
 		if watermark then
 			set waterreply to (display dialog "Watermark removal can remove any instance of the text you enter, whether or not it appears as a proper watermark." with title "Warning" with icon caution default answer "Enter watermark text")
 			set watermarkText to the text returned of waterreply
-			set watermarkText to (do shell script "echo " & watermarkText & " | sed 's/ /.*/'")
+			set watermarkText to (do shell script "echo " & quoted form of watermarkText & " | sed 's/ /.*?/g'")
 			if watermarkText ­ "" then
 				set newText to ""
 				-- Create string of spaces to replace watermark, so qpdf doesn't complain about file length
@@ -61,7 +61,7 @@ on open of finderObjects
 				on error errMsg number errNum
 					if errMsg contains "Warning" then set wrning to (("Uncompression Warning" & return & errMsg) as string)
 				end try
-				do shell script "perl -pe 's/\\(" & watermarkText & "\\)/" & "(" & newText & ")/' " & wateroutputfile & " > " & tmpdir & "nowatermark.pdf"
+				do shell script "perl -pe 's/\\(.*?" & watermarkText & ".*?\\)/" & "(" & newText & ")/' " & wateroutputfile & " > " & tmpdir & "nowatermark.pdf"
 				if options ­ " " then
 					set wateroutputfile to "$TMPDIR/" & dateString & "_compressed.pdf"
 					set fname to wateroutputfile
@@ -76,7 +76,7 @@ on open of finderObjects
 			else if options = " " then
 				beep
 				display alert "No changes" message "No changes were specified for the file, so no new file was created."
-			error number -128
+				error number -128
 			end if
 		end if
 		
