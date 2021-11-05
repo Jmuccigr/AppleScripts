@@ -9,11 +9,11 @@ on open of finderObjects
 		# Make sure the file is a PDF, based on file info
 		set fname to the POSIX path of filename
 		set ftype to (do shell script "file -bI " & quoted form of (POSIX path of fname))
-		if characters 1 thru 15 of ftype as string ­ "application/pdf" then
+		if characters 1 thru 15 of ftype as string â‰  "application/pdf" then
 			display alert "Wrong file type" message "This does not appear to be a PDF file. Quitting."
 			quit
 		end if
-		
+
 		-- Get filter to apply
 		set options to " "
 		try
@@ -32,7 +32,7 @@ on open of finderObjects
 				set options to options & "-dFILTERVECTOR "
 			end if
 		end repeat
-		
+
 		-- Save new file in same dir as original with unique name
 		tell application "Finder"
 			set l to length of (name of file filename as string)
@@ -42,13 +42,13 @@ on open of finderObjects
 		# Get info on the file to combine for path and name
 		set pfile to the POSIX path of filename
 		set outputFile to (do shell script "dirname " & quoted form of pfile) & "/" & fnameString & ".pdf"
-		
+
 		-- Handle watermarks first
 		if watermark then
 			set waterreply to (display dialog "Watermark removal can remove any instance of the text you enter, whether or not it appears as a proper watermark." with title "Warning" with icon caution default answer "Enter watermark text")
 			set watermarkText to the text returned of waterreply
 			set watermarkText to (do shell script "echo " & quoted form of watermarkText & " | sed 's/ /.*?/g'")
-			if watermarkText ­ "" then
+			if watermarkText â‰  "" then
 				set newText to ""
 				-- Create string of spaces to replace watermark, so qpdf doesn't complain about file length
 				repeat until (length of newText) = (length of watermarkText)
@@ -62,7 +62,7 @@ on open of finderObjects
 					if errMsg contains "Warning" then set wrning to (("Uncompression Warning" & return & errMsg) as string)
 				end try
 				do shell script "perl -pe 's/\\(.*?" & watermarkText & ".*?\\)/" & "(" & newText & ")/' " & wateroutputfile & " > " & tmpdir & "nowatermark.pdf"
-				if options ­ " " then
+				if options â‰  " " then
 					set wateroutputfile to "$TMPDIR/" & dateString & "_compressed.pdf"
 					set fname to wateroutputfile
 				else
@@ -79,17 +79,17 @@ on open of finderObjects
 				error number -128
 			end if
 		end if
-		
+
 		-- Now process filters, if any were requested
-		if options ­ " " then
+		if options â‰  " " then
 			do shell script "/usr/local/bin/gs -o " & (quoted form of outputFile) & " -sDEVICE=pdfwrite " & options & " " & (quoted form of fname)
 		end if
 	end repeat
-	
+
 	-- Notify of completion
 	display notification ("Your PDF has been filtered.") with title "Filtering done" sound name "beep"
-	if wrning ­ "" then display alert "Warning" message wrning
-	
+	if wrning â‰  "" then display alert "Warning" message wrning
+
 end open
 
 use framework "Foundation"
