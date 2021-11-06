@@ -101,9 +101,8 @@ on run
 		set hasext to (length of ext > 0)
 		if ext = "md" or ext = "markdown" then set validFile to true
 		
-		if fname ­ "" and not validFile then
-			set alertResult to display alert "Not markdown" as warning message Â
-				"The file doesn't appear to be in markdown format. Proceed anyway?" buttons {"Yes", "No"} default button 2 giving up after 30
+		if fname is not "" and not validFile then
+			set alertResult to display alert "Not markdown" as warning message "The file doesn't appear to be in markdown format. Proceed anyway?" buttons {"Yes", "No"} default button 2 giving up after 30
 			if button returned of alertResult = "Yes" then
 				set validFile to true
 			end if
@@ -125,7 +124,7 @@ on run
 			if outputExt is "" then error number -128
 			set outputfn to outputfn & "." & outputExt
 			set fpath to (do shell script "dirname  " & quoted form of fpath) & "/"
-			repeat until outputfile ­ ""
+			repeat until outputfile is not ""
 				try
 					set outputfile to choose file name default name outputfn default location fpath with prompt "Select location for output:"
 					-- Complain if it doesn't have an extension.
@@ -355,7 +354,7 @@ on get_output()
 		-- Return the extension and the concatenated options
 		return {output_extension, filterText & " -t " & output_format_list & options & space & refFile & space}
 	on error errMsg
-		if errMsg ­ "User canceled." then
+		if errMsg is not "User canceled." then
 			display alert "Output File Error:" message errMsg
 		end if
 		error number -128
