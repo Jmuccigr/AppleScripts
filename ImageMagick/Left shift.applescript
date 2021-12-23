@@ -31,7 +31,7 @@ on open of finderObjects
 		if ext contains "tif" then
 			set tiff to " -define tiff:preserve-compression=true "
 			set newExt to "tiff"
-			set comp to (do shell script "/usr/local/bin/identify -format %C " & POSIX path of filename)
+			set comp to (do shell script "/usr/local/bin/identify -format %C " & quoted form of POSIX path of filename)
 			if comp = "Group4" then
 				set comp to " -alpha off -monochrome -compress Group4 -quality 100 "
 			else
