@@ -1,9 +1,10 @@
--- Filter PDF files using ghostscript
--- Esp. helpful for removing bad OCR text or watermarks
+-- Put images into a single PDF
 
 on open of finderObjects
 	set dateString to (do shell script " date +%Y-%m-%d_%H.%M.%S")
 	set fileList to ""
+	set options to " "
+	set defaultBorder to 1
 	-- Save new file in same dir as original with unique name
 	set firstFile to (item 1 of finderObjects)
 	tell application "Finder"
@@ -16,7 +17,6 @@ on open of finderObjects
 	end repeat
 	
 	-- Get paper size for output
-	set options to " "
 	try
 		set outputSize to (items of (choose from list {"US letter", "US letter wide", "A4", "A4 wide"} with prompt "What size do you want the output to be?" with title "Choose page size" default items "US letter"))
 		set outputSize to outputSize as string
@@ -32,12 +32,28 @@ on open of finderObjects
 		error number -128
 	end try
 	
+	-- Get border size
+	set borderSize to 999
+	try
+		repeat until borderSize < 10
+			try
+				set reply to (display dialog "Enter any border in cm's:" with title "Enter border size" default answer defaultBorder)
+				set borderSize to text returned of reply as number
+			on error errMsg number errNum
+				if errNum = -128 then error number -128
+				set borderSize to 999
+				display alert "Numbers only" message "You need to enter a reasonable number here. Leave 0 for no borders."
+			end try
+		end repeat
+	end try
+	if borderSize < 999 then set options to " --border " & borderSize & "cm "
+	
 	# Get info on the file to combine for path and name
 	set pfile to the POSIX path of filename
-	set outputFile to (do shell script "dirname " & quoted form of pfile) & "/" & fname & "pdf"
+	set outputFile to (do shell script "dirname " & quoted form of pfile) & "/" & fname & ".pdf"
 	
 	-- Now process files
-	do shell script ("/usr/local/bin/img2pdf -o " & (quoted form of outputFile) & " -S " & outputSizeString & " " & fileList)
+	do shell script ("/usr/local/bin/img2pdf -o " & (quoted form of outputFile) & " -S " & outputSizeString & options & fileList)
 	
 	-- Notify of completion
 	display notification ("Your PDF has been created.") with title "PDF done" sound name "beep"
