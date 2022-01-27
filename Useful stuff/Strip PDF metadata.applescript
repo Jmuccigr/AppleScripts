@@ -18,8 +18,7 @@ on open fileList
 		end tell
 		set ext to (do shell script "echo " & ext & " | tr '[:upper:]' '[:lower:]'")
 		if ext is not "pdf" then
-			tell application "Finder" to display alert "Wrong file type" message "This does not appear to be a PDF file: " & return & return & (name of filename) & return & return & "Quitting."
-			error number -128
+			tell application "Finder" to display alert "Wrong file type" message "This does not appear to be a PDF file: " & return & return & (name of filename) & return & return & "Skipping." giving up after 10
 		else
 			
 			set keepdata to false
