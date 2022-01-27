@@ -4,29 +4,35 @@ on open of finderObjects
 	set dateString to (do shell script " date +%Y-%m-%d_%H.%M.%S")
 	set fileList to ""
 	set options to " "
-	set defaultBorder to 1
+	set defaultBorder to 0
 	-- Save new file in same dir as original with unique name
 	set firstFile to (item 1 of finderObjects)
 	tell application "Finder"
 		set l to length of (name of file firstFile as string)
-		set fname to dateString & "_" & characters 1 thru (l - 4) of ((name of file firstFile) as string)
+		set extLength to the number of characters of (name extension of file firstFile as string)
+		set fname to dateString & "_" & characters 1 thru (l - extLength - 1) of ((name of file firstFile) as string)
 		if length of fname > 251 then set fname to characters 1 thru 251 of fname
 	end tell
-	repeat with filename in (finderObjects)
-		set fileList to fileList & quoted form of (POSIX path of filename) & " "
+	repeat with fileName in (finderObjects)
+		set fileList to fileList & quoted form of (POSIX path of fileName) & " "
 	end repeat
 	
 	-- Get paper size for output
 	try
-		set outputSize to (items of (choose from list {"US letter", "US letter wide", "A4", "A4 wide"} with prompt "What size do you want the output to be?" with title "Choose page size" default items "US letter"))
+		set outputSize to (items of (choose from list {"US letter", "US letter wide", "A4", "A4 wide", "Custom..."} with prompt "What size do you want the output to be?" with title "Choose page size" default items "US letter"))
 		set outputSize to outputSize as string
-		if outputSize contains "A4" then
-			set outputSizeString to "A4"
+		if outputSize = "Custom..." then
+			set reply to (display dialog "What size do you want the output to be? You must enter a correctly formatted string including units (mm, cm, in) and no spaces:" with title "Enter page size" default answer "30cmx60cm")
+			set outputSizeString to text returned of reply
 		else
-			set outputSizeString to "letter"
-		end if
-		if outputSize contains "wide" then
-			set outputSizeString to outputSizeString & "^T"
+			if outputSize contains "A4" then
+				set outputSizeString to "A4"
+			else
+				set outputSizeString to "letter"
+			end if
+			if outputSize contains "wide" then
+				set outputSizeString to outputSizeString & "^T"
+			end if
 		end if
 	on error num
 		error number -128
@@ -49,7 +55,7 @@ on open of finderObjects
 	if borderSize < 999 then set options to " --border " & borderSize & "cm "
 	
 	# Get info on the file to combine for path and name
-	set pfile to the POSIX path of filename
+	set pfile to the POSIX path of fileName
 	set outputFile to (do shell script "dirname " & quoted form of pfile) & "/" & fname & ".pdf"
 	
 	-- Now process files
