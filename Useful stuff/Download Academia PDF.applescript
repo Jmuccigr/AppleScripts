@@ -24,7 +24,7 @@ on run
 	else
 		do shell script "afplay /System/Library/Sounds/Basso.aiff"
 		display alert "Unsupported browser" as critical message "This browser is not yet supported."
-		error -128
+		error number -128
 	end if
 	
 	-- Check for academia.edu website, even though the ruby script does this, too
@@ -33,7 +33,7 @@ on run
 	if text item 3 of currentURL does not contain "academia.edu" then
 		do shell script "afplay /System/Library/Sounds/Basso.aiff"
 		display alert "Not academia.edu" message "This only works on an academia.edu page." as critical
-		error -128
+		error number -128
 	end if
 	
 	-- Make sure the output filename isn't too big
