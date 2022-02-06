@@ -46,7 +46,7 @@ on open of finderObjects
 				set reply to (display dialog "Enter any border in cm's:" with title "Enter border size" default answer defaultBorder)
 				set borderSize to text returned of reply as number
 			on error errMsg number errNum
-				if errNum = -128 then error number -128
+				if errNum = -128 then quit
 				set borderSize to 999
 				display alert "Numbers only" message "You need to enter a reasonable number here. Leave 0 for no borders."
 			end try
