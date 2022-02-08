@@ -54,6 +54,9 @@ on open fileList
 				# Delete the potential destination file & then run exiftool
 				try
 					do shell script pythonPath & "pdf_remove_metadata.py " & keepdataSwitch & pfile & " " & tempdir & pname
+				on error errMsg number errNum
+					display alert "Problem with python script" message errNum & ": " & errMsg
+					quit
 				end try
 				
 				-- Move the original to the trash, so it can be recovered if necessary
