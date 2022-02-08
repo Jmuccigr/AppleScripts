@@ -59,7 +59,7 @@ on open of finderObjects
 	set outputFile to (do shell script "dirname " & quoted form of pfile) & "/" & fname & ".pdf"
 	
 	-- Now process files
-	do shell script ("/usr/local/bin/img2pdf -o " & (quoted form of outputFile) & " -S " & outputSizeString & options & fileList)
+	do shell script ("/usr/local/bin/img2pdf --producer '' -o " & (quoted form of outputFile) & " -S " & outputSizeString & options & fileList)
 	
 	-- Notify of completion
 	display notification ("Your PDF has been created.") with title "PDF done" sound name "beep"
