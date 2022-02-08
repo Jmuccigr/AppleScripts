@@ -93,13 +93,13 @@ end open
 
 on checkPDF(fn)
 	try
-		set xmp to (do shell script exiftool & "-q -q -b -xmp " & fn)
+		set xmp to (do shell script exiftool & "-q -q -b -xmp " & fn & " | xmllint -pretty 1 - | wc -l") as integer
 	on error errMsg number errNum
 		display dialog errNum & ": " & errMsg as string
-		set xmp to ""
+		set xmp to 7
 	end try
 	set exif to (do shell script exiftool & fn)
-	if (count of paragraphs of exif) = 14 and (xmp = "") then
+	if ((count of paragraphs of exif) = 16 and (xmp = 7)) then
 		return "does not appear to have extra metadata."
 	else
 		return ""
