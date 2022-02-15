@@ -4,7 +4,7 @@
 on run
 	set quotefix to false
 	tell application "System Events"
-		if the name of (every process where background only is false) contains "Mail" then
+		if the name of every process contains "Mail" then
 			tell application "Mail" to activate
 		else
 			tell application "Mail"
