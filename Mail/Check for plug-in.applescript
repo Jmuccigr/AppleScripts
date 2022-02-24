@@ -11,7 +11,7 @@ on run
 				activate
 				set quotefix to my do_submenu("Mail", "Mail", "QuoteFix is enabled")
 				if not quotefix then
-					set openPref to button returned of (display dialog "QuoteFix is not running. Open Preferences?" buttons {"Yes", "No"} default button 1 with title "No QuoteFix")
+					set openPref to button returned of (display dialog "QuoteFix is not running. Open Preferences?" buttons {"Yes", "No"} default button 1 with title "No QuoteFix" giving up after 15)
 					if openPref = "Yes" then
 						tell application "System Events" to keystroke "," using command down
 						error number -128
@@ -20,7 +20,7 @@ on run
 				try
 					set blocker to paragraph 2 of (do shell script "log show --last 1m --style syslog --info --predicate 'eventMessage BEGINSWITH[c] \"Loaded MailTrackerBlocker\"'")
 				on error
-					set openPref to button returned of (display dialog "Mail Tracker Blocker is not running. Open Preferences?" buttons {"Yes", "No"} default button 1 with title "No Blocker")
+					set openPref to button returned of (display dialog "Mail Tracker Blocker is not running. Open Preferences?" buttons {"Yes", "No"} default button 1 with title "No Blocker" giving up after 15)
 					if openPref = "Yes" then
 						tell application "System Events" to keystroke "," using command down
 					end if
