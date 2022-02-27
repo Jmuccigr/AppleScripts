@@ -91,6 +91,9 @@ on run
 				set fpath to do shell script "x=" & quoted form of fpath & "\n        \t\t\t\tx=${x/#file:\\/\\/}\n        \t\t\t\tx=${x/#localhost}\n        \t\t\t\tprintf ${x//%/\\\\x}"
 			end if
 		end if
+		-- Sublime Text appends a project name to the file name. Delete it.
+		if appName = "Sublime Text" then set fname to (do shell script "echo " & fname & " | perl -pe 's/(.*)\\ Ñ .*/\\1/'")
+		
 		-- We got a file path, now make sure it's a markdown file, based on the file extension, checking if there is one.
 		-- To-do: check against list of valid extensions and let user pick or override the input type.
 		try
@@ -259,7 +262,12 @@ on get_output()
 			repeat with filter in filterChoices
 				set filterchoice to (display dialog "Do you want to run the filter " & filter & "?" buttons {"Cancel", "No", "Yes"} default button defAnswer)
 				if button returned of filterchoice = "Yes" then
-					set filterText to filterText & " --filter " & filter
+					if filter contains ".lua" then
+						set filterSwitch to " --lua-filter "
+					else
+						set filterSwitch to " --filter "
+					end if
+					set filterText to filterText & filterSwitch & filter
 					set filterCount to filterCount + 1
 				end if
 			end repeat
