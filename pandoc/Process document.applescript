@@ -44,7 +44,8 @@ on run
 	set revealConfig to " -i --self-contained --slide-level=2 -V center=false --css=" & myDocs & "reveal_themes/gray_lecture.css -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=" & quoted form of ("/usr/local/lib/node_modules/reveal.js/")
 	
 	-- Standard variables
-	set pandocSwitches to " -s --columns 800 --citeproc --bibliography=" & bibfile
+	--set pandocSwitches to " -s --columns 800 --citeproc --bibliography=" & bibfile
+	set pandocSwitches to " -s --citeproc --bibliography=" & bibfile
 	set filterText to ""
 	
 	tell application "System Events"
@@ -92,8 +93,7 @@ on run
 			end if
 		end if
 		-- Sublime Text appends a project name to the file name. Delete it.
-		if appName = "Sublime Text" then set fname to (do shell script "echo " & fname & " | perl -pe 's/(.*)\\ Ñ .*/\\1/'")
-		
+		if appName = "Sublime Text" then set fname to (do shell script "echo " & quoted form of fname & " | perl -pe 's/(.*)\\ Ñ .*/\\1/'")
 		-- We got a file path, now make sure it's a markdown file, based on the file extension, checking if there is one.
 		-- To-do: check against list of valid extensions and let user pick or override the input type.
 		try
