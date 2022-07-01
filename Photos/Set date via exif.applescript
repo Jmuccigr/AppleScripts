@@ -13,7 +13,7 @@ on open photoList
 		set yearSet to false
 		set mNum to 1
 		set dNum to 1
-		set fPath to (the POSIX path of photo)
+		set fPath to the quoted form of (the POSIX path of photo)
 		repeat until yearSet is true
 			-- Get year. This is the only thing that needs to be set
 			set y to text returned of (display dialog fName & return & return & dateProblem & "Enter a year after 1900:" with title "Year" default answer "1980")
