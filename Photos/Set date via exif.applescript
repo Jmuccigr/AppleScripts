@@ -46,7 +46,7 @@ on open photoList
 			set tNum to (do shell script "echo " & tNum & " | sed 's/[^0-9:]//g'")
 			if tNum is "" or the first item of tNum is not in "1234567890" then set tNum to "12:00:00"
 			try
-				do shell script ("/usr/local/bin/exiftool " & quote & "-AllDates=" & yNum & ":" & mNum & ":" & dNum & space & tNum & quote & space & fPath)
+				do shell script ("/usr/local/bin/exiftool -overwrite_original " & quote & "-AllDates=" & yNum & ":" & mNum & ":" & dNum & space & tNum & quote & space & fPath)
 			on error errMsg number errNum
 				display alert "Error!" message (errNum & ": " & errMsg as string)
 			end try
