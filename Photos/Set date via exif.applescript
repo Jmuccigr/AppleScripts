@@ -5,10 +5,15 @@
 
 
 on open photoList
+	set ct to 0
+	set y to "1980"
+	set m to "January"
+	set d to "1"
 	set now to the year of the (current date)
 	set monthList to {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"}
 	set dateProblem to ""
 	repeat with photo in photoList
+		set ct to ct + 1
 		tell application "System Events" to set fName to (name of photo) as string
 		set yearSet to false
 		set mNum to 1
@@ -16,7 +21,7 @@ on open photoList
 		set fPath to the quoted form of (the POSIX path of photo)
 		repeat until yearSet is true
 			-- Get year. This is the only thing that needs to be set
-			set y to text returned of (display dialog fName & return & return & dateProblem & "Enter a year after 1900:" with title "Year" default answer "1980")
+			set y to text returned of (display dialog fName & return & return & dateProblem & "Enter a year after 1900:" with title "Year" default answer y)
 			set yNum to y as integer
 			if yNum > 1900 and yNum < (now + 1) then
 				set yearSet to true
@@ -24,7 +29,7 @@ on open photoList
 				set dateProblem to "Entered year is out of range. "
 			end if
 			-- Get month & convert to number
-			set m to (choose from list monthList with title "Month" with prompt "Choose the month" default items "" with empty selection allowed without multiple selections allowed)
+			set m to (choose from list monthList with title "Month" with prompt "Choose the month" default items m with empty selection allowed without multiple selections allowed)
 			if (count of m) > 0 then
 				repeat with i from 1 to 12
 					if item 1 of m = item i of monthList then
@@ -34,7 +39,7 @@ on open photoList
 				end repeat
 			end if
 			-- Get day
-			set d to text returned of (display dialog "Enter a day of the month" with title "Day" default answer "")
+			set d to text returned of (display dialog "Enter a day of the month" with title "Day" default answer d)
 			try
 				set dNum to d as integer
 			on error
