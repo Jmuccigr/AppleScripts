@@ -69,7 +69,7 @@ on open of finderObjects
 				if l1 ­ l2 then display alert "Spaces!" as warning message "There appear to be some spaces in your search text. This can introduce errors."
 				set wateroutputfile to tmpdir & dateString & "_uncompressed.pdf"
 				try
-					do shell script "/usr/local/bin/qpdf --stream-data=uncompress " & quoted form of fname & " " & wateroutputfile
+					do shell script "/opt/homebrew/bin/qpdf --stream-data=uncompress " & quoted form of fname & " " & wateroutputfile
 				on error errMsg number errNum
 					beep
 					display alert "Uncompression Warning " & errNum as warning message errMsg
@@ -89,7 +89,7 @@ on open of finderObjects
 					set wateroutputfile to (quoted form of outputFile)
 				end if
 				try
-					do shell script "/usr/local/bin/qpdf --compress-streams=y " & tmpdir & "nowatermark.pdf " & wateroutputfile
+					do shell script "/opt/homebrew/bin/qpdf --compress-streams=y " & tmpdir & "nowatermark.pdf " & wateroutputfile
 					set somethingDone to true
 				on error errMsg number errNum
 					beep
@@ -114,7 +114,7 @@ on open of finderObjects
 				-- Running gs with no filters will do some compression or something
 				--set options to ""
 			end if
-			set hl to (do shell script "/usr/local/bin/python3 " & myDocs & "pdf_annotate.py -q -a Remove  -i " & (quoted form of inputFile) & " -o " & highlightoutputfile)
+			set hl to (do shell script "/opt/homebrew/bin/python3 " & myDocs & "pdf_annotate.py -q -a Remove  -i " & (quoted form of inputFile) & " -o " & highlightoutputfile)
 			if character 1 of hl = "N" then --there were no annotations found, so the file wasn't changed
 				display alert "No annotations" as informational message "There weren't any annotations found, so none was removed." giving up after 30
 				set fname to inputFile
@@ -125,7 +125,7 @@ on open of finderObjects
 		
 		-- Now process filters, if any were requested
 		if options ­ " " then
-			do shell script "/usr/local/bin/gs -o " & (quoted form of outputFile) & " -sDEVICE=pdfwrite " & options & " " & (quoted form of fname)
+			do shell script "/opt/homebrew/bin/gs -o " & (quoted form of outputFile) & " -sDEVICE=pdfwrite " & options & " " & (quoted form of fname)
 			set somethingDone to true
 		end if
 	end repeat

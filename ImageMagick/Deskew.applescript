@@ -14,7 +14,7 @@ on open of finderObjects
 			end if
 		end tell
 		set fname to quoted form of POSIX path of filename
-		do shell script "/usr/local/bin/magick " & fname & " +repage -deskew " & amount & tiff & " +repage $TMPDIR/tempfile.png"
+		do shell script "/opt/homebrew/bin/magick " & fname & " +repage -deskew " & amount & tiff & " +repage $TMPDIR/tempfile.png"
 		tell application "Finder"
 			delete file filename
 			do shell script "cp $TMPDIR/tempfile.png " & fname

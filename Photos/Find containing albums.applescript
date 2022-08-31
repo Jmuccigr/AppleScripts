@@ -30,7 +30,6 @@ tell application "Photos"
 			end try
 		end try
 		try
-			set photoID to the id of j
 			repeat with theAlbum in the albums
 				--This next line works and is more elegant, but it's slower
 				--set albumList to name of (albums whose id of media items contains photoID)
@@ -46,6 +45,8 @@ tell application "Photos"
 			else
 				display alert "Sorry" message "This photo belongs to no albums."
 			end if
+		on error errMsg
+			display alert "Error" message errMsg
 		end try
 	end if
 end tell

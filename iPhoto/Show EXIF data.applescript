@@ -5,7 +5,7 @@ tell application "iPhoto"
 			beep
 			try
 				set iPath to the quoted form of (the image path of i as string)
-				set theResult to do shell script ("/usr/local/bin/exif " & iPath & " | grep -v EXIF | grep -v \"+-\" | grep -v Value")
+				set theResult to do shell script ("/opt/homebrew/bin/exif " & iPath & " | grep -v EXIF | grep -v \"+-\" | grep -v Value")
 				set the clipboard to theResult
 				set theResult to paragraphs 1 thru 15 of theResult
 				set tid to AppleScript's text item delimiters

@@ -32,7 +32,7 @@ on quit
 			if (the name of item i of ImageFiles) as string = reply then
 				set theSource to item i of ImageFiles
 				set srcPath to the quoted form of the POSIX path of theSource
-				set gpsdata to paragraph 1 of (do shell script "/usr/local/bin/exiftool -csv -p '$gpslatitude,$gpslongitude,$gpsaltitude,gpsdatetime' " & srcPath)
+				set gpsdata to paragraph 1 of (do shell script "/opt/homebrew/bin/exiftool -csv -p '$gpslatitude,$gpslongitude,$gpsaltitude,gpsdatetime' " & srcPath)
 				if gpsdata = "Sourcefile" then
 					display alert "No GPS data" message "The source file has no GPS data."
 					set gps to false
@@ -58,11 +58,11 @@ on quit
 					set ext to the name extension of targ
 					set targetPath to the quoted form of the POSIX path of targ
 					if ext is in {"png"} then
-						do shell script ("/usr/local/bin/exiftool -xmp:GPSLatitude=" & lat & " -xmp:GPSLongitude=" & long & " -xmp:GPSAltitude=" & alt & " -GPSDateTime=" & dt & " " & targetPath)
+						do shell script ("/opt/homebrew/bin/exiftool -xmp:GPSLatitude=" & lat & " -xmp:GPSLongitude=" & long & " -xmp:GPSAltitude=" & alt & " -GPSDateTime=" & dt & " " & targetPath)
 					else
 						if ext is in {"jpg", "jpeg", "heic", "tiff", "tif"} then
 							try
-								do shell script ("/usr/local/bin/exiftool -tagsfromfile " & srcPath & " -gps* -datetimeoriginal " & targetPath)
+								do shell script ("/opt/homebrew/bin/exiftool -tagsfromfile " & srcPath & " -gps* -datetimeoriginal " & targetPath)
 							on error errmsg number errNum
 								display alert errNum message errmsg
 							end try

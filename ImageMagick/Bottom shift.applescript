@@ -31,7 +31,7 @@ on open of finderObjects
 		if ext contains "tif" then
 			set tiff to " -define tiff:preserve-compression=true "
 			set newExt to "tiff"
-			set comp to (do shell script "/usr/local/bin/identify -format %C " & quoted form of POSIX path of filename)
+			set comp to (do shell script "/opt/homebrew/bin/identify -format %C " & quoted form of POSIX path of filename)
 			if comp = "Group4" then
 				set comp to " -alpha off -monochrome -compress Group4 -quality 100 "
 			else
@@ -43,7 +43,7 @@ on open of finderObjects
 			set newExt to "png"
 		end if
 		set fname to quoted form of POSIX path of filename
-		do shell script "lh=`/usr/local/bin/identify -format %h " & fname & "`; lh=$(( lh * " & pct & "/100 ));\n\t\t$(bash -l -c 'which magick') " & fname & " +repage -gravity south -chop 0x${lh} -gravity " & side & " -background white -splice 0x${lh} +repage " & comp & " $TMPDIR/tempfile." & newExt
+		do shell script "lh=`/opt/homebrew/bin/identify -format %h " & fname & "`; lh=$(( lh * " & pct & "/100 ));\n\t\t$(bash -l -c 'which magick') " & fname & " +repage -gravity south -chop 0x${lh} -gravity " & side & " -background white -splice 0x${lh} +repage " & comp & " $TMPDIR/tempfile." & newExt
 		tell application "Finder"
 			delete file filename
 			if ext ­ "png" then

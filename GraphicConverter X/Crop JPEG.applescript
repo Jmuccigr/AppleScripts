@@ -2,7 +2,7 @@
 -- Use GraphicConverter to select wanted area. jpegtran will crop as closely as possible
 -- Not a lot of error checking
 
-tell application "GraphicConverter 10"
+tell application "GraphicConverter 11"
 	-- Make sure we're working on a jpeg
 	try
 		set fname to (the file of window 1)
@@ -40,7 +40,7 @@ tell application "GraphicConverter 10"
 	set newpath to (do shell script "dirname " & quoted form of thePath) & "/" & dateString & "_" & name of window 1
 	
 	-- Do it & preview result
-	do shell script ("/usr/local/bin/jpegtran -crop " & cropDims & " -outfile " & quoted form of newpath & " " & quoted form of thePath)
+	do shell script ("/opt/homebrew/bin/jpegtran -crop " & cropDims & " -outfile " & quoted form of newpath & " " & quoted form of thePath)
 	do shell script ("qlmanage -p " & quoted form of newpath)
 	
 end tell

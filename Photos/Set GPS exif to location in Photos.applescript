@@ -1,6 +1,9 @@
 tell application "Photos"
 	activate
-	set myHome to POSIX path of (path to home folder)
+	tell application "Finder"
+		set myHome to POSIX path of (path to home folder)
+	end tell
+	set lib to (do shell script myHome & ".local/bin/osxphotos list | head -n 1 | perl -pe 's/.*?(\\/.*)/\\1/'")
 	-- This determines how close the Photos and original file GPS coords can be w/o updating
 	set precision to 5
 	set margin to 10 ^ (-(precision - 1))
@@ -45,7 +48,8 @@ tell application "Photos"
 			set AppleScript's text item delimiters to "/"
 			set photoID to the first text item of photoID
 			set AppleScript's text item delimiters to tid
-			set fname to (do shell script "find " & myHome & "Pictures/Fun.photoslibrary/originals -name \"" & photoID & "*\" -print")
+			(display dialog "find " & lib & "/originals -name \"" & photoID & "*\" -print")
+			set fname to (do shell script "find " & lib & "/originals -name \"" & photoID & "*\" -print")
 			if the (count of paragraphs of fname) > 1 then
 				display alert "Oops!" message "There appear multiple copies of this image."
 				error number -128
@@ -72,7 +76,7 @@ tell application "Photos"
 			set lat to my roundoff(lat, precision)
 			set long to my roundoff(long, precision)
 			-- Get exif data for GPS if there is any
-			set gpsTemp to (do shell script "/usr/local/bin/exiftool -p '$gpslatitude#, $gpslongitude#, $gpslatituderef#, $gpslongituderef#' " & fname)
+			set gpsTemp to (do shell script "/opt/homebrew/bin/exiftool -p '$gpslatitude#, $gpslongitude#, $gpslatituderef#, $gpslongituderef#' " & fname)
 			-- Catch files without GPS
 			if gpsTemp is not "" then
 				set {fileLat, fileLong, fileLatRef, fileLongRef} to words of gpsTemp
@@ -87,7 +91,7 @@ tell application "Photos"
 				set longDiff to true
 			end if
 			if (longDiff or latDiff) then
-				set gpsCommand to "/usr/local/bin/exiftool -overwrite_original -gpslatituderef=" & latRef & "  -gpslongituderef=" & longRef & " -GPSLatitude=" & lat & " -GPSLongitude=" & long & " " & fname
+				set gpsCommand to "/opt/homebrew/bin/exiftool -overwrite_original -gpslatituderef=" & latRef & "  -gpslongituderef=" & longRef & " -GPSLatitude=" & lat & " -GPSLongitude=" & long & " " & fname
 				set theResult to (do shell script gpsCommand)
 				if theResult ­ "    1 image files updated" then
 					display alert "A problem?" message "Photo " & filename & return & "The exiftool command did not have the expected result for this photo:" & return & theResult as warning giving up after 30

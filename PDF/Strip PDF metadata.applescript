@@ -9,7 +9,7 @@ on open fileList
 	set tempdir to (do shell script "echo $TMPDIR")
 	
 	# Explicit paths to binaries
-	set exiftool to "/usr/local/bin/exiftool -q -q "
+	set exiftool to "/opt/homebrew/bin/exiftool -q -q "
 	
 	# Create log record and log file name
 	set logData to ""

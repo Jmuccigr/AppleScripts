@@ -76,7 +76,7 @@ on open of finderObjects
 			-- Get the geometry so we can restore the original size. Add back shaved border after info:
 			set tid to AppleScript's text item delimiters
 			set AppleScript's text item delimiters to ","
-			set {dims, inset} to the text items of (do shell script "/usr/local/bin/magick " & fname & " -shave " & border & " -fuzz " & pct & " -trim -format " & quote & "%P,%O" & quote & " info:")
+			set {dims, inset} to the text items of (do shell script "/opt/homebrew/bin/magick " & fname & " -shave " & border & " -fuzz " & pct & " -trim -format " & quote & "%P,%O" & quote & " info:")
 			set AppleScript's text item delimiters to "x"
 			set wid to (((text item 1 of dims) as number) + 2 * border) as text
 			set len to (((text item 2 of dims) as number) + 2 * border) as text
@@ -85,14 +85,14 @@ on open of finderObjects
 		end if
 		-- Make the script wait for magick to finish
 		if simple then
-			set thePID to (do shell script "/usr/local/bin/magick " & fname & tiff & borderTrim & " -fuzz " & pct & " -trim " & addWhite & " +repage $TMPDIR/tempfile." & ext)
+			set thePID to (do shell script "/opt/homebrew/bin/magick " & fname & tiff & borderTrim & " -fuzz " & pct & " -trim " & addWhite & " +repage $TMPDIR/tempfile." & ext)
 			repeat
 				do shell script "ps ax | grep " & thePID & " | grep -v grep | awk '{ print $1 }'"
 				if result is "" then exit repeat
 				delay 0.2
 			end repeat
 		else
-			set thePID to (do shell script "/usr/local/bin/magick " & fname & tiff & " -crop `/usr/local/bin/magick " & fname & borderTrim & " -blur 0x2 +dither -remap " & filePath & remapFile & " -fuzz " & pct & " -trim -format %wx%h+%[fx:page.x+" & border & "]+%[fx:page.y+" & border & "] info:` " & addWhite & " +repage $TMPDIR/tempfile." & ext)
+			set thePID to (do shell script "/opt/homebrew/bin/magick " & fname & tiff & " -crop `/opt/homebrew/bin/magick " & fname & borderTrim & " -blur 0x2 +dither -remap " & filePath & remapFile & " -fuzz " & pct & " -trim -format %wx%h+%[fx:page.x+" & border & "]+%[fx:page.y+" & border & "] info:` " & addWhite & " +repage $TMPDIR/tempfile." & ext)
 			repeat
 				do shell script "ps ax | grep " & thePID & " | grep -v grep | awk '{ print $1 }'"
 				if result is "" then exit repeat
@@ -102,8 +102,8 @@ on open of finderObjects
 		if restore then
 			-- composite the tmpfile onto a white file of the size of the cropped version, the put that onto one of original size, determined above.
 			-- should be able to combine this with the step above as a final process. Init var to "" or set to the extra command stuff if needed
-			do shell script "/usr/local/bin/magick \\( -background white -size " & dims & " xc: \\) $TMPDIR/tempfile." & ext & " -geometry " & inset & " -compose divide_dst -composite $TMPDIR/tempfile." & ext
-			do shell script "/usr/local/bin/magick \\( -background white -size " & origDims & " xc: \\) $TMPDIR/tempfile." & ext & " -geometry +" & border & "+" & border & " -compose divide_dst -composite $TMPDIR/tempfile." & ext
+			do shell script "/opt/homebrew/bin/magick \\( -background white -size " & dims & " xc: \\) $TMPDIR/tempfile." & ext & " -geometry " & inset & " -compose divide_dst -composite $TMPDIR/tempfile." & ext
+			do shell script "/opt/homebrew/bin/magick \\( -background white -size " & origDims & " xc: \\) $TMPDIR/tempfile." & ext & " -geometry +" & border & "+" & border & " -compose divide_dst -composite $TMPDIR/tempfile." & ext
 		end if
 		
 		tell application "Finder"

@@ -35,7 +35,7 @@ on open finderObjects
 			end tell
 		else
 			try
-				set exifresponse to the words of (do shell script "/usr/local/bin/exiftool -s3 -t -ImageWidth -ImageHeight -exif:xresolution -exif:yresolution -exif:resolutionunit " & the quoted form of the POSIX path of filename)
+				set exifresponse to the words of (do shell script "/opt/homebrew/bin/exiftool -s3 -t -ImageWidth -ImageHeight -exif:xresolution -exif:yresolution -exif:resolutionunit " & the quoted form of the POSIX path of filename)
 			on error errMsg number errNum
 				display alert "exiftool error " & errNum message errMsg
 				error number -128
@@ -71,8 +71,8 @@ on open finderObjects
 				set dimNew to resH
 			end if
 			-- Change exif data for jpeg as well as the other density data
-			if jpg then do shell script "/usr/local/bin/exiftool -preserve -overwrite_original_in_place -units=inches -xresolution=" & dimNew & " -yresolution=" & dimNew & " " & the quoted form of the POSIX path of filename
-			do shell script "/usr/local/bin/magick mogrify" & extraflag & "-units PixelsPerInch -density " & dimNew & "x" & dimNew & " " & fname
+			if jpg then do shell script "/opt/homebrew/bin/exiftool -preserve -overwrite_original_in_place -units=inches -xresolution=" & dimNew & " -yresolution=" & dimNew & " " & the quoted form of the POSIX path of filename
+			do shell script "/opt/homebrew/bin/magick mogrify" & extraflag & "-units PixelsPerInch -density " & dimNew & "x" & dimNew & " " & fname
 		end if
 	end repeat
 	display notification "Your files now all will fit natively on a page." with title "Resolution adjustment complete" sound name "default"

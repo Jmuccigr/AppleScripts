@@ -1,4 +1,4 @@
-set blueutilcmd to "/usr/local/bin/blueutil"
+set blueutilcmd to "/opt/homebrew/bin/blueutil"
 set sb to last word of paragraph 1 of (do shell script blueutilcmd)
 if sb is "1" then
 	do shell script blueutilcmd & " --power 0"

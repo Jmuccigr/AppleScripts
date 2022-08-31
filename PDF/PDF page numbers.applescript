@@ -19,8 +19,8 @@ on open of finderObjects
 	set paperChoice to "none"
 	set sizes to {"A4", "A4 landscape", "letter", "letter landscape"}
 	set orientation to ""
-	set qpdfPath to "/usr/local/bin/qpdf"
-	set infoPath to "/usr/local/bin/pdfinfo"
+	set qpdfPath to "/opt/homebrew/bin/qpdf"
+	set infoPath to "/opt/homebrew/bin/pdfinfo"
 	set latexPath to "/Library/TeX/texbin/pdflatex"
 	
 	# Get number of pages & their size

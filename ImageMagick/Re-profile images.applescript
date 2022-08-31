@@ -43,7 +43,7 @@ on quit
 			end if
 			set profilePick to the quoted form of the POSIX path of profilePick
 			try
-				do shell script ("/usr/local/bin/magick " & profilePick & " $TMPDIR/profile.icc")
+				do shell script ("/opt/homebrew/bin/magick " & profilePick & " $TMPDIR/profile.icc")
 			on error errMsg number errNum
 				display alert "Problem with imagemagick getting profile" message (errNum as string) & ": " & errMsg
 				error number -128
@@ -51,7 +51,7 @@ on quit
 			repeat with imageFile in fixList
 				set filename to the quoted form of the POSIX path of imageFile
 				try
-					do shell script ("/usr/local/bin/magick mogrify" & " -profile $TMPDIR/profile.icc " & filename)
+					do shell script ("/opt/homebrew/bin/magick mogrify" & " -profile $TMPDIR/profile.icc " & filename)
 				on error errMsg number errNum
 					display alert "Problem with imagemagick writing profile" message (errNum as string) & ": " & errMsg
 					error number -128

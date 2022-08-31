@@ -60,7 +60,7 @@ on open fList
 	end if
 	
 	# Do it
-	do shell script "/usr/local/bin/magick " & fListP & " " & sign & "append " & formatString & dest & dateString & "." & format
+	do shell script "/opt/homebrew/bin/magick " & fListP & " " & sign & "append " & formatString & dest & dateString & "." & format
 end open
 
 use framework "Foundation"

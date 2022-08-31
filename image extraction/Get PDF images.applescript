@@ -16,8 +16,8 @@ on open fname
 	set filetypes to " -png -tiff -j -jp2 -ccitt "
 	
 	# Explicit paths to binaries
-	set imagePath to "/usr/local/bin/pdfimages"
-	set infoPath to "/usr/local/bin/pdfinfo"
+	set imagePath to "/opt/homebrew/bin/pdfimages"
+	set infoPath to "/opt/homebrew/bin/pdfinfo"
 	
 	# Get info on the file
 	set pfile to the POSIX path of fname
