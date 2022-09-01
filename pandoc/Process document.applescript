@@ -158,7 +158,7 @@ on run
 			-- Create shell script for pandoc
 			--	First have to reset PATH to use homebrew binaries and find xelatex; there are other approaches to this 
 			--    Switch to directory where working file is so relative paths (e.g., for images) work
-			set shcmd to "export PATH=/usr/local/bin:/usr/local/sbin:/Library/TeX/texbin:$PATH; cd " & quoted form of fpath & "; "
+			set shcmd to "export PATH=/opt/homebrew/bin/:/usr/local/sbin:/Library/TeX/texbin:$PATH; cd " & quoted form of fpath & "; "
 			--	Now add the pandoc switches based on config at top and user input.
 			set shcmd to shcmd & "pandoc " & quoted form of fname & pandocUserSwitches
 			-- Run the pandoc command & open the resulting file
