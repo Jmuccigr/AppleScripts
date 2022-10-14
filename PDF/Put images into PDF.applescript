@@ -19,7 +19,7 @@ on open of finderObjects
 	
 	-- Get paper size for output
 	try
-		set outputSize to (items of (choose from list {"A4", "A4 wide", "US letter", "US letter wide", "Custom..."} with prompt "What size do you want the output to be?" with title "Choose page size" default items "A4"))
+		set outputSize to (items of (choose from list {"A4", "A4 wide", "US letter", "US letter wide", "US legal", "US legal wide", "Custom..."} with prompt "What size do you want the output to be?" with title "Choose page size" default items "A4"))
 		set outputSize to outputSize as string
 		if outputSize = "Custom..." then
 			set reply to (display dialog "What size do you want the output to be? You must enter a correctly formatted string including units (mm, cm, in) and no spaces:" with title "Enter page size" default answer "30cmx60cm")
@@ -28,7 +28,11 @@ on open of finderObjects
 			if outputSize contains "A4" then
 				set outputSizeString to "A4"
 			else
-				set outputSizeString to "letter"
+				if outputSize contains "letter" then
+					set outputSizeString to "letter"
+				else
+					set outputSizeString to "legal"
+				end if
 			end if
 			if outputSize contains "wide" then
 				set outputSizeString to outputSizeString & "^T"
