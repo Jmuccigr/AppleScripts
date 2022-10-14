@@ -25,7 +25,8 @@ on run
 	
 	-- These are the default templates for the output. Use unquoted forms of the POSIX path.
 	set ottfile to myLib & "Application Support/LibreOffice/4/user/template/Butterick 11.ott"
-	set dotmfile to myLib & "Application Support/Microsoft/Office/User Templates/Normal.dotm"
+	--set dotmfile to myLib & "Application Support/Microsoft/Office/User Templates/Normal.dotm"
+	set dotmfile to myLib & "Group Containers/UBF8T346G9.Office/User Content.localized/Templates.localized/Normal.dotm"
 	set pptxthemefile to myLib & "Application Support/Microsoft/Office/User Templates/My Templates/pandoc.potx"
 	
 	-- output options
