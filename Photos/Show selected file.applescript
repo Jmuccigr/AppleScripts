@@ -9,7 +9,10 @@ tell application "Photos"
 		error number -128
 	else
 		set j to item 1 of i
-		set myHome to POSIX path of (path to home folder)
+		tell application "Finder"
+			set myHome to POSIX path of (path to home folder)
+		end tell
+		set lib to (do shell script myHome & ".local/bin/osxphotos list | grep \\# | head -n 1 | perl -pe 's/.*?(\\/.*)/\\1/'")
 		try
 			set photoID to the id of j
 		on error
@@ -34,7 +37,7 @@ tell application "Photos"
 		set AppleScript's text item delimiters to "/"
 		set photoID to the first text item of photoID
 		set AppleScript's text item delimiters to tid
-		set fname to (do shell script "find " & myHome & "Pictures/Fun.photoslibrary/originals -name \"" & photoID & "*\" -print")
+		set fname to (do shell script "find " & lib & " -name \"" & photoID & "*\" -print | grep \"originals\" ")
 		if the (count of paragraphs of fname) > 1 then
 			display alert "Oops!" message "There appear multiple copies of this image."
 			set fname to paragraph 2 of fname
