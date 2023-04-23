@@ -16,6 +16,7 @@ try
 		set eof myFile to 0
 		write (the clipboard as (first item of theType)) to myFile -- as whatever
 		close access myFile
+		do shell script "/opt/homebrew/bin/mogrify -colorspace Gray -normalize -bordercolor white -border 50x50 " & tempFile
 		set ocrtext to do shell script ("/opt/homebrew/bin/tesseract " & tempFile & " stdout 2>/dev/null | perl -0pe 's/^\\s*(.*)\\s*$/\\1/' ")
 		--		display dialog ">" & ocrtext & "<" & return & (count of items of ocrtext)
 		if ocrtext ­ "" then
