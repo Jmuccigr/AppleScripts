@@ -3,7 +3,7 @@ tell application "Photos"
 	tell application "Finder"
 		set myHome to POSIX path of (path to home folder)
 	end tell
-	set lib to (do shell script myHome & ".local/bin/osxphotos list | head -n 1 | perl -pe 's/.*?(\\/.*)/\\1/'")
+	set lib to (do shell script myHome & ".local/bin/osxphotos list | grep \\# | head -n 1 | perl -pe 's/.*?(\\/.*)/\\1/'")
 	-- This determines how close the Photos and original file GPS coords can be w/o updating
 	set precision to 5
 	set margin to 10 ^ (-(precision - 1))
