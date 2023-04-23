@@ -37,7 +37,8 @@ tell application "Photos"
 		set AppleScript's text item delimiters to "/"
 		set photoID to the first text item of photoID
 		set AppleScript's text item delimiters to tid
-		set fname to (do shell script "find " & lib & " -name \"" & photoID & "*\" -print | grep \"originals\" ")
+		-- Look for copies in the original folder and ignore the .aae files that track edits
+		set fname to (do shell script "find " & lib & "/originals -name \"" & photoID & "*\" -print | grep \"originals\" | grep -v \".aae\" ")
 		if the (count of paragraphs of fname) > 1 then
 			display alert "Oops!" message "There appear multiple copies of this image."
 			set fname to paragraph 2 of fname
