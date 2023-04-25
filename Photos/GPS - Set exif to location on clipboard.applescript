@@ -14,6 +14,8 @@ tell application "Photos"
 	if i = {} then
 		display alert "No selection" message "There is no photo selected." giving up after 30
 	else
+		-- See if the user wants to check for closeness
+		set checkCloseness to the button returned of (display dialog "Do you want to leave alone coordinates that are already close to the desired ones?" buttons {"Yes", "No", "Cancel"} default button 1)
 		repeat with counter from 1 to the number of items of i
 			set longDiff to false
 			set latDiff to false
@@ -55,7 +57,6 @@ tell application "Photos"
 				display alert "Oops!" message "There appear multiple copies of this image: " & photoName & "."
 				error number -128
 			end if
-			
 			-- Then get the location data from the clipboard
 			try
 				set coords to (the clipboard as string)
@@ -86,10 +87,13 @@ tell application "Photos"
 				set {fileLat, fileLong, fileLatRef, fileLongRef} to words of gpsTemp
 				set fileLat to my roundoff(fileLat, precision)
 				set fileLong to my roundoff(fileLong, precision)
-				-- If the coords are the same up to the desired precision, leave it alone
-				set latDiff to (my abs(fileLat - lat) > margin)
-				set longDiff to (my abs(fileLong - long) > margin)
-				
+				-- If the coords are the same up to the desired precision, leave it alone unless the user said not to worry
+				if checkCloseness = "No" then
+					set longDiff to true
+				else
+					set latDiff to (my abs(fileLat - lat) > margin)
+					set longDiff to (my abs(fileLong - long) > margin)
+				end if
 			else
 				-- Just set this variable to indicate that the file needs its coords set
 				set longDiff to true
