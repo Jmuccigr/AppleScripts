@@ -42,7 +42,7 @@ on run
 	set htmlConfig to "+smart --embed-resources --template=" & quoted form of (myGit & "pandoc-templates/default.html4")
 	set html5Config to "+smart --embed-resources --template=" & quoted form of (myGit & "pandoc-templates/default.html5")
 	set pdfConfig to "+smart --pdf-engine=xelatex --template=" & quoted form of (myGit & "pandoc-templates/default.latex")
-	set revealConfig to " -i --embed-resources --slide-level=2 -V center=false --css=" & myDocs & "reveal_themes/gray_lecture.css -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=" & quoted form of ("/usr/local/lib/node_modules/reveal.js/")
+	set revealConfig to " -i --embed-resources --slide-level=2 -V center=false --css=" & myDocs & "reveal_themes/gray_lecture.css -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=" & quoted form of ("/opt/homebrew/lib/node_modules/reveal.js/")
 	
 	-- Standard variables
 	--set pandocSwitches to " -s --columns 800 --citeproc --bibliography=" & bibfile
