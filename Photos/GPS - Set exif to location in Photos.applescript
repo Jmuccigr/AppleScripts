@@ -12,9 +12,15 @@ tell application "Photos"
 	if i = {} then
 		display alert "No selection" message "There is no photo selected." giving up after 30
 	else
+		set photoCount to the number of items of i
+		if photoCount > 10 then
+			set lots to true
+		else
+			set lots to false
+		end if
 		-- See if the user wants to check for closeness
 		set checkCloseness to the button returned of (display dialog "Do you want to leave alone coordinates that are already close to the desired ones?" buttons {"Yes", "No", "Cancel"} default button 1)
-		repeat with counter from 1 to the number of items of i
+		repeat with counter from 1 to photoCount
 			set longDiff to false
 			set latDiff to false
 			set j to ""
@@ -50,7 +56,6 @@ tell application "Photos"
 			set AppleScript's text item delimiters to "/"
 			set photoID to the first text item of photoID
 			set AppleScript's text item delimiters to tid
-			(display dialog "find " & lib & "/originals -name \"" & photoID & "*\" -print")
 			set fname to (do shell script "find " & lib & "/originals -name \"" & photoID & "*\" -print")
 			if the (count of paragraphs of fname) > 1 then
 				display alert "Oops!" message "There appear multiple copies of this image."
@@ -102,16 +107,19 @@ tell application "Photos"
 					display alert "A problem?" message "Photo " & filename & return & "The exiftool command did not have the expected result for this photo:" & return & theResult as warning giving up after 30
 				else
 					set theResult to my do_submenu("Photos", "Image", "Location", "Revert to Original Location")
-					if theResult then
-						display notification ("The coordinates in image " & photoName & " have been updated and Photos has reloaded them.") with title "Success!" sound name "beep"
-					else
-						display alert "A problem?" message "Photo " & filename & return & "Photos doesn't seem to have updated the coordinates for this photo in its database. Better check on that." as warning giving up after 30
+					if not lots then
+						if theResult then
+							display notification ("The coordinates in image " & photoName & " have been updated and Photos has reloaded them.") with title "Success!" sound name "beep"
+						else
+							display alert "A problem?" message "Photo " & filename & return & "Photos doesn't seem to have updated the coordinates for this photo in its database. Better check on that." as warning giving up after 30
+						end if
 					end if
 				end if
 			else
 				display notification ("The coordinates in image " & photoName & " are close enough to the Photos data.") with title "Already set!" sound name "funk"
 			end if
 		end repeat
+		if lots then display dialog "Done processing the " & photoCount & " images."
 	end if
 end tell
 
