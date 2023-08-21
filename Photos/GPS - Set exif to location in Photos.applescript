@@ -4,6 +4,10 @@ tell application "Photos"
 		set myHome to POSIX path of (path to home folder)
 	end tell
 	set lib to (do shell script myHome & ".local/bin/osxphotos list | grep \\# | head -n 1 | perl -pe 's/.*?(\\/.*)/\\1/'")
+	if lib = "" then
+		display alert "Software missing" message "osxphotos does not appear to be installed."
+		error -128
+	end if
 	-- This determines how close the Photos and original file GPS coords can be w/o updating
 	set precision to 5
 	set margin to 10 ^ (-(precision - 1))
@@ -56,10 +60,10 @@ tell application "Photos"
 			set AppleScript's text item delimiters to "/"
 			set photoID to the first text item of photoID
 			set AppleScript's text item delimiters to tid
-			set fname to (do shell script "find " & lib & "/originals -name \"" & photoID & "*\" -print")
+			set fname to (do shell script "find " & quoted form of lib & "/originals -name \"" & photoID & "*\" -print")
 			if the (count of paragraphs of fname) > 1 then
-				display alert "Oops!" message "There appear multiple copies of this image."
-				error number -128
+				set reply to button returned of (display dialog "There appear multiple copies of this image." & return & return & fname as string buttons {"Cancel", "Set them all"} default button 2 with title "Oops")
+				if reply = 2 then error number -128
 			end if
 			
 			-- Then get the location data from the Photos version
@@ -82,42 +86,44 @@ tell application "Photos"
 			end if
 			set lat to my roundoff(lat, precision)
 			set long to my roundoff(long, precision)
-			-- Get exif data for GPS if there is any
-			set gpsTemp to (do shell script "/opt/homebrew/bin/exiftool -p '$gpslatitude#, $gpslongitude#, $gpslatituderef#, $gpslongituderef#' " & fname)
-			-- Catch files without GPS
-			if gpsTemp is not "" then
-				set {fileLat, fileLong, fileLatRef, fileLongRef} to words of gpsTemp
-				set fileLat to my roundoff(fileLat, precision)
-				set fileLong to my roundoff(fileLong, precision)
-				-- If the coords are the same up to the desired precision, leave it alone unless the user said not to worry
-				if checkCloseness = "No" then
+			repeat with fnameline in paragraphs of fname
+				-- Get exif data for GPS if there is any
+				set gpsTemp to (do shell script "/usr/local/bin/exiftool -p '$gpslatitude#, $gpslongitude#, $gpslatituderef#, $gpslongituderef#' " & quoted form of fnameline)
+				-- Catch files without GPS
+				if gpsTemp is not "" then
+					set {fileLat, fileLong, fileLatRef, fileLongRef} to words of gpsTemp
+					set fileLat to my roundoff(fileLat, precision)
+					set fileLong to my roundoff(fileLong, precision)
+					-- If the coords are the same up to the desired precision, leave it alone unless the user said not to worry
+					if checkCloseness = "No" then
+						set longDiff to true
+					else
+						set latDiff to (my abs(fileLat - lat) > margin)
+						set longDiff to (my abs(fileLong - long) > margin)
+					end if
+				else
+					-- Just set this variable to indicate that the file needs its coords set
 					set longDiff to true
-				else
-					set latDiff to (my abs(fileLat - lat) > margin)
-					set longDiff to (my abs(fileLong - long) > margin)
 				end if
-			else
-				-- Just set this variable to indicate that the file needs its coords set
-				set longDiff to true
-			end if
-			if (longDiff or latDiff) then
-				set gpsCommand to "/opt/homebrew/bin/exiftool -overwrite_original -gpslatituderef=" & latRef & "  -gpslongituderef=" & longRef & " -GPSLatitude=" & lat & " -GPSLongitude=" & long & " " & fname
-				set theResult to (do shell script gpsCommand)
-				if theResult ­ "    1 image files updated" then
-					display alert "A problem?" message "Photo " & filename & return & "The exiftool command did not have the expected result for this photo:" & return & theResult as warning giving up after 30
-				else
-					set theResult to my do_submenu("Photos", "Image", "Location", "Revert to Original Location")
-					if not lots then
-						if theResult then
-							display notification ("The coordinates in image " & photoName & " have been updated and Photos has reloaded them.") with title "Success!" sound name "beep"
-						else
-							display alert "A problem?" message "Photo " & filename & return & "Photos doesn't seem to have updated the coordinates for this photo in its database. Better check on that." as warning giving up after 30
+				if (longDiff or latDiff) then
+					set gpsCommand to "/usr/local/bin/exiftool -overwrite_original -gpslatituderef=" & latRef & "  -gpslongituderef=" & longRef & " -GPSLatitude=" & lat & " -GPSLongitude=" & long & " " & quoted form of fnameline
+					set theResult to (do shell script gpsCommand)
+					if theResult ­ "    1 image files updated" then
+						display alert "A problem?" message "Photo " & filename & return & "The exiftool command did not have the expected result for this photo:" & return & theResult as warning giving up after 30
+					else
+						set theResult to my do_submenu("Photos", "Image", "Location", "Revert to Original Location")
+						if not lots then
+							if theResult then
+								display notification ("The coordinates in image " & photoName & " have been updated and Photos has reloaded them.") with title "Success!" sound name "beep"
+							else
+								display alert "A problem?" message "Photo " & filename & return & "Photos doesn't seem to have updated the coordinates for this photo in its database. Better check on that." as warning giving up after 30
+							end if
 						end if
 					end if
+				else
+					display notification ("The coordinates in image " & photoName & " are close enough to the Photos data.") with title "Already set!" sound name "funk"
 				end if
-			else
-				display notification ("The coordinates in image " & photoName & " are close enough to the Photos data.") with title "Already set!" sound name "funk"
-			end if
+			end repeat
 		end repeat
 		if lots then display dialog "Done processing the " & photoCount & " images."
 	end if
