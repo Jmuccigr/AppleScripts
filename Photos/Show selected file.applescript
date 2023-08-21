@@ -13,6 +13,10 @@ tell application "Photos"
 			set myHome to POSIX path of (path to home folder)
 		end tell
 		set lib to (do shell script myHome & ".local/bin/osxphotos list | grep \\# | head -n 1 | perl -pe 's/.*?(\\/.*)/\\1/'")
+		if lib = "" then
+			display alert "Software missing" message "osxphotos does not appear to be installed."
+			error -128
+		end if
 		try
 			set photoID to the id of j
 		on error
@@ -38,9 +42,9 @@ tell application "Photos"
 		set photoID to the first text item of photoID
 		set AppleScript's text item delimiters to tid
 		-- Look for copies in the original folder and ignore the .aae files that track edits
-		set fname to (do shell script "find " & lib & "/originals -name \"" & photoID & "*\" -print | grep \"originals\" | grep -v \".aae\" ")
+		set fname to (do shell script "find " & quoted form of lib & "/originals -name \"" & photoID & "*\" -print | grep \"originals\" | grep -v \".aae\" ")
 		if the (count of paragraphs of fname) > 1 then
-			display alert "Oops!" message "There appear multiple copies of this image."
+			display alert "Oops!" message "There appear multiple copies of this image. Showing the second of them."
 			set fname to paragraph 2 of fname
 		end if
 		tell application "Finder"
