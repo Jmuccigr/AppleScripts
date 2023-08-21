@@ -2,9 +2,9 @@
 -- Modified from https://stackoverflow.com/questions/19115078/applescript-clipboard-image-to-browse-directory
 
 property fileTypes : {Â
+	{GIF picture, ".gif"}, Â
 	{JPEG picture, ".jpg"}, Â
-	{TIFF picture, ".tiff"}, Â
-	{GIF picture, ".gif"}}
+	{TIFF picture, ".tiff"}}
 
 -- Stat the process to copy a section of the screen to the clipboard
 try
@@ -16,8 +16,8 @@ try
 		set eof myFile to 0
 		write (the clipboard as (first item of theType)) to myFile -- as whatever
 		close access myFile
-		do shell script "/opt/homebrew/bin/mogrify -colorspace Gray -normalize -bordercolor white -border 50x50 " & tempFile
-		set ocrtext to do shell script ("/opt/homebrew/bin/tesseract " & tempFile & " stdout 2>/dev/null | perl -0pe 's/^\\s*(.*)\\s*$/\\1/' ")
+		do shell script "/opt/homebrew/bin/mogrify -colorspace Gray -normalize -bordercolor white -border 50x50 -units pixelsperinch -density 72 " & tempFile
+		set ocrtext to do shell script ("/opt/homebrew/bin/tesseract --psm 6 " & tempFile & " stdout 2>/dev/null | perl -0pe 's/^\\s*(.*)\\s*$/\\1/' ")
 		--		display dialog ">" & ocrtext & "<" & return & (count of items of ocrtext)
 		if ocrtext ­ "" then
 			set the clipboard to ocrtext
