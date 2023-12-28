@@ -45,8 +45,7 @@ on run
 	set revealConfig to " -i --embed-resources --slide-level=2 -V center=false --css=" & myDocs & "reveal_themes/gray_lecture.css -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=" & quoted form of ("/opt/homebrew/lib/node_modules/reveal.js/")
 	
 	-- Standard variables
-	--set pandocSwitches to " -s --columns 800 --citeproc --bibliography=" & bibfile
-	set pandocSwitches to " -s --citeproc --bibliography=" & bibfile
+	set pandocSwitches to " -s --columns 800 --citeproc --wrap=none --bibliography=" & bibfile
 	set filterText to ""
 	
 	tell application "System Events"
@@ -164,7 +163,7 @@ on run
 			set shcmd to shcmd & "pandoc " & quoted form of fname & pandocUserSwitches
 			-- Run the pandoc command & open the resulting file
 			try
-				--set the clipboard to shcmd & "-o " & outputfile
+				set the clipboard to shcmd & "-o " & outputfile
 				do shell script shcmd & "-o " & outputfile
 				do shell script "open " & outputfile
 			on error errMsg
