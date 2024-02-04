@@ -54,19 +54,46 @@ on open of finderObjects
 	
 	if (paperChoice as string) contains "landscape" then set orientation to ", landscape"
 	
-	# Allow for choice of start-page number
+	# Allow for choice of starting-page number
 	set pageReply to (display dialog "Starting page number" with title "Start Page" with icon note default answer "1")
 	set startPage to the text returned of pageReply as integer
 	
+	# Allow placement of page number on page
+	set placeReply to button returned of (display dialog "Where do you want the page number placed?" with title "Number Location" buttons {"L", "C", "R"} default button 2 with icon note)
+	
+	# Allow for leading text
+	set textReply to (display dialog "Enter any leading text, including the trailing space:" with title "Text" with icon note default answer "p. ")
+	set textReply to the text returned of textReply
+	
+	# Allow for choice of margins
+	set marginReply to (display dialog "How many centimeters of side margin do you want? The default is pretty narrow." with title "Margins" with icon note default answer "1")
+	set hMargin to the text returned of marginReply as number
+	set marginReply to (display dialog "How many centimeters of bottom margin do you want? The default is pretty narrow." with title "Margins" with icon note default answer "1")
+	set vMargin to the text returned of marginReply as number
+	
+	# Allow font choice
+	set fontReply to button returned of (display dialog "What kind of font do you want?" with title "Font Choice" buttons {"Mono", "Sans serif", "Serif"} default button 3 with icon note)
+	display dialog fontReply
+	if fontReply = "Mono" then
+		set fontChoice to "ttdefault"
+	else
+		if fontReply = "Sans serif" then
+			set fontChoice to "sfdefault"
+		else
+			set fontChoice to "rmdefault"
+		end if
+	end if
+	display dialog fontChoice
 	# Create a PDF with numbered pages for merging
 	try
-		do shell script "echo '\\documentclass[12pt," & paperSize & "]{article}\n \\usepackage{multido}\n \\usepackage[hmargin=.8cm,vmargin=.75cm,nohead,nofoot" & orientation & "]{geometry}\n \\\\begin{document}\n \\\\setcounter{page}{" & startPage & "}\n\\multido{}{" & pageCount & "}{\\\\vphantom{x}\\\\newpage}\n \\end{document}' > $TMPDIR/numbers.tex"
+		do shell script "echo '\\documentclass[12pt," & paperSize & "]{article}\n \\usepackage{multido}\n \\usepackage[hmargin=" & hMargin & "cm,vmargin=" & vMargin & "cm,nohead,nofoot" & orientation & "]{geometry}\n \\\\renewcommand{\\\\familydefault}{\\\\" & fontChoice & "}\n \\usepackage{fancyhdr}\n \\pagestyle{fancy} \n \\\\fancyhf{} \\\\renewcommand{\\\\headrulewidth}{0pt} \\\\fancyfoot[" & placeReply & "]{" & textReply & "\\\\thepage} \\\\begin{document}\n \\\\setcounter{page}{" & startPage & "}\n\\multido{}{" & pageCount & "}{\\\\vphantom{x}\\\\newpage}\n \\end{document}' > $TMPDIR/numbers.tex"
 		do shell script ("cd $TMPDIR; " & latexPath & " $TMPDIR/numbers.tex")
 	on error errMsg number errNum
 		display alert "Error!" message "Something went wrong creating the numbered pages: " & return & errMsg
+		error number -128
 	end try
 	
-	# Get just filename for saving
+	# Get just the filename for saving
 	set filename to (do shell script "filename=`basename " & pfile & "`; filename=${filename%.*}; echo $filename")
 	
 	# Overlay the numbered file on the original & save to a new PDF file
@@ -76,9 +103,13 @@ on open of finderObjects
 	else
 		set outputFile to (resultFile as string)
 	end if
-	do shell script "cd $TMPDIR; " & qpdfPath & " " & pfile & " --underlay numbers.pdf -- " & quoted form of POSIX path of outputFile
+	set theResult to (do shell script "cd $TMPDIR; " & qpdfPath & " " & pfile & " --underlay numbers.pdf -- " & quoted form of POSIX path of outputFile)
 	
 	-- Notify of completion
-	display notification ("Your PDF now has page numbers.") with title "Numbering done" sound name "beep"
+	if theResult is "" then
+		display notification ("Your PDF now has page numbers.") with title "Numbering done" sound name "beep"
+	else
+		display alert "Problem!" message "There was a problem creating the PDF with page numbers:" & return & return * theResult
+	end if
 	
 end open
