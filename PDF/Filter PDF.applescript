@@ -8,6 +8,7 @@ on open of finderObjects
 		set highlight to false
 		set wrning to ""
 		set somethingDone to false
+		set home to (do shell script "whoami")
 		set myDocs to POSIX path of (path to documents folder) & "github/local/scripts/"
 		# Make sure the file is a PDF, based on file info
 		set fname to the POSIX path of filename
@@ -114,7 +115,7 @@ on open of finderObjects
 				-- Running gs with no filters will do some compression or something
 				--set options to ""
 			end if
-			set hl to (do shell script "/opt/homebrew/bin/python3 " & myDocs & "pdf_annotate.py -q -a Remove  -i " & (quoted form of inputFile) & " -o " & highlightoutputfile)
+			set hl to (do shell script "source /Users/" & home & "/.venv/bin/activate; python " & myDocs & "pdf_annotate.py -q -a Remove  -i " & (quoted form of inputFile) & " -o " & highlightoutputfile)
 			if character 1 of hl = "N" then --there were no annotations found, so the file wasn't changed
 				display alert "No annotations" as informational message "There weren't any annotations found, so none was removed." giving up after 30
 				set fname to inputFile
