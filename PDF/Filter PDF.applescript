@@ -2,14 +2,15 @@
 -- Esp. helpful for removing bad OCR text or watermarks
 
 on open of finderObjects
+	set home to (do shell script "whoami")
+	set myDocs to POSIX path of (path to documents folder) & "github/local/scripts/"
 	set dateString to (do shell script " date +%Y-%m-%d_%H.%M.%S")
+	
 	repeat with filename in (finderObjects)
 		set watermark to false
 		set highlight to false
-		set wrning to ""
+		set txt to false
 		set somethingDone to false
-		set home to (do shell script "whoami")
-		set myDocs to POSIX path of (path to documents folder) & "github/local/scripts/"
 		# Make sure the file is a PDF, based on file info
 		set fname to the POSIX path of filename
 		set ftype to (do shell script "file -bI " & quoted form of (POSIX path of fname))
@@ -17,6 +18,7 @@ on open of finderObjects
 			display alert "Wrong file type" as critical message "This does not appear to be a PDF file. Quitting."
 			quit
 		end if
+		set origFileSize to the size of the (info for filename)
 		
 		-- Get filter to apply
 		set options to " "
@@ -29,10 +31,10 @@ on open of finderObjects
 			set filter to (filter as string)
 			if (filter is "Watermark text") then
 				set watermark to true
-			else if (filter is "Highlighting") then
+			else if (filter is "Higighting") then
 				set highlight to true
 			else if (filter is "Text") then
-				set options to options & "-dFILTERTEXT "
+				set txt to true
 			else if filter = "Raster Images" then
 				set options to options & "-dFILTERIMAGE "
 			else if filter = "Vector Images" then
@@ -124,9 +126,25 @@ on open of finderObjects
 			end if
 		end if
 		
+		
+		-- Now remove text, if requested. Using python script to avoid gs increasing file size.
+		if txt then
+			set inputFile to fname
+			if options ­ " " then
+				set txtoutputfile to tmpdir & dateString & "_notext.pdf"
+				set fname to txtoutputfile
+			else
+				set txtoutputfile to (quoted form of outputFile)
+				-- Running gs with no filters will do some compression or something
+				--set options to ""
+			end if
+			do shell script "source /Users/" & home & "/.venv/bin/activate; " & myDocs & "remove_PDF_text.py " & (quoted form of inputFile) & " " & txtoutputfile
+			set somethingDone to true
+		end if
+		
 		-- Now process filters, if any were requested
 		if options ­ " " then
-			do shell script "/opt/homebrew/bin/gs -o " & (quoted form of outputFile) & " -sDEVICE=pdfwrite " & options & " " & (quoted form of fname)
+			do shell script "/opt/homebrew/bin/gs -o " & (quoted form of outputFile) & " -dSAFER -dBATCH -dNOPAUSE -sDEVICE=pdfwrite " & options & " " & (quoted form of fname)
 			set somethingDone to true
 		end if
 	end repeat
