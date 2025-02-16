@@ -1,5 +1,6 @@
-# Photos-related AppleScripts:
+## Photos-related AppleScripts:
 
+- **Count all albums**: counts *all* albums, recursively looking in folders
 - **Create symlink to selected file**: what it sounds like. You'll be prompted for a location to save the symlinks in.
 - **Export first selected photo**: what it sounds like.
 - **Find containing albums**: finds albums that contain the first selected photo. Smart Albums aren't included.
@@ -10,3 +11,12 @@
 - **GPS - Set exif to location on clipboard**: Like the previous one, this script sets the GPS data in the original file, but to those on the clipboard. Useful for correcting or adding GPS data.
 - **Set clipboard to names of selected images**: what it sounds like.
 - **Show selected file**: reveals the original file in the Finder.
+
+## Scripting tips
+
+- Some requests retrieve everything at every level:
+    - `count of media items` retrieves a count of all of them, no matter where
+        - This is like using "get info" from within Photos, which also gives photo/video counts
+- Some don't
+    - `count of albums/folders` retrieves a count of albums/folders at the top level only
+    - `count of albums` will not include Favorites, but `count of containers` will. The `class` of Favorites is nonetheless `album`.
