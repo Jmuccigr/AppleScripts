@@ -2,10 +2,11 @@
 -- the lat and long of the original file of the first selected photo to those values
 tell application "Photos"
 	activate
+	set exifpath to "/opt/homebrew/bin/exiftool"
 	tell application "Finder"
 		set myHome to POSIX path of (path to home folder)
 	end tell
-	set lib to (do shell script myHome & ".local/bin/osxphotos list | grep \\# | head -n 1 | perl -pe 's/.*?(\\/.*)/\\1/'")
+	set lib to (do shell script myHome & ".osxphoto/bin/osxphotos list | grep \\# | head -n 1 | perl -pe 's/.*?(\\/.*)/\\1/'")
 	if lib = "" then
 		display alert "Software missing" message "osxphotos does not appear to be installed."
 		error -128
@@ -100,7 +101,7 @@ tell application "Photos"
 			set long to my roundoff(long, precision)
 			repeat with fnameline in paragraphs of fname
 				-- Get exif data for GPS if there is any
-				set gpsTemp to (do shell script "/opt/homebrew/bin/exiftool -p '$gpslatitude#, $gpslongitude#, $gpslatituderef#, $gpslongituderef#' " & quoted form of fnameline)
+				set gpsTemp to (do shell script exifpath & " -p '$gpslatitude#, $gpslongitude#, $gpslatituderef#, $gpslongituderef#' " & quoted form of fnameline)
 				-- Catch files without GPS
 				if gpsTemp is not "" then
 					set {fileLat, fileLong, fileLatRef, fileLongRef} to words of gpsTemp
@@ -118,7 +119,7 @@ tell application "Photos"
 					set longDiff to true
 				end if
 				if (longDiff or latDiff) then
-					set gpsCommand to "/opt/homebrew/bin/exiftool -overwrite_original -gpslatituderef=" & latRef & "  -gpslongituderef=" & longRef & " -GPSLatitude=" & lat & " -GPSLongitude=" & long & " " & quoted form of fnameline
+					set gpsCommand to exifpath & " -overwrite_original -gpslatituderef=" & latRef & "  -gpslongituderef=" & longRef & " -GPSLatitude=" & lat & " -GPSLongitude=" & long & " " & quoted form of fnameline
 					set theResult to (do shell script gpsCommand)
 					if theResult ­ "    1 image files updated" then
 						display alert "A problem?" message "Photo " & filename & return & "The exiftool command did not have the expected result for this photo:" & return & theResult as warning giving up after 30
