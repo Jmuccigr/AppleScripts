@@ -1,6 +1,6 @@
 -- A script to take the front document in the frontmost application and have pandoc process it.
 
-global appName, ottfile, dotmfile, pptxthemefile, outputFormats, output_format_list, outputExt, pandocSwitches, beamerConfig, htmlConfig, html5Config, revealConfig, pdfConfig, refFile, myName, filterText
+global appName, ottfile, dotmfile, pptxthemefile, outputFormats, output_format_list, outputExt, pandocSwitches, beamerConfig, htmlConfig, html5Config, revealConfig, pdfConfig, refFile, myName, filterText, obsidianPath
 
 on run
 	-- Set some variables for use later on
@@ -18,6 +18,7 @@ on run
 	set myGit to myDocs & "github/local/"
 	set myLib to POSIX path of (path to library folder from user domain)
 	set myName to (do shell script "whoami")
+	set obsidianPath to myLib & "Mobile Documents/iCloud~md~obsidian/Documents/"
 	
 	-- For pandoc
 	-- Use single-quoted form of POSIX path
@@ -45,7 +46,7 @@ on run
 	set revealConfig to " -i --embed-resources --slide-level=2 -V center=false --css=" & myDocs & "reveal_themes/gray_lecture.css -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=" & quoted form of ("/opt/homebrew/lib/node_modules/reveal.js/")
 	
 	-- Standard variables
-	set pandocSwitches to " -s --columns 800 --citeproc --wrap=none --bibliography=" & bibfile
+	set pandocSwitches to " --from=markdown+wikilinks_title_after_pipe -s --columns 800 --citeproc --wrap=none --bibliography=" & bibfile
 	set filterText to ""
 	
 	tell application "System Events"
@@ -57,29 +58,54 @@ on run
 		end try
 	end tell
 	
-	--Wrapping the whole thing in this tell to keep error messages in the application (not sure this is necessary)
-	tell application appName
-		activate
-		-- Get info for frontmost window
-		-- The first part won't ever work for MacDown because it doesn't have "path" in its applescript properties, but maybe someday.
-		try
-			set fpath to (path of document 1) as text
-			set fname to (name of document 1) as text
-			set ASmethod to true
-		on error
+	-- Obsidian has to be handled differently
+	if appName is "Obsidian" then
+		set obclip to the button returned of (display dialog "This file is open with Obsidian. Is the file path already on the clipboard?" with title "Obsidian" buttons {"Yes", "No", "Cancel"} default button 1)
+		tell application "System Events" to tell process "Obsidian"
+			set fileinfo to (get title of front window)
+		end tell
+		set tid to AppleScript's text item delimiters
+		set AppleScript's text item delimiters to "-"
+		set fname to my trim(text item 1 of fileinfo) & ".md"
+		set vault to my trim(text item 2 of fileinfo)
+		set AppleScript's text item delimiters to tid
+		set ext to "md"
+		if obclip is "Yes" then
+			set fpath to (obsidianPath & vault & "/" & (the clipboard as string))
+		else
 			try
-				tell application "System Events" to tell (process 1 where displayed name is appName)
-					--Not sure why, but the following is needed with certain apps (e.g., BBEdit 8)
-					activate
-					set fpath to value of attribute "AXDocument" of window 1
-					set fname to value of attribute "AXTitle" of window 1
-				end tell
+				set fpath to (do shell script "find " & quoted form of (obsidianPath & vault) & " -name " & quoted form of (fname) & " -print")
 			on error errMsg
-				-- Something went wrong.
-				display alert "Can't get file" message "Can't get info on the frontmost document:" & return & return & errMsg buttons {"OK"} giving up after 30
+				display alert "File not found" message "Couldn't find the file in question."
 				error number -128
 			end try
-		end try
+		end if
+	else
+		--Wrapping the whole thing in this tell to keep error messages in the application (not sure this is necessary)
+		tell application appName
+			activate
+			-- Get info for frontmost window
+			-- The first part won't ever work for MacDown because it doesn't have "path" in its applescript properties, but maybe someday.
+			try
+				set fpath to (path of document 1) as text
+				set fname to (name of document 1) as text
+				set ASmethod to true
+			on error
+				try
+					tell application "System Events" to tell (process 1 where displayed name is appName)
+						--Not sure why, but the following is needed with certain apps (e.g., BBEdit 8)
+						activate
+						set fpath to value of attribute "AXDocument" of window 1
+						set fname to value of attribute "AXTitle" of window 1
+					end tell
+				on error errMsg
+					-- Something went wrong.
+					display alert "Can't get file" message "Can't get info on the frontmost document:" & return & return & errMsg buttons {"OK"} giving up after 30
+					error number -128
+				end try
+			end try
+		end tell
+		
 		-- When the document hasn't been saved, fpath gets assigned "" or "missing value", depending on the method used above.
 		activate
 		if fpath is missing value or fpath = "" then
@@ -93,17 +119,26 @@ on run
 			end if
 		end if
 		-- Sublime Text appends a project name to the file name. Delete it.
-		if appName = "Sublime Text" then set fname to (do shell script "echo " & quoted form of fname & " | perl -pe 's/(.*)\\ Ñ .*/\\1/'")
+		if appName = "Sublime Text" then
+			set fname to (do shell script "echo " & quoted form of fname & " | perl -pe 's/(.*)\\ Ñ .*/\\1/'")
+		end if
+		-- Catch slashes in filename.
+		set origfname to fname
+		set fname to do shell script "echo " & quoted form of fname & " | sed 's|/|:|g'"
 		-- We got a file path, now make sure it's a markdown file, based on the file extension, checking if there is one.
 		-- To-do: check against list of valid extensions and let user pick or override the input type.
 		try
 			set ext to my get_ext(POSIX file fpath as alias as string)
-		on error
+		on error errMsg number errNum
 			set fname to ""
+			display alert "Error" message errMsg
 		end try
+	end if
+	
+	-- Now handle all apps again
+	tell application appName
 		set hasext to (length of ext > 0)
 		if ext = "md" or ext = "markdown" then set validFile to true
-		
 		if fname is not "" and not validFile then
 			set alertResult to display alert "Not markdown" as warning message "The file doesn't appear to be in markdown format. Proceed anyway?" buttons {"Yes", "No"} default button 2 giving up after 30
 			if button returned of alertResult = "Yes" then
@@ -112,8 +147,8 @@ on run
 		end if
 		
 		if validFile then
-			-- Run the pandoc command using the path we found.			
-			set outputfn to fname
+			-- Run the pandoc command using the path we found. Restore original file name in case of slashes.		
+			set outputfn to origfname
 			-- Strip the extension when it exists
 			if hasext then
 				repeat with i from 1 to (number of characters in ext) + 1
@@ -126,11 +161,17 @@ on run
 			set {outputExt, pandocUserSwitches} to my get_output()
 			if outputExt is "" then error number -128
 			set outputfn to outputfn & "." & outputExt
-			set fpath to (do shell script "dirname  " & quoted form of fpath) & "/"
+			if first character of fpath is not "'" then set fpath to quoted form of fpath
+			set fpath to quoted form of ((do shell script "dirname  " & fpath) & "/")
 			repeat until outputfile is not ""
 				try
-					set outputfile to choose file name default name outputfn default location fpath with prompt "Select location for output:"
-					-- Complain if it doesn't have an extension.
+					try
+						set outputfile to choose file name default name outputfn with prompt "Select location for output:"
+						-- Complain if it doesn't have an extension.
+					on error errMsg
+						display alert "Error" message errMsg
+						error number -128
+					end try
 					set tid to AppleScript's text item delimiters
 					set AppleScript's text item delimiters to ":"
 					set outputname to the last text item of (outputfile as string)
@@ -143,6 +184,7 @@ on run
 						if alertResult = "Retry" then
 							set outputfile to ""
 						else -- result was "leave it alone"
+							display alert "Error" message errMsg
 							exit repeat
 						end if
 					else
@@ -158,17 +200,17 @@ on run
 			-- Create shell script for pandoc
 			--	First have to reset PATH to use homebrew binaries and find xelatex; there are other approaches to this 
 			--    Switch to directory where working file is so relative paths (e.g., for images) work
-			set shcmd to "export PATH=/opt/homebrew/bin/:/usr/local/sbin:/Library/TeX/texbin:$PATH; cd " & quoted form of fpath & "; "
+			set shcmd to "export PATH=/opt/homebrew/bin/:/usr/local/sbin:/Library/TeX/texbin:$PATH; cd " & fpath & "; "
 			--	Now add the pandoc switches based on config at top and user input.
 			set shcmd to shcmd & "pandoc " & quoted form of fname & pandocUserSwitches
 			-- Run the pandoc command & open the resulting file
 			try
-				set the clipboard to shcmd & "-o " & outputfile
 				do shell script shcmd & "-o " & outputfile
-				do shell script "open " & outputfile
 			on error errMsg
 				display alert "pandoc error" message "pandoc reported the following error:" & return & return & errMsg
+				error number -128
 			end try
+			do shell script "open " & outputfile
 		end if -- validFile check
 	end tell
 end run
@@ -374,3 +416,9 @@ on get_output()
 		error number -128
 	end try
 end get_output
+
+-- Subroutine to trim spaces from filename provided by Obsidian
+on trim(oldtext)
+	set newtext to (do shell script "echo " & oldtext & " | xargs")
+	return newtext
+end trim
