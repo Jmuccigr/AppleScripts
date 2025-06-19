@@ -85,11 +85,6 @@ end getName
 tell application "Finder" to set ext to the name extension of fileName
 
 do shell script "i=" & posixfilename & ";echo $(i##*.)"
--- filename=$(basename -- "$fullfile")
--- extension="${filename##*.}"
--- filename="${filename%.*}"
--- lastdir="${filename##*/}" Do after dirname on the filename
-
 
 get running of application "Finder"
 
@@ -244,3 +239,14 @@ end do_submenu
 tell application "System Events"
 	the name of (every process where background only is false) does not contain "Mail"
 end tell
+
+-- bash stuff
+
+filename=$(basename -- "$fullfile")
+extension="${filename##*.}"
+filename="${filename%.*}"
+lastdir="${filename##*/}" Do after dirname on the filename
+
+
+-- Read a file line by line
+while read -r line; do whatever $line; done <filename.txt
