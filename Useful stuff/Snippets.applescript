@@ -62,6 +62,7 @@ end abs
 set myHome to POSIX path of (path to home folder)
 set myDocs to POSIX path of (path to documents folder)
 set myLib to POSIX path of (path to library folder from user domain)
+set tmpdir to quoted form of POSIX path of (path to temporary items)
 
 -- Count characters in a text
 on countchar(origtext, ch)
