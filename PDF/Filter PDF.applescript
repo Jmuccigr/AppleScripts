@@ -1,24 +1,24 @@
 -- Filter PDF files using ghostscript
 -- Esp. helpful for removing bad OCR text or watermarks
+global tmpdir, dateString, home, myDocs, somethingDone
 
 on open of finderObjects
 	set home to (do shell script "whoami")
 	set myDocs to POSIX path of (path to documents folder) & "github/local/scripts/"
 	set dateString to (do shell script " date +%Y-%m-%d_%H.%M.%S")
+	set watermark to false
+	set highlight to false
+	set txt to false
 	
 	repeat with filename in (finderObjects)
-		set watermark to false
-		set highlight to false
-		set txt to false
 		set somethingDone to false
 		# Make sure the file is a PDF, based on file info
-		set fname to the POSIX path of filename
-		set ftype to (do shell script "file -bI " & quoted form of (POSIX path of fname))
+		set inputname to the POSIX path of filename
+		set ftype to (do shell script "file -bI " & quoted form of (POSIX path of inputname))
 		if characters 1 thru 15 of ftype as string ­ "application/pdf" then
 			display alert "Wrong file type" as critical message "This does not appear to be a PDF file. Quitting."
 			quit
 		end if
-		set origFileSize to the size of the (info for filename)
 		
 		-- Get filter to apply
 		set options to " "
@@ -31,7 +31,7 @@ on open of finderObjects
 			set filter to (filter as string)
 			if (filter is "Watermark text") then
 				set watermark to true
-			else if (filter is "Higighting") then
+			else if (filter is "Highlighting") then
 				set highlight to true
 			else if (filter is "Text") then
 				set txt to true
@@ -53,105 +53,110 @@ on open of finderObjects
 		set outputFile to (do shell script "dirname " & quoted form of pfile) & "/" & fnameString & ".pdf"
 		set tmpdir to (do shell script "echo $TMPDIR")
 		
-		-- Handle watermarks first
 		if watermark then
 			set waterreply to (display dialog "Watermark removal can remove any instance of the text you enter, whether or not it appears as a proper watermark." with title "Warning" with icon caution default answer "Enter watermark text")
 			set watermarkText to the text returned of waterreply
 			if watermarkText ­ "" then
-				set newText to ""
-				-- Create string of spaces to replace watermark, so qpdf doesn't complain about file length
-				-- This won't always work
-				repeat until (length of newText) = (length of watermarkText)
-					set newText to newText & " "
-				end repeat
-				-- Clean up the search string a little for perl with a warning when there are spaces in it.
-				set watermarkText to (do shell script "echo " & watermarkText & "| perl -pe 's/([\\/\\.])/\\\\\\1/g'")
-				set l1 to length of watermarkText
-				set watermarkText to (do shell script "echo " & quoted form of watermarkText & " | sed 's/ /.*?/g'")
-				set l2 to length of watermarkText
-				if l1 ­ l2 then display alert "Spaces!" as warning message "There appear to be some spaces in your search text. This can introduce errors."
-				set wateroutputfile to tmpdir & dateString & "_uncompressed.pdf"
-				try
-					do shell script "/opt/homebrew/bin/qpdf --stream-data=uncompress " & quoted form of fname & " " & wateroutputfile
-				on error errMsg number errNum
-					beep
-					display alert "Uncompression Warning " & errNum as warning message errMsg
-					error number -128
-				end try
-				try
-					do shell script "perl -pe 's/(?<!\\/Title )\\(([^(]*?)" & watermarkText & "(.*?)\\)/" & "(\\1" & newText & "\\2)/' " & wateroutputfile & " > " & tmpdir & "nowatermark.pdf"
-				on error errMsg number errNum
-					beep
-					display alert "perl Warning " & errNum as warning message errMsg
-					error number -128
-				end try
-				if (options ­ " " or highlight) then
-					set wateroutputfile to tmpdir & dateString & "_compressed.pdf"
-					set fname to wateroutputfile
-				else
-					set wateroutputfile to (quoted form of outputFile)
-				end if
-				try
-					do shell script "/opt/homebrew/bin/qpdf --compress-streams=y " & tmpdir & "nowatermark.pdf " & wateroutputfile
-					set somethingDone to true
-				on error errMsg number errNum
-					beep
-					display alert "Compression Problem " & errNum as warning message errMsg
-					error number -128
-				end try
-			else if (options = " " and not highlight) then
-				beep
-				display alert "No changes" as informational message "No changes were specified for the file, so no new file was created."
-				error number -128
+				set inputname to my removeWatermark(inputname, watermarkText)
 			end if
 		end if
 		
-		-- Now remove highlighting, if requested
-		if highlight then
-			set inputFile to fname
-			if options ­ " " then
-				set highlightoutputfile to tmpdir & dateString & "_nohighlights.pdf"
-				set fname to highlightoutputfile
-			else
-				set highlightoutputfile to (quoted form of outputFile)
-				-- Running gs with no filters will do some compression or something
-				--set options to ""
-			end if
-			set hl to (do shell script "source /Users/" & home & "/.venv/bin/activate; python " & myDocs & "pdf_annotate.py -q -a Remove  -i " & (quoted form of inputFile) & " -o " & highlightoutputfile)
-			if character 1 of hl = "N" then --there were no annotations found, so the file wasn't changed
-				display alert "No annotations" as informational message "There weren't any annotations found, so none was removed." giving up after 30
-				set fname to inputFile
-			else
-				set somethingDone to true
-			end if
-		end if
+		if txt then set inputname to my removeTxt(inputname)
+		if highlight then set inputname to my removeHighlighting(inputname)
+		if options ­ " " then set inputname to my processFilters(inputname, options)
 		
-		
-		-- Now remove text, if requested. Using python script to avoid gs increasing file size.
-		if txt then
-			set inputFile to fname
-			if options ­ " " then
-				set txtoutputfile to tmpdir & dateString & "_notext.pdf"
-				set fname to txtoutputfile
-			else
-				set txtoutputfile to (quoted form of outputFile)
-				-- Running gs with no filters will do some compression or something
-				--set options to ""
-			end if
-			do shell script "source /Users/" & home & "/.venv/bin/activate; " & myDocs & "remove_PDF_text.py " & (quoted form of inputFile) & " " & txtoutputfile
-			set somethingDone to true
-		end if
-		
-		-- Now process filters, if any were requested
-		if options ­ " " then
-			do shell script "/opt/homebrew/bin/gs -o " & (quoted form of outputFile) & " -dSAFER -dBATCH -dNOPAUSE -sDEVICE=pdfwrite " & options & " " & (quoted form of fname)
-			set somethingDone to true
+		-- Notify of completion
+		if somethingDone then
+			do shell script "mv " & quoted form of inputname & space & quoted form of outputFile
+			display notification ("Your PDF has been filtered.") with title "Filtering done" sound name "beep"
+		else
+			display notification ("Nothing was done to your PDF.") with title "Done" sound name "beep"
 		end if
 	end repeat
-	
-	-- Notify of completion
-	if somethingDone then display notification ("Your PDF has been filtered.") with title "Filtering done" sound name "beep"
 end open
 
-use framework "Foundation"
-use framework "AppKit"
+-- Handle watermarks first
+on removeWatermark(inputfile, watermarkText)
+	-- Create string of spaces to replace watermark, so qpdf doesn't complain about file length
+	-- This won't always work
+	-- Ask first
+	set reply to (the button returned of (display dialog "Do you want to replace the text with blanks or just delete it?" buttons {"Cancel", "Delete", "Replace"} default button 3 cancel button 1))
+	if reply = "Replace" then
+		set newText to ""
+		set newChar to " "
+		repeat until (length of newText) = (length of watermarkText)
+			set newText to newText & newChar
+		end repeat
+	else
+		set newText to ""
+	end if
+	-- Clean up the search string a little for perl with a warning when there are spaces in it.
+	set watermarkText to (do shell script "echo " & quoted form of watermarkText & "| perl -pe 's/([\\/\\.])/\\\\\\1/g'")
+	set l1 to length of watermarkText
+	set watermarkText to (do shell script "echo " & quoted form of watermarkText & " | sed 's/ /.*?/g'")
+	set l2 to length of watermarkText
+	if l1 ­ l2 then display alert "Spaces!" as warning message "There appear to be some spaces in your search text. This can introduce errors."
+	set wateroutputfile to tmpdir & dateString & "_uncompressed.pdf"
+	try
+		do shell script "/opt/homebrew/bin/qpdf --stream-data=uncompress --decode-level=all " & quoted form of inputfile & " " & wateroutputfile
+	on error errMsg number errNum
+		beep
+		display alert "Uncompression Warning " & errNum as warning message errMsg
+		error number -128
+	end try
+	try
+		do shell script "perl -pe 's/(?<!\\/Title )\\(([^(]*?)" & watermarkText & "(.*?)\\)/" & "(\\1" & newText & "\\2)/' " & wateroutputfile & " > " & tmpdir & "nowatermark.pdf"
+	on error errMsg number errNum
+		beep
+		display alert "perl Warning " & errNum as warning message errMsg
+		error number -128
+	end try
+	try
+		do shell script "/opt/homebrew/bin/qpdf --compress-streams=y --decode-level=all " & tmpdir & "nowatermark.pdf " & wateroutputfile
+		set somethingDone to true
+	on error errMsg number errNum
+		try
+			do shell script "/opt/homebrew/bin/qpdf --compress-streams=n " & tmpdir & "nowatermark.pdf " & wateroutputfile
+			set somethingDone to true
+			display alert "No compression" message "qpdf had a problem compressing the file, so it was left uncompressed."
+		on error errMsg number errNum
+			beep
+			if errMsg contains "operation succeeded" then
+				set somethingDone to true
+				set errMsg to "Operation succeeded with some issues" & return & return & errMsg
+			end if
+			set errMsg to items 1 thru 300 of errMsg as string
+			display alert "Compression Problem " & errNum as warning message errMsg
+		end try
+	end try
+	return wateroutputfile
+end removeWatermark
+
+on removeTxt(inputfile) -- Now remove text, if requested. Using python script to avoid gs increasing file size.
+	set txtoutputfile to tmpdir & dateString & "_notext.pdf"
+	-- Running gs with no filters will do some compression or something
+	--set options to ""
+	do shell script "source /Users/" & home & "/.venv/bin/activate; " & myDocs & "remove_PDF_text.py " & (quoted form of inputfile) & " " & (quoted form of txtoutputfile)
+	set somethingDone to true
+	return txtoutputfile
+end removeTxt
+
+on removeHighlighting(inputfile)
+	-- Now remove highlighting, if requested
+	set highlightoutputfile to tmpdir & dateString & "_nohighlights.pdf"
+	-- Running gs with no filters will do some compression or something
+	--set options to ""
+	do shell script "/opt/homebrew/bin/gs -o " & (quoted form of highlightoutputfile) & " -dSAFER -dBATCH -dNOPAUSE -sDEVICE=pdfwrite -c \"/PreserveAnnotTypes [] def\" -c \"/ShowAnnotTypes [] def\" -f " & (quoted form of inputfile)
+	set somethingDone to true
+	return highlightoutputfile
+end removeHighlighting
+
+on processFilters(inputfile, options)
+	-- Now process filters, if any were requested
+	set filteredoutputfile to tmpdir & dateString & "_filtered.pdf"
+	if options ­ " " then
+		do shell script "/opt/homebrew/bin/gs -o " & (quoted form of filteredoutputfile) & " -dSAFER -dBATCH -dNOPAUSE -sDEVICE=pdfwrite " & options & " " & (quoted form of inputfile)
+		set somethingDone to true
+		return filteredoutputfile
+	end if
+end processFilters
