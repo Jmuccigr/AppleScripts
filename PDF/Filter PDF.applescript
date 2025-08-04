@@ -9,6 +9,7 @@ on open of finderObjects
 	set watermark to false
 	set highlight to false
 	set txt to false
+	set pageno to false
 	
 	repeat with filename in (finderObjects)
 		set somethingDone to false
@@ -23,7 +24,7 @@ on open of finderObjects
 		-- Get filter to apply
 		set options to " "
 		try
-			set reply to (items of (choose from list {"Watermark text", "Text", "Raster Images", "Vector Images", "Highlighting"} with prompt "What do you want to try to remove?" with title "Choose filter type" default items "Vector Images" with multiple selections allowed))
+			set reply to (items of (choose from list {"Watermark text", "Text", "Raster Images", "Vector Images", "Highlighting", "Page numbers"} with prompt "What do you want to try to remove?" with title "Choose filter type" default items "Vector Images" with multiple selections allowed))
 		on error num
 			error number -128
 		end try
@@ -35,6 +36,8 @@ on open of finderObjects
 				set highlight to true
 			else if (filter is "Text") then
 				set txt to true
+			else if (filter is "Page numbers") then
+				set pageno to true
 			else if filter = "Raster Images" then
 				set options to options & "-dFILTERIMAGE "
 			else if filter = "Vector Images" then
@@ -62,6 +65,7 @@ on open of finderObjects
 		end if
 		
 		if txt then set inputname to my removeTxt(inputname)
+		if pageno then set inputname to my removePageNo(inputname)
 		if highlight then set inputname to my removeHighlighting(inputname)
 		if options ­ " " then set inputname to my processFilters(inputname, options)
 		
@@ -140,6 +144,15 @@ on removeTxt(inputfile) -- Now remove text, if requested. Using python script to
 	set somethingDone to true
 	return txtoutputfile
 end removeTxt
+
+on removePageNo(inputfile) -- Now remove page numbers, if requested. Using qpdf.
+	set pnooutputfile to tmpdir & dateString & "_nopageno.pdf"
+	-- Running gs with no filters will do some compression or something
+	--set options to ""
+	do shell script "$( which qpdf ) " & (quoted form of inputfile) & " --remove-page-labels " & (quoted form of pnooutputfile) & " --"
+	set somethingDone to true
+	return pnooutputfile
+end removePageNo
 
 on removeHighlighting(inputfile)
 	-- Now remove highlighting, if requested
