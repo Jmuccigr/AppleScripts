@@ -140,7 +140,7 @@ on removeTxt(inputfile) -- Now remove text, if requested. Using python script to
 	set txtoutputfile to tmpdir & dateString & "_notext.pdf"
 	-- Running gs with no filters will do some compression or something
 	--set options to ""
-	do shell script "source /Users/" & home & "/.venv/bin/activate; " & myDocs & "remove_PDF_text.py " & (quoted form of inputfile) & " " & (quoted form of txtoutputfile)
+	do shell script myDocs & "remove_PDF_text.py " & (quoted form of inputfile) & " " & (quoted form of txtoutputfile)
 	set somethingDone to true
 	return txtoutputfile
 end removeTxt
