@@ -1,36 +1,42 @@
 -- Renumber PDF files using qpdf
 
-global tmpdir, dateString, home, myDocs
+global dateString, myDocs
 
 on open of finderObjects
-	set home to (do shell script "whoami")
 	set myDocs to POSIX path of (path to documents folder) & "github/local/scripts/"
 	set dateString to (do shell script " date +%Y-%m-%d_%H.%M.%S")
-	set pageno to false
+	set outputFile to ""
+	set flag to ""
+	
+	set replace to (button returned of (display dialog "Do you want to replace the original file or create a new one?" with title "Replace?" buttons {"Cancel", "New", "Replace?"} default button 3))
 	
 	repeat with filename in (finderObjects)
-		set cmd to ""
-		set filedone to false
-		set firstDone to false
-		set range to "0"
 		# Make sure the file is a PDF, based on file info
 		set pfile to the quoted form of the POSIX path of filename
 		set ftype to (do shell script "file -bI " & pfile)
 		if characters 1 thru 15 of ftype as string ­ "application/pdf" then
 			display alert "Wrong file type" as critical message "This does not appear to be a PDF file. Quitting."
 			exit repeat
+		else
+			set cmd to ""
+			set filedone to false
+			set firstDone to false
+			set range to "0"
 		end if
 		
 		-- Save new file in same dir as original with unique name
-		tell application "Finder"
-			set fn to name of file filename as string
-			set l to length of fn
-			set fnameString to dateString & "_" & characters 1 thru (l - 4) of fn
-			if length of fnameString > 251 then set fnameString to characters 1 thru 251 of fnameString
-		end tell
-		# Get info on the file to combine for path and name
-		set outputFile to the quoted form of ((do shell script "dirname " & pfile) & "/" & fnameString & ".pdf")
-		set tmpdir to (do shell script "echo $TMPDIR")
+		if replace = "New" then
+			tell application "Finder"
+				set fn to name of file filename as string
+				set l to length of fn
+				if length of fn > 231 then set fn to characters 1 thru 231 of fn
+				set fnameString to fn & "_" & dateString
+			end tell
+			# Get info on the file to combine for path and name
+			set outputFile to the quoted form of ((do shell script "dirname " & pfile) & "/" & fnameString & ".pdf")
+		else
+			set flag to " --replace-input "
+		end if
 		
 		repeat until filedone
 			try
@@ -82,14 +88,13 @@ on open of finderObjects
 		
 		-- Process and save file
 		try
-			--display dialog "$(which qpdf) " & pfile & " --set-page-labels " & cmd & " -- " & outputFile
-			do shell script "$(which qpdf) " & pfile & " --set-page-labels " & cmd & " -- " & outputFile
+			do shell script "$(which qpdf) " & flag & pfile & " --set-page-labels " & cmd & " -- " & outputFile
 			display notification ("Your PDF has been re-numbered.") with title "Page numbering done" sound name "beep"
 		on error errMsg number num
 			if errMsg contains " succeeded with warnings" then
-				display alert "Warning" message "qpdf had some issues with file " & fn & return & num & ":" & errMsg
+				display alert "Warning" message "qpdf had some issues with file " & pfile & return & num & ":" & errMsg
 			else
-				display alert "Error" message "Something went wrong with qpdf and file " & fn & return & num & ":" & errMsg
+				display alert "Error" message "Something went wrong with qpdf and file " & pfile & return & num & ":" & errMsg
 			end if
 		end try
 		
