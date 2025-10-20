@@ -1,8 +1,8 @@
--- Script to use jpegtran to crop a jpeg with no recompression using jpegtran
+-- Script to use jpegtran to crop a jpeg with no recompression
 -- Use GraphicConverter to select wanted area. jpegtran will crop as closely as possible
 -- Not a lot of error checking
 
-tell application "GraphicConverter 11"
+tell application "GraphicConverter 12"
 	-- Make sure we're working on a jpeg
 	try
 		set fname to (the file of window 1)
@@ -26,7 +26,7 @@ tell application "GraphicConverter 11"
 			set {imgW, imgH} to image dimension
 		on error
 			display alert "Problem" message "Is there anything selected?" giving up after 30
-		error number -128
+			error number -128
 		end try
 	end tell
 	-- Convert GC's coords to what jpegtran wants

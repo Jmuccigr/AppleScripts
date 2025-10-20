@@ -1,6 +1,6 @@
 -- A script to take the front document in the frontmost application and have pandoc process it.
 
-global appName, ottfile, dotmfile, pptxthemefile, outputFormats, output_format_list, outputExt, pandocSwitches, beamerConfig, htmlConfig, html5Config, revealConfig, pdfConfig, refFile, myName, filterText, obsidianPath
+global appName, ottfile, dotmfile, pptxthemefile, outputFormats, output_format_list, outputExt, pandocSwitches, beamerConfig, htmlConfig, html5Config, revealConfig, pdfConfig, refFile, filterText, obsidianPath
 
 on run
 	-- Set some variables for use later on
@@ -16,9 +16,8 @@ on run
 	-- Some needed paths
 	set myDocs to POSIX path of (path to documents folder)
 	set myGit to myDocs & "github/local/"
-	set myLib to POSIX path of (path to library folder from user domain)
-	set myName to (do shell script "whoami")
-	set obsidianPath to myLib & "Mobile Documents/iCloud~md~obsidian/Documents/"
+    set myHome to POSIX path of (path to home folder)
+    set obsidianPath to myLib & "Mobile Documents/iCloud~md~obsidian/Documents/"
 	
 	-- For pandoc
 	-- Use single-quoted form of POSIX path
@@ -294,7 +293,7 @@ on get_output()
 			-- Set template file for output where needed.
 			set refFile to my set_refFile(output_format_list)
 			-- Check for filters to run. Assumes filters have been copied into pandoc's default data directory
-			set filterChoices to paragraphs of (do shell script "ls /Users/" & myName & "/.local/share/pandoc/filters/")
+			set filterChoices to paragraphs of (do shell script "ls " & myHome & ".local/share/pandoc/filters/")
 			set filterCount to 0
 			if output_format_list is in {"html", "html5", "revealjs", "beamer"} then
 				set defAnswer to 2

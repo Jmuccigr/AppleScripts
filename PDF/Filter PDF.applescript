@@ -1,9 +1,8 @@
 -- Filter PDF files using ghostscript
 -- Esp. helpful for removing bad OCR text or watermarks
-global tmpdir, dateString, home, myDocs, somethingDone
+global tmpdir, dateString, myDocs, somethingDone
 
 on open of finderObjects
-	set home to (do shell script "whoami")
 	set myDocs to POSIX path of (path to documents folder) & "github/local/scripts/"
 	set dateString to (do shell script " date +%Y-%m-%d_%H.%M.%S")
 	set watermark to false
@@ -95,7 +94,7 @@ on removeWatermark(inputfile, watermarkText)
 		set newText to ""
 	end if
 	-- Clean up the search string a little for perl with a warning when there are spaces in it.
-	set watermarkText to (do shell script "echo " & quoted form of watermarkText & "| perl -pe 's/([\\/\\.])/\\\\\\1/g'")
+	set watermarkText to (do shell script "echo " & quoted form of watermarkText & "| perl -pe 's/([\\/\\.\\(\\)])/\\\\\\1/g'")
 	set l1 to length of watermarkText
 	set watermarkText to (do shell script "echo " & quoted form of watermarkText & " | sed 's/ /.*?/g'")
 	set l2 to length of watermarkText
