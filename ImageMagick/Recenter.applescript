@@ -21,7 +21,7 @@ on open of finderObjects
 			end if
 		end tell
 		set qual to (do shell script "/opt/homebrew/bin/identify -format \"%Q\" " & fname)
-		do shell script "orig_dim=($(/opt/homebrew/bin/magick " & fname & " -shave 10x10 -bordercolor white -border 10x10 -blur 0,8 -normalize -fuzz " & fuzz & "% -trim -format " & quote & "%W %H %X %Y %w" & quote & " info:)); w=${orig_dim[0]}; h=${orig_dim[1]}; x=${orig_dim[2]}; y=${orig_dim[3]}; new_w=${orig_dim[4]}; x_dis=$(( (w - new_w) / 2)); /opt/homebrew/bin/magick \\( -size " & quote & "$w" & quote & "x$h -background white xc: -write mpr:bgimage +delete \\) mpr:bgimage \\( " & fname & " -crop " & quote & "$w" & quote & "x$h+$x+$y  \\) -compose divide_dst -gravity northwest -geometry +$x_dis+$y -composite" & tiff & " -quality " & qual & " $TMPDIR/tempfile." & ext
+		do shell script "orig_dim=($(/opt/homebrew/bin/magick -define tiff:preserve-compression=true " & fname & " -shave 10x10 -bordercolor white -border 10x10 -blur 0,8 -normalize -fuzz " & fuzz & "% -trim -format " & quote & "%W %H %X %Y %w" & quote & " info:)); w=${orig_dim[0]}; h=${orig_dim[1]}; x=${orig_dim[2]}; y=${orig_dim[3]}; new_w=${orig_dim[4]}; x_dis=$(( (w - new_w) / 2)); /opt/homebrew/bin/magick -define tiff:preserve-compression=true \\( -size " & quote & "$w" & quote & "x$h -background white xc: -write mpr:bgimage +delete \\) mpr:bgimage \\( " & fname & " -crop " & quote & "$w" & quote & "x$h+$x+$y  \\) -compose divide_dst -gravity northwest -geometry +$x_dis+$y -composite" & tiff & " -quality " & qual & " $TMPDIR/tempfile." & ext
 		tell application "Finder"
 			delete file filename
 			do shell script "mv $TMPDIR/tempfile." & ext & " " & fname
