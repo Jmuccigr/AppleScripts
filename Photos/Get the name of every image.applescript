@@ -4,7 +4,9 @@ tell application "Photos"
 	activate
 	set imageList to {}
 	repeat with a in albums
-		my getAlbumImages(a, "/")
+		if the name of a does not end with "sm" then -- Need to skip what can be large smart albums
+			my getAlbumImages(a, "/")
+		end if
 	end repeat
 	repeat with fol in folders
 		my getFolderImages(fol, "")
@@ -18,13 +20,15 @@ on getFolderImages(f, folderPath)
 	global imageList
 	
 	using terms from application "Photos"
-		if (name of f does not contain "Smart albums") and (the name of f does not end with "sm") then -- Need to skip what can be large smart albums
+		if (name of f does not contain "Smart albums") then -- Need to skip what can be large smart albums
 			tell f
 				try
 					set folderPath to folderPath & "/Ä" & the name of f & "/"
 					display notification ("Working on folder " & folderPath) with title "Folder update" sound name "beep"
 					repeat with a in albums
-						my getAlbumImages(a, folderPath)
+						if the name of a does not end with "sm" then -- Need to skip what can be large smart albums
+							my getAlbumImages(a, folderPath)
+						end if
 					end repeat
 					repeat with fol in folders
 						my getImageNames(fol, folderPath)
