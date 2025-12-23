@@ -38,7 +38,7 @@ on open of finderObjects
 		set startPage to the text returned of pageReply as integer
 		
 		# Create a PDF with numbered pages for merging
-		do shell script (qpdfPath & " --replace-input " & pfile & " --set-page-labels 1://\"Cover\" 2:D/" & startPage & " --")
+		set theResult to (do shell script (qpdfPath & " --replace-input " & pfile & " --set-page-labels 1://\"Cover\" 2:D/" & startPage & " --"))
 	on error errMsg number errNum
 		if errMsg is not "User canceled." then display alert "Error!" message "Something went wrong: " & return & errMsg
 		error number -128
