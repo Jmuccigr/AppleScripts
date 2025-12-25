@@ -32,7 +32,6 @@ on open of finderObjects
 	end try
 	
 	try
-		
 		# Get starting-page number
 		set pageReply to (display dialog "Enter the starting page number:" with title "Start Page" with icon note default answer "1")
 		set startPage to the text returned of pageReply as integer
