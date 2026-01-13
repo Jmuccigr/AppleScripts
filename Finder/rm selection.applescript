@@ -4,6 +4,9 @@ end tell
 if activeApp is "Finder" then
 	tell application "Finder"
 		set tmpdir to (do shell script "echo $TMPDIR") & "delete_tonight/"
+		try
+			do shell script "mkdir " & tmpdir
+		end try
 		set tmpdir to (POSIX file tmpdir) as alias
 		move the selection to tmpdir with replacing
 	end tell
