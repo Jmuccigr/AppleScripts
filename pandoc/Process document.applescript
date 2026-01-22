@@ -1,6 +1,6 @@
 -- A script to take the front document in the frontmost application and have pandoc process it.
 
-global appName, ottfile, dotmfile, pptxthemefile, outputFormats, output_format_list, outputExt, pandocSwitches, beamerConfig, htmlConfig, html5Config, revealConfig, pdfConfig, refFile, filterText, obsidianPath
+global appName, ottfile, dotmfile, pptxthemefile, outputFormats, output_format_list, outputExt, pandocSwitches, beamerConfig, htmlConfig, html5Config, revealConfig, pdfConfig, refFile, filterText, obsidianPath, myHome, myLib, tmpfile
 
 on run
 	-- Set some variables for use later on
@@ -12,12 +12,15 @@ on run
 	set fname to ""
 	set fpath to ""
 	set outputfile to ""
+	set switchcontent to ""
 	
 	-- Some needed paths
 	set myDocs to POSIX path of (path to documents folder)
 	set myGit to myDocs & "github/local/"
-    set myHome to POSIX path of (path to home folder)
-    set obsidianPath to myLib & "Mobile Documents/iCloud~md~obsidian/Documents/"
+	set myHome to POSIX path of (path to home folder)
+	set myLib to POSIX path of (path to library folder)
+	set obsidianPath to myLib & "Mobile Documents/iCloud~md~obsidian/Documents/"
+	set tmpfile to "$TMPDIR/switches.txt"
 	
 	-- For pandoc
 	-- Use single-quoted form of POSIX path
@@ -38,11 +41,11 @@ on run
 	-- Variables specific to output types.
 	-- For reveal.js, use  "--variable revealjs-url=http://lab.hakim.se/reveal-js" if local reveal.js is lacking.
 	-- Removing ' -V width=\\" & quote & "& quote & "100%\\" ' while bug prevents correct thumbnails
-	set beamerConfig to "+smart --pdf-engine=xelatex -i --slide-level=2 --template=" & quoted form of (myGit & "pandoc-templates/my_beamer.latex") & " -V theme=Madrid -V colortheme=beetle -V fonttheme=structuresmallcapsserif"
+	set beamerConfig to "+smart --pdf-engine=xelatex -i --slide-level=2 --template=" & quoted form of (myGit & "pandoc-templates/my_beamer.latex")
 	set htmlConfig to "+smart --embed-resources --template=" & quoted form of (myGit & "pandoc-templates/default.html4")
 	set html5Config to "+smart --embed-resources --template=" & quoted form of (myGit & "pandoc-templates/default.html5")
 	set pdfConfig to "+smart --pdf-engine=xelatex --template=" & quoted form of (myGit & "pandoc-templates/default.latex")
-	set revealConfig to " -i --embed-resources --slide-level=2 -V center=false --css=" & myDocs & "reveal_themes/gray_lecture.css -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=" & quoted form of ("/opt/homebrew/lib/node_modules/reveal.js/")
+	set revealConfig to " -i --embed-resources --slide-level=2 --css=" & myDocs & "reveal_themes/gray_lecture.css "
 	
 	-- Standard variables
 	set pandocSwitches to " --from=markdown+wikilinks_title_after_pipe -s --columns 800 --citeproc --wrap=none --bibliography=" & bibfile
@@ -201,7 +204,8 @@ on run
 			--    Switch to directory where working file is so relative paths (e.g., for images) work
 			set shcmd to "export PATH=/opt/homebrew/bin/:/usr/local/sbin:/Library/TeX/texbin:$PATH; cd " & fpath & "; "
 			--	Now add the pandoc switches based on config at top and user input.
-			set shcmd to shcmd & "pandoc " & quoted form of fname & pandocUserSwitches
+			set shcmd to shcmd & "pandoc " & quoted form of fname & " --metadata-file=" & tmpfile & pandocUserSwitches
+			display dialog shcmd
 			-- Run the pandoc command & open the resulting file
 			try
 				do shell script shcmd & "-o " & outputfile
@@ -276,6 +280,7 @@ on get_output()
 			-- Display a dialog box with specified input and output formats, so you can cancel if you made any mistakes and specify more command-line options via a text field. You can change the default answer if you prefer a different one.
 			-- First create options for a given subset of output types.
 			if output_format_list is in {"html", "html5", "pdf", "revealjs", "beamer", "epub", "epub2", "epub3"} then
+				
 				if output_format_list is "html" then
 					set pandocSwitches to htmlConfig & " " & pandocSwitches
 				else if output_format_list is "html5" then
@@ -284,8 +289,10 @@ on get_output()
 					set pandocSwitches to pdfConfig & " " & pandocSwitches
 				else if output_format_list is "revealjs" then
 					set pandocSwitches to revealConfig & " " & pandocSwitches
+					set switchcontent to "-V center=false -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=" & quoted form of ("/opt/homebrew/lib/node_modules/reveal.js/")
 				else if output_format_list is "beamer" then
 					set pandocSwitches to beamerConfig & " " & pandocSwitches
+					set switchcontent to "---\ntheme: Madrid\ncolortheme: beetle\nfonttheme: structuresmallcapsserif\n"
 				else if output_format_list contains "epub" then
 					set pandocSwitches to " --toc " & pandocSwitches
 				end if
@@ -315,9 +322,15 @@ on get_output()
 			if output_format_list is "beamer" then
 				set noteReply to (display dialog "Do you want to display notes on the second screen?" buttons {"Cancel", "No", "Yes"} default button 2)
 				if button returned of noteReply = "Yes" then
-					set pandocSwitches to pandocSwitches & " -V beameroption='show notes on second screen'"
+					set switchcontent to switchcontent & "beameroption: 'show notes on second screen'\n"
 				end if
 			end if
+			# Write switches to file so that they can be overridden by document metadata
+			set switchcontent to switchcontent & "---\n"
+			display dialog switchcontent
+			
+			do shell script "echo " & quote & switchcontent & quote & " > " & tmpfile
+			display dialog "echo " & switchcontent & " > " & tmpfile
 			-- Allow manual settings
 			set optionsDialogResult to display dialog "Output format: " & output_format_list & return & return & "To add more command-line options, use the field below." & return & return & "Some reader options:" & return & "+smart --parse-raw --old-dashes --base-header-level=NUMBER --indented-code-classes=CLASSES --default-image-extension=EXTENSION --metadata=KEY[:VAL] --normalize --preserve-tabs --tab-stop=NUMBER --track-changes=accept|reject|all --extract-media=DIR" & return & return & "Some writer options:" & return & "+smart --data-dir=DIRECTORY --standalone  --embed-resources --no-wrap --columns=NUMBER --toc --toc-depth=NUMBER --no-highlight --highlight-style=STYLE" & return & return & "Some options affecting specific writers:" & return & "--ascii --reference-links --chapters --number-sections --number-offset=NUMBER[,NUMBER,...] --no-tex-ligatures --listings --incremental --slide-level=NUMBER --section-divs --email-obfuscation=none|javascript|references --id-prefix=STRING --css=URL --pdf-engine=pdflatex|lualatex|xelatex --pdf-engine-opt=STRING --bibliography=FILE" buttons {"Cancel", "OK"} default button "OK" cancel button "Cancel" default answer pandocSwitches with title "Pandoc: Specify other options"
 			if button returned of optionsDialogResult is "OK" then
