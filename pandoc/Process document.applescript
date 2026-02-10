@@ -205,7 +205,6 @@ on run
 			set shcmd to "export PATH=/opt/homebrew/bin/:/usr/local/sbin:/Library/TeX/texbin:$PATH; cd " & fpath & "; "
 			--	Now add the pandoc switches based on config at top and user input.
 			set shcmd to shcmd & "pandoc " & quoted form of fname & " --metadata-file=" & tmpfile & pandocUserSwitches
-			display dialog shcmd
 			-- Run the pandoc command & open the resulting file
 			try
 				do shell script shcmd & "-o " & outputfile
@@ -280,7 +279,6 @@ on get_output()
 			-- Display a dialog box with specified input and output formats, so you can cancel if you made any mistakes and specify more command-line options via a text field. You can change the default answer if you prefer a different one.
 			-- First create options for a given subset of output types.
 			if output_format_list is in {"html", "html5", "pdf", "revealjs", "beamer", "epub", "epub2", "epub3"} then
-				
 				if output_format_list is "html" then
 					set pandocSwitches to htmlConfig & " " & pandocSwitches
 				else if output_format_list is "html5" then
@@ -289,10 +287,10 @@ on get_output()
 					set pandocSwitches to pdfConfig & " " & pandocSwitches
 				else if output_format_list is "revealjs" then
 					set pandocSwitches to revealConfig & " " & pandocSwitches
-					set switchcontent to "-V center=false -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=" & quoted form of ("/opt/homebrew/lib/node_modules/reveal.js/")
+					set switchcontent to "metadata: -V center=false -V transition=fade -V transitionSpeed=slow -V width=\\" & quote & "100%\\" & quote & " -V height=\\" & quote & "100%\\" & quote & " -V margin=0 -V revealjs-url=" & quoted form of ("/opt/homebrew/lib/node_modules/reveal.js/")
 				else if output_format_list is "beamer" then
 					set pandocSwitches to beamerConfig & " " & pandocSwitches
-					set switchcontent to "---\ntheme: Madrid\ncolortheme: beetle\nfonttheme: structuresmallcapsserif\n"
+					set switchcontent to "theme: Madrid\ncolortheme: beetle\nfonttheme: structuresmallcapsserif\n"
 				else if output_format_list contains "epub" then
 					set pandocSwitches to " --toc " & pandocSwitches
 				end if
@@ -326,11 +324,10 @@ on get_output()
 				end if
 			end if
 			# Write switches to file so that they can be overridden by document metadata
-			set switchcontent to switchcontent & "---\n"
-			display dialog switchcontent
+			set switchcontent to "---\n" & switchcontent & return & "---\n"
+			
 			
 			do shell script "echo " & quote & switchcontent & quote & " > " & tmpfile
-			display dialog "echo " & switchcontent & " > " & tmpfile
 			-- Allow manual settings
 			set optionsDialogResult to display dialog "Output format: " & output_format_list & return & return & "To add more command-line options, use the field below." & return & return & "Some reader options:" & return & "+smart --parse-raw --old-dashes --base-header-level=NUMBER --indented-code-classes=CLASSES --default-image-extension=EXTENSION --metadata=KEY[:VAL] --normalize --preserve-tabs --tab-stop=NUMBER --track-changes=accept|reject|all --extract-media=DIR" & return & return & "Some writer options:" & return & "+smart --data-dir=DIRECTORY --standalone  --embed-resources --no-wrap --columns=NUMBER --toc --toc-depth=NUMBER --no-highlight --highlight-style=STYLE" & return & return & "Some options affecting specific writers:" & return & "--ascii --reference-links --chapters --number-sections --number-offset=NUMBER[,NUMBER,...] --no-tex-ligatures --listings --incremental --slide-level=NUMBER --section-divs --email-obfuscation=none|javascript|references --id-prefix=STRING --css=URL --pdf-engine=pdflatex|lualatex|xelatex --pdf-engine-opt=STRING --bibliography=FILE" buttons {"Cancel", "OK"} default button "OK" cancel button "Cancel" default answer pandocSwitches with title "Pandoc: Specify other options"
 			if button returned of optionsDialogResult is "OK" then
