@@ -12,7 +12,6 @@ on run
 	set fname to ""
 	set fpath to ""
 	set outputfile to ""
-	set switchcontent to ""
 	
 	-- Some needed paths
 	set myDocs to POSIX path of (path to documents folder)
@@ -204,7 +203,7 @@ on run
 			--    Switch to directory where working file is so relative paths (e.g., for images) work
 			set shcmd to "export PATH=/opt/homebrew/bin/:/usr/local/sbin:/Library/TeX/texbin:$PATH; cd " & fpath & "; "
 			--	Now add the pandoc switches based on config at top and user input.
-			set shcmd to shcmd & "pandoc " & quoted form of fname & " --metadata-file=" & tmpfile & pandocUserSwitches
+			set shcmd to shcmd & "pandoc " & quoted form of fname & pandocUserSwitches
 			-- Run the pandoc command & open the resulting file
 			try
 				do shell script shcmd & "-o " & outputfile
@@ -266,6 +265,7 @@ on get_output()
 	set options to ""
 	set otherOptions to ""
 	set refFile to ""
+	set switchcontent to ""
 	
 	try
 		tell me to activate
@@ -324,10 +324,12 @@ on get_output()
 				end if
 			end if
 			# Write switches to file so that they can be overridden by document metadata
-			set switchcontent to "---\n" & switchcontent & return & "---\n"
+			if switchcontent ­ "" then
+				set switchcontent to "---\n" & switchcontent & "\n---\n"
+				do shell script "echo " & quote & switchcontent & quote & " > " & tmpfile
+				set pandocSwitches to pandocSwitches & " --metadata-file=" & tmpfile
+			end if
 			
-			
-			do shell script "echo " & quote & switchcontent & quote & " > " & tmpfile
 			-- Allow manual settings
 			set optionsDialogResult to display dialog "Output format: " & output_format_list & return & return & "To add more command-line options, use the field below." & return & return & "Some reader options:" & return & "+smart --parse-raw --old-dashes --base-header-level=NUMBER --indented-code-classes=CLASSES --default-image-extension=EXTENSION --metadata=KEY[:VAL] --normalize --preserve-tabs --tab-stop=NUMBER --track-changes=accept|reject|all --extract-media=DIR" & return & return & "Some writer options:" & return & "+smart --data-dir=DIRECTORY --standalone  --embed-resources --no-wrap --columns=NUMBER --toc --toc-depth=NUMBER --no-highlight --highlight-style=STYLE" & return & return & "Some options affecting specific writers:" & return & "--ascii --reference-links --chapters --number-sections --number-offset=NUMBER[,NUMBER,...] --no-tex-ligatures --listings --incremental --slide-level=NUMBER --section-divs --email-obfuscation=none|javascript|references --id-prefix=STRING --css=URL --pdf-engine=pdflatex|lualatex|xelatex --pdf-engine-opt=STRING --bibliography=FILE" buttons {"Cancel", "OK"} default button "OK" cancel button "Cancel" default answer pandocSwitches with title "Pandoc: Specify other options"
 			if button returned of optionsDialogResult is "OK" then
