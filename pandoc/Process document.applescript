@@ -17,7 +17,7 @@ on run
 	set myDocs to POSIX path of (path to documents folder)
 	set myGit to myDocs & "github/local/"
 	set myHome to POSIX path of (path to home folder)
-	set myLib to POSIX path of (path to library folder)
+	set myLib to POSIX path of (path to library folder from user domain)
 	set obsidianPath to myLib & "Mobile Documents/iCloud~md~obsidian/Documents/"
 	set tmpfile to "$TMPDIR/switches.txt"
 	
